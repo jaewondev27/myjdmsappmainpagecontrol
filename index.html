@@ -138,6 +138,7 @@
             justify-content: center;
             transition: opacity 0.5s ease-out;
         }
+        #splash-screen { display: none !important; }
 
         .splash-content-wrapper {
             position: relative;
@@ -608,6 +609,11 @@
             font-size: 11px;
             font-weight: 600;
         }
+        .nav-item[data-page="jbs"] span:last-child {
+            transform: translateY(-1px);
+            line-height: 1.05;
+            margin-top: 0;
+        }
 
         .error-msg {
             text-align: center;
@@ -690,6 +696,16 @@
             mask-repeat: no-repeat;
             flex-shrink: 0;
             transform: translateY(-1px);
+        }
+        body.segment-mode .nav-item[data-page="jbs"] span:last-child {
+            transform: translateY(-1px);
+            line-height: 1.05;
+            margin-top: 0;
+        }
+        .bottom-nav .nav-item[data-page="jbs"] .jbs-icon {
+            width: 26px;
+            height: 26px;
+            transform: translateY(0);
         }
 
         .floating-tab-item span {
@@ -1388,6 +1404,55 @@
         #offline-toast.show {
             top: calc(env(safe-area-inset-top) + 20px);
         }
+
+        #offline-toast-icon-wrap {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: #fee2e2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #offline-toast-icon {
+            color: #f04452;
+            width: 20px;
+            height: 20px;
+        }
+        #offline-toast-text {
+            font-weight: 700;
+            font-size: 15px;
+            color: #191f28;
+        }
+        #offline-toast-close {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #offline-toast-close i {
+            color: #8b95a1;
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+        }
+        body.dark-mode #offline-toast {
+            background: #1e1e1e;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+            border: 1px solid #343434;
+        }
+        body.dark-mode #offline-toast-icon-wrap {
+            background: #3a2426;
+        }
+        body.dark-mode #offline-toast-text {
+            color: #f3f4f6;
+        }
+        body.dark-mode #offline-toast-close i {
+            color: #b4b8bf;
+        }
     </style>
 </head>
 <body>
@@ -1422,13 +1487,13 @@
 
     <div id="offline-toast">
         <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="width: 36px; height: 36px; border-radius: 10px; background: #fee2e2; display: flex; align-items: center; justify-content: center;">
-                <i data-lucide="wifi-off" style="color: #f04452; width: 20px; height: 20px;"></i>
+            <div id="offline-toast-icon-wrap">
+                <i id="offline-toast-icon" data-lucide="wifi-off"></i>
             </div>
-            <span style="font-weight: 700; font-size: 15px; color: #191f28;">인터넷 연결이 없습니다</span>
+            <span id="offline-toast-text">인터넷 연결이 없습니다</span>
         </div>
-        <div onclick="window.closeOfflineToast()" style="cursor: pointer; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; -webkit-tap-highlight-color: transparent;">
-            <i data-lucide="x" style="color: #8b95a1; width: 20px; height: 20px; pointer-events: none;"></i>
+        <div id="offline-toast-close" onclick="window.closeOfflineToast()">
+            <i data-lucide="x"></i>
         </div>
     </div>
 
@@ -1799,7 +1864,25 @@
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
             const THEME_MODE_KEY = 'theme_mode';
-            let themeMode = localStorage.getItem(THEME_MODE_KEY) || 'auto';
+            function getNativeThemeMode() {
+                try {
+                    if (typeof AndroidInterface !== 'undefined' && AndroidInterface.getThemeMode) {
+                        const m = AndroidInterface.getThemeMode();
+                        if (m === 'light' || m === 'dark' || m === 'auto') return m;
+                    }
+                } catch (e) {}
+                return '';
+            }
+            function saveNativeThemeMode(mode) {
+                try {
+                    if (typeof AndroidInterface !== 'undefined' && AndroidInterface.saveThemeMode) {
+                        AndroidInterface.saveThemeMode(mode);
+                    }
+                } catch (e) {}
+            }
+            const nativeThemeMode = getNativeThemeMode();
+            let themeMode = nativeThemeMode || localStorage.getItem(THEME_MODE_KEY) || 'auto';
+            localStorage.setItem(THEME_MODE_KEY, themeMode);
             const darkQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
             function updateThemeButtons() {
@@ -1837,6 +1920,7 @@
             window.setThemeMode = function(mode) {
                 themeMode = mode;
                 localStorage.setItem(THEME_MODE_KEY, mode);
+                saveNativeThemeMode(mode);
                 applyTheme(themeMode);
             };
 
@@ -1973,35 +2057,13 @@
 
             function runSplashSequence() {
                 const splashScreen = document.getElementById('splash-screen');
-                const splashLogo = document.getElementById('splash-logo-container');
-                const splashText = document.getElementById('splash-text');
-                const splashShimmer = document.getElementById('splash-shimmer');
-                function revealSplashText() {
-                    splashText.textContent = '중동중학교';
-                    splashText.classList.add('visible');
-                    splashText.classList.remove('reveal-sweep');
-                    void splashText.offsetWidth;
-                    splashText.classList.add('reveal-sweep');
+                if (splashScreen) splashScreen.classList.add('hidden');
+                if (!userData) {
+                    setupScreen.classList.remove('hidden');
+                } else {
+                    startApp();
+                    showPreloadedBanner();
                 }
-                setTimeout(() => {
-                    splashLogo.style.animation = 'splash-intro 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards';
-                    setTimeout(() => {
-                        splashLogo.style.animation = 'splash-shrink 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards';
-                        revealSplashText();
-                        setTimeout(() => {
-                            const shimmerCount = Math.floor(Math.random() * 3) + 1;
-                            splashShimmer.style.animation = `shimmer-sweep 1.2s cubic-bezier(0.4, 0, 0.2, 1) ${shimmerCount} forwards`;
-                            setTimeout(() => {
-                                splashScreen.style.opacity = '0';
-                                setTimeout(() => {
-                                    splashScreen.classList.add('hidden');
-                                    if (!userData) { setupScreen.classList.remove('hidden'); } 
-                                    else { startApp(); showPreloadedBanner(); }
-                                }, 500); 
-                            }, shimmerCount * 1200 + 200); 
-                        }, 600); 
-                    }, 800); 
-                }, 800); 
             }
             runSplashSequence();
 
