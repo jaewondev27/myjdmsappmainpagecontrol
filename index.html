@@ -15,7 +15,7 @@
             --text-sub: #4e5968;
             --text-mute: #8b95a1;
             --card-bg: #ffffff;
-            --nav-bg: rgba(255, 255, 255, 0.85);
+            --nav-bg: #ffffff;
             --border: #e5e8eb;
         }
 
@@ -25,7 +25,7 @@
             --text-sub: #c2c2c2;
             --text-mute: #9a9a9a;
             --card-bg: #1d1d1d;
-            --nav-bg: rgba(20, 20, 20, 0.9);
+            --nav-bg: #141414;
             --border: #303030;
             --primary-light: rgba(49, 130, 246, 0.18);
         }
@@ -67,14 +67,18 @@
             left: 0;
             right: 0;
             height: calc(env(safe-area-inset-top) + 20px);
-            background: linear-gradient(180deg, rgba(233, 243, 255, 0.92) 0%, rgba(242, 246, 252, 0.72) 55%, rgba(242, 244, 246, 0.2) 100%);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background:
+                radial-gradient(140% 90% at 50% -30%, rgba(242,244,246,1) 0%, rgba(242,244,246,0.72) 52%, rgba(242,244,246,0) 100%),
+                linear-gradient(180deg, rgba(242,244,246,0.9) 0%, rgba(242,244,246,0) 100%);
             z-index: 1000;
             pointer-events: none;
         }
 
-        body.dark-mode #top-status-bar-blur { background: linear-gradient(180deg, rgba(20,20,20,0.95) 0%, rgba(20,20,20,0.82) 55%, rgba(20,20,20,0.2) 100%); }
+        body.dark-mode #top-status-bar-blur {
+            background:
+                radial-gradient(140% 90% at 50% -30%, rgba(20,20,20,1) 0%, rgba(20,20,20,0.72) 52%, rgba(20,20,20,0) 100%),
+                linear-gradient(180deg, rgba(20,20,20,0.9) 0%, rgba(20,20,20,0) 100%);
+        }
         body.dark-mode #splash-screen,
         body.dark-mode #setup-screen,
         body.dark-mode .slide-panel,
@@ -536,8 +540,6 @@
             right: 0;
             height: auto;
             background: var(--nav-bg);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
             display: flex;
             justify-content: space-around;
             align-items: flex-start;
@@ -582,8 +584,6 @@
             align-items: center;
             justify-content: space-between;
             background: var(--nav-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
         }
 
         body.segment-mode .nav-item {
