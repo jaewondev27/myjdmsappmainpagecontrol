@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#f2f4f6">
+    <link rel="prefetch" href="https://jaewondev27.github.io/myjdmsappmainpagecontrol/inform">
+    <link rel="prefetch" href="https://jaewondev27.github.io/myjdmsappmainpagecontrol/theme">
+    <link rel="prefetch" href="https://jaewondev27.github.io/myjdmsappmainpagecontrol/mysetting">
     <title>My JDMS</title>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="lucide-inline.js"></script>
     <style>
         :root {
             --sat: env(safe-area-inset-top, 0px);
@@ -112,18 +115,33 @@
         body.dark-mode .nav-item:active { background-color: #2a2a2a !important; }
         body.dark-mode .floating-tab-item:active { background-color: rgba(255, 255, 255, 0.1) !important; }
         body.dark-mode .splash-text { color: #ffffff !important; }
-        body.dark-mode [data-lucide] { color: var(--text-main) !important; stroke: currentColor !important; }
+        body.dark-mode [data-lucide],
+        body.dark-mode svg.lucide-inline { color: var(--text-main) !important; stroke: currentColor !important; }
         body.dark-mode .menu-icon { color: var(--text-main) !important; }
         body.dark-mode .nav-item.active,
         body.dark-mode .floating-tab-item.active { color: var(--primary) !important; }
         body.dark-mode .nav-item.active [data-lucide],
+        body.dark-mode .nav-item.active svg.lucide-inline,
         body.dark-mode .floating-tab-item.active [data-lucide],
+        body.dark-mode .floating-tab-item.active svg.lucide-inline,
         body.dark-mode .nav-item.active span,
         body.dark-mode .floating-tab-item.active span { color: var(--primary) !important; }
         body.dark-mode.segment-mode .bottom-nav {
             background: #2b2b2b !important;
             border: 1px solid #6a6969 !important;
             box-shadow: 0 10px 26px rgba(0,0,0,0.42), inset 0 0 0 1px rgba(255,255,255,0.06);
+        }
+
+        body.segment-mode::after {
+            content: '';
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: calc(var(--sab) + 52px);
+            background: var(--bg);
+            z-index: 998;
+            pointer-events: none;
         }
 
         .hidden {
@@ -408,14 +426,26 @@
             transform: scale(0.995);
         }
 
-        /* Main Content */
+        /* Main Content — 배경이 시스템 내비·하단까지 이어지도록 */
+        #main-content {
+            background-color: var(--bg);
+        }
+
         .page-content {
             padding-bottom: calc(80px + var(--sab));
             position: relative;
+            background-color: var(--bg);
+            min-height: calc(100dvh - var(--sat) - 28px);
+            box-sizing: border-box;
         }
 
         .page {
             padding: 8px 12px;
+            background-color: var(--bg);
+        }
+
+        #page-more {
+            padding-bottom: calc(8px + var(--sab));
         }
 
         .home-header {
@@ -463,7 +493,8 @@
             justify-content: space-between;
         }
 
-        .card-title i {
+        .card-title i,
+        .card-title svg.lucide-inline {
             color: var(--primary);
         }
 
@@ -479,7 +510,8 @@
             gap: 8px;
         }
 
-        .page-header i {
+        .page-header i,
+        .page-header svg.lucide-inline {
             color: var(--primary);
         }
 
@@ -490,6 +522,23 @@
             box-shadow: 0 2px 16px rgba(0,0,0,0.04);
             transition: height 0.3s ease, min-height 0.3s ease;
             position: relative;
+        }
+
+        .iframe-container .timetable-iframe,
+        .iframe-container .offline-fallback {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+        }
+
+        .iframe-container .offline-fallback {
+            z-index: 2;
+        }
+
+        .iframe-container .timetable-iframe {
+            z-index: 1;
         }
 
         .ai-placeholder {
@@ -504,20 +553,32 @@
             color: #4e5968;
         }
 
-        .ai-placeholder i {
+        .ai-placeholder i,
+        .ai-placeholder svg.lucide-inline {
             width: 34px;
             height: 34px;
             color: var(--primary);
         }
 
-        #page-timetable .iframe-container {
-            height: calc(100vh - 150px);
-            min-height: 300px;
+        body.segment-mode .page-content {
+            padding-bottom: calc(84px + var(--sab));
         }
 
-        #page-lunch .iframe-container {
-            height: calc(100vh - 150px);
-            min-height: 300px;
+        #page-timetable:not(.hidden),
+        #page-lunch:not(.hidden) {
+            display: block;
+            min-height: 0;
+        }
+
+        #page-timetable:not(.hidden) .timetable-card,
+        #page-lunch:not(.hidden) .lunch-card {
+            display: block;
+        }
+
+        body.segment-mode #page-timetable .iframe-container,
+        body.segment-mode #page-lunch .iframe-container {
+            height: calc(100dvh - var(--sat) - 36px - 16px - 74px - var(--sab));
+            min-height: 280px;
         }
         
         #today-timetable-container {
@@ -580,6 +641,8 @@
             border-top: 1px solid transparent;
             box-shadow: 0 10px 26px rgba(0,0,0,0.14);
             height: 58px;
+            min-height: 58px;
+            max-height: 58px;
             padding-top: 5px;
             padding-bottom: 5px;
             align-items: center;
@@ -602,10 +665,12 @@
             color: var(--primary);
         }
 
-        .nav-item i {
+        .nav-item i,
+        .nav-item svg.lucide-inline {
             width: 24px;
             height: 24px;
             stroke-width: 2.5px;
+            flex-shrink: 0;
         }
 
         .nav-item span {
@@ -746,7 +811,7 @@
         }
 
         .menu-btn {
-            background-color: #e8ebed;
+            background-color: var(--card-bg);
             border-radius: 18px;
             padding: 18px 20px;
             display: flex;
@@ -765,7 +830,7 @@
 
         .menu-btn:active {
             transform: scale(0.95);
-            background-color: #dce0e3;
+            background-color: var(--border);
         }
 
         .menu-icon {
@@ -1374,7 +1439,8 @@
             text-align: center;
         }
 
-        .offline-fallback i {
+        .offline-fallback i,
+        .offline-fallback svg.lucide-inline {
             width: 36px;
             height: 36px;
             margin-bottom: 12px;
@@ -1772,6 +1838,12 @@
                 <button class="version-modal-close" onclick="window.closeVersionModal()">닫기</button>
             </div>
         </div>
+
+        <div id="myjdms-remote-preload" aria-hidden="true" style="position:fixed;left:-120px;top:0;width:2px;height:2px;opacity:0.02;pointer-events:none;overflow:hidden;z-index:-5;border:0;">
+            <iframe title="" loading="eager" src="https://jaewondev27.github.io/myjdmsappmainpagecontrol/inform"></iframe>
+            <iframe title="" loading="eager" src="https://jaewondev27.github.io/myjdmsappmainpagecontrol/theme"></iframe>
+            <iframe title="" loading="eager" src="https://jaewondev27.github.io/myjdmsappmainpagecontrol/mysetting"></iframe>
+        </div>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -1859,11 +1931,34 @@
                 } catch (e) {}
             }
 
+            const MYJDMS_THEME_BC = 'myjdms_theme_sync_v1';
+            let __myjdmsThemeBc = null;
+            try {
+                if (typeof BroadcastChannel !== 'undefined') {
+                    __myjdmsThemeBc = new BroadcastChannel(MYJDMS_THEME_BC);
+                    __myjdmsThemeBc.onmessage = function (ev) {
+                        const m = ev && ev.data && ev.data.mode;
+                        if (m !== 'light' && m !== 'dark' && m !== 'auto') return;
+                        if (m === themeMode) return;
+                        themeMode = m;
+                        try { localStorage.setItem(THEME_MODE_KEY, m); } catch (er) {}
+                        saveNativeThemeMode(themeMode);
+                        applyTheme(themeMode);
+                    };
+                }
+            } catch (e) {}
+            function __broadcastMyjdmsTheme(mode) {
+                try {
+                    if (__myjdmsThemeBc && mode) __myjdmsThemeBc.postMessage({ mode: mode });
+                } catch (e) {}
+            }
+
             window.setThemeMode = function(mode) {
                 themeMode = mode;
                 localStorage.setItem(THEME_MODE_KEY, mode);
                 saveNativeThemeMode(mode);
                 applyTheme(themeMode);
+                __broadcastMyjdmsTheme(mode);
             };
 
             applyTheme(themeMode);
@@ -2390,6 +2485,13 @@
             }
             window.addEventListener('storage', (e) => {
                 if (e.key === 'userData') syncUserDataFromSettingsPage();
+                if (e.key === THEME_MODE_KEY && e.newValue && (e.newValue === 'light' || e.newValue === 'dark' || e.newValue === 'auto')) {
+                    if (e.newValue !== themeMode) {
+                        themeMode = e.newValue;
+                        saveNativeThemeMode(themeMode);
+                        applyTheme(themeMode);
+                    }
+                }
             });
             window.addEventListener('message', (e) => {
                 if (e && e.data && e.data.type === 'myjdms-userData-updated') syncUserDataFromSettingsPage();

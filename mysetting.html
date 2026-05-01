@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#f2f4f6">
     <title>내 정보 설정 · My JDMS</title>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script>window.lucide = window.lucide || { createIcons: function () {} };</script>
+    <script src="lucide-inline.js"></script>
     <style>
         :root {
             --sat: env(safe-area-inset-top, 0px);
@@ -92,7 +91,8 @@
             background: #141414 !important;
             color: var(--text-main);
         }
-        body.dark-mode [data-lucide] {
+        body.dark-mode [data-lucide],
+        body.dark-mode svg.lucide-inline {
             color: var(--text-main) !important;
             stroke: currentColor !important;
         }
@@ -383,6 +383,7 @@
     </style>
 </head>
 <body>
+    <script>(function(){try{var p=document.createElement('div');p.setAttribute('aria-hidden','true');p.style.cssText='position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;visibility:hidden;overflow:hidden;z-index:0;padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0)';document.documentElement.appendChild(p);var cs=getComputedStyle(p);document.documentElement.style.setProperty('--sat',(parseFloat(cs.paddingTop)||0)+'px');document.documentElement.style.setProperty('--sar',(parseFloat(cs.paddingRight)||0)+'px');document.documentElement.style.setProperty('--sab',(parseFloat(cs.paddingBottom)||0)+'px');document.documentElement.style.setProperty('--sal',(parseFloat(cs.paddingLeft)||0)+'px');p.remove();}catch(e){}})();</script>
     <div id="top-status-bar-blur"></div>
 
     <div id="settings-panel" class="slide-panel open">
@@ -490,6 +491,22 @@
         function leavePage() { closeStandalonePage(); }
 
         const THEME_MODE_KEY = 'theme_mode';
+        const MYJDMS_THEME_BC = 'myjdms_theme_sync_v1';
+        let __myjdmsThemeBc = null;
+        try {
+            if (typeof BroadcastChannel !== 'undefined') {
+                __myjdmsThemeBc = new BroadcastChannel(MYJDMS_THEME_BC);
+                __myjdmsThemeBc.onmessage = function (ev) {
+                    const m = ev && ev.data && ev.data.mode;
+                    if (m !== 'light' && m !== 'dark' && m !== 'auto') return;
+                    if (m === themeMode) return;
+                    themeMode = m;
+                    try { localStorage.setItem(THEME_MODE_KEY, m); } catch (er) {}
+                    applyThemeFromStorage();
+                };
+            }
+        } catch (e) {}
+
         function getNativeThemeMode() {
             try {
                 if (typeof AndroidInterface !== 'undefined' && AndroidInterface.getThemeMode) {
