@@ -148,8 +148,8 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             display: flex;
             flex-direction: column;
             padding-top: var(--sat);
-            padding-left: var(--sal);
-            padding-right: var(--sar);
+            padding-left: 0;
+            padding-right: 0;
             padding-bottom: var(--sab);
         }
         body.dark-mode .slide-panel {
@@ -177,7 +177,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         #version-modal.show { display: flex; }
         .version-modal-content {
             background: white;
-            width: calc(100% - 48px);
+            width: min(360px, calc(100vw - 20px));
             max-width: 360px;
             max-height: 70vh;
             border-radius: 28px;
@@ -265,8 +265,8 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
     'use strict';
     function __jdmsApplySafeInsetCssVars() {
         try {
-            var CAP_TOP = 88;
-            var CAP_BOT = 128;
+            var CAP_TOP = 52;
+            var CAP_BOT = 72;
             var probe = document.createElement('div');
             probe.setAttribute('aria-hidden', 'true');
             probe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;visibility:hidden;overflow:hidden;z-index:0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0);padding-left:0;padding-right:0;';
@@ -286,14 +286,22 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             var top = 0;
             if (!isNaN(nativeT) && nativeT > 0.5) top = Math.max(top, nativeT);
             if (topEnv > 0.5) top = Math.max(top, topEnv);
+            top = Math.round(top * 0.88);
             top = Math.min(Math.max(0, top), CAP_TOP);
             var bottom = 0;
             if (!isNaN(nativeB) && nativeB > 0.5) bottom = Math.max(bottom, nativeB);
             if (bottomEnv > 0.5) bottom = Math.max(bottom, bottomEnv);
             var vv = window.visualViewport;
+            var vvIme = false;
             if (vv && vv.scale <= 1.02) {
                 var vvBot = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
-                if (vvBot > bottom + 24 && vvBot < 420) bottom = vvBot;
+                if (vvBot > bottom + 24 && vvBot < 420) {
+                    bottom = vvBot;
+                    vvIme = true;
+                }
+            }
+            if (!vvIme && !isNaN(nativeB) && nativeB > 34 && bottomEnv < 10) {
+                bottom = Math.min(bottom, 24);
             }
             bottom = Math.min(Math.max(0, bottom), CAP_BOT);
             var rs = document.documentElement.style;

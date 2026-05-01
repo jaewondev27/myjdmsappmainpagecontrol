@@ -79,8 +79,8 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
     'use strict';
     function __jdmsApplySafeInsetCssVars() {
         try {
-            var CAP_TOP = 88;
-            var CAP_BOT = 128;
+            var CAP_TOP = 52;
+            var CAP_BOT = 72;
             var probe = document.createElement('div');
             probe.setAttribute('aria-hidden', 'true');
             probe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;visibility:hidden;overflow:hidden;z-index:0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0);padding-left:0;padding-right:0;';
@@ -100,14 +100,22 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             var top = 0;
             if (!isNaN(nativeT) && nativeT > 0.5) top = Math.max(top, nativeT);
             if (topEnv > 0.5) top = Math.max(top, topEnv);
+            top = Math.round(top * 0.88);
             top = Math.min(Math.max(0, top), CAP_TOP);
             var bottom = 0;
             if (!isNaN(nativeB) && nativeB > 0.5) bottom = Math.max(bottom, nativeB);
             if (bottomEnv > 0.5) bottom = Math.max(bottom, bottomEnv);
             var vv = window.visualViewport;
+            var vvIme = false;
             if (vv && vv.scale <= 1.02) {
                 var vvBot = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
-                if (vvBot > bottom + 24 && vvBot < 420) bottom = vvBot;
+                if (vvBot > bottom + 24 && vvBot < 420) {
+                    bottom = vvBot;
+                    vvIme = true;
+                }
+            }
+            if (!vvIme && !isNaN(nativeB) && nativeB > 34 && bottomEnv < 10) {
+                bottom = Math.min(bottom, 24);
             }
             bottom = Math.min(Math.max(0, bottom), CAP_BOT);
             var rs = document.documentElement.style;
@@ -149,6 +157,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             --sar: 0px;
             --sab: env(safe-area-inset-bottom, 0px);
             --sal: 0px;
+            --sab-gap: min(var(--sab), 14px);
             --primary: #3182f6;
             --primary-light: #e8f3ff;
             --bg: #f2f4f6;
@@ -202,9 +211,9 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             user-select: none;
             overflow-x: hidden;
             padding-top: calc(var(--sat) + 20px);
-            padding-bottom: var(--sab);
-            padding-left: var(--sal);
-            padding-right: var(--sar);
+            padding-bottom: var(--sab-gap);
+            padding-left: 0;
+            padding-right: 0;
         }
 
         /* --- 상단 상태바 블러 영역 --- */
@@ -272,7 +281,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             left: 0;
             right: 0;
             bottom: 0;
-            height: calc(var(--sab) + 52px);
+            height: calc(52px + var(--sab-gap));
             background: var(--bg);
             z-index: 998;
             pointer-events: none;
@@ -390,7 +399,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: calc(var(--sat) + 36px) 24px calc(var(--sab) + 28px);
+            padding: calc(var(--sat) + 36px) 24px calc(28px + var(--sab-gap));
             background:
                 radial-gradient(circle at 12% 0%, rgba(49, 130, 246, 0.14), transparent 42%),
                 radial-gradient(circle at 88% 15%, rgba(80, 164, 255, 0.12), transparent 44%),
@@ -566,7 +575,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         }
 
         .page-content {
-            padding-bottom: calc(80px + var(--sab));
+            padding-bottom: calc(80px + var(--sab-gap));
             position: relative;
             background-color: var(--bg);
             min-height: calc(100dvh - var(--sat) - 28px);
@@ -579,7 +588,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         }
 
         #page-more {
-            padding-bottom: calc(8px + var(--sab));
+            padding-bottom: calc(8px + var(--sab-gap));
         }
 
         .home-header {
@@ -695,7 +704,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         }
 
         body.segment-mode .page-content {
-            padding-bottom: calc(84px + var(--sab));
+            padding-bottom: calc(84px + var(--sab-gap));
         }
 
         #page-timetable:not(.hidden),
@@ -711,7 +720,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
         body.segment-mode #page-timetable .iframe-container,
         body.segment-mode #page-lunch .iframe-container {
-            height: calc(100dvh - var(--sat) - 36px - 16px - 74px - var(--sab));
+            height: calc(100dvh - var(--sat) - 36px - 16px - 74px - var(--sab-gap));
             min-height: 280px;
         }
         
@@ -741,7 +750,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             align-items: flex-start;
             padding-top: 12px;
             border-top: 1px solid var(--border);
-            padding-bottom: calc(12px + var(--sab));
+            padding-bottom: calc(12px + var(--sab-gap));
             z-index: 1000;
             border-radius: 20px 20px 0 0;
             overflow: hidden;
@@ -770,7 +779,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         body.segment-mode .bottom-nav {
             left: 14px;
             right: 14px;
-            bottom: calc(var(--sab) + 8px);
+            bottom: calc(8px + var(--sab-gap));
             border-radius: 999px;
             border-top: 1px solid transparent;
             box-shadow: 0 10px 26px rgba(0,0,0,0.14);
@@ -842,7 +851,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             display: none;
             gap: 8px;
             z-index: 1001;
-            padding-bottom: var(--sab);
+            padding-bottom: var(--sab-gap);
         }
 
         .floating-tab-bar.visible {
@@ -851,7 +860,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             justify-content: space-around;
             align-items: flex-start;
             padding-top: 12px;
-            padding-bottom: calc(12px + var(--sab));
+            padding-bottom: calc(12px + var(--sab-gap));
         }
 
         .floating-tab-item {
@@ -1102,7 +1111,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             bottom: 0;
             background: #ffffff;
             border-radius: 24px 24px 0 0;
-            padding: 14px 18px calc(var(--sab) + 18px);
+            padding: 14px 18px calc(18px + var(--sab-gap));
             transform: translateY(100%);
             transition: transform 0.32s cubic-bezier(0.2, 0.85, 0.2, 1);
             max-height: 68vh;
@@ -1185,7 +1194,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         #back-exit-toast {
             position: fixed;
             left: 50%;
-            bottom: calc(96px + var(--sab));
+            bottom: calc(96px + var(--sab-gap));
             transform: translateX(-50%) translateY(16px);
             background: rgba(20, 20, 20, 0.92);
             color: #ffffff;
@@ -1399,7 +1408,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
         .version-modal-content {
             background: white;
-            width: calc(100% - 48px);
+            width: min(360px, calc(100vw - 20px));
             max-width: 360px;
             max-height: 70vh;
             border-radius: 28px;
@@ -1538,7 +1547,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             display: flex;
             border-top: 1px solid #e5e8eb;
             background: #ffffff;
-            padding-bottom: var(--sab); 
+            padding-bottom: var(--sab-gap); 
         }
 
         .banner-btn {
