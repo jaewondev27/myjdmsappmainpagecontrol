@@ -206,9 +206,57 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             transform: scale(0.98);
         }
     </style>
+    <script>
+(function () {
+    'use strict';
+    function __jdmsApplySafeInsetCssVars() {
+        try {
+            var probe = document.createElement('div');
+            probe.setAttribute('aria-hidden', 'true');
+            probe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;visibility:hidden;overflow:hidden;z-index:0;padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0)';
+            document.documentElement.appendChild(probe);
+            var cs = getComputedStyle(probe);
+            var top = parseFloat(cs.paddingTop) || 0;
+            var right = parseFloat(cs.paddingRight) || 0;
+            var bottom = parseFloat(cs.paddingBottom) || 0;
+            var left = parseFloat(cs.paddingLeft) || 0;
+            probe.remove();
+            var vv = window.visualViewport;
+            if (vv && vv.scale <= 1.02) {
+                var obscuredBottom = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+                bottom = Math.max(bottom, obscuredBottom);
+            }
+            if (top + right + bottom + left < 0.5 && vv && vv.scale <= 1.02) {
+                top = Math.max(top, Math.round(vv.offsetTop || 0));
+                left = Math.max(left, Math.round(vv.offsetLeft || 0));
+                var obR = Math.max(0, Math.round(window.innerWidth - vv.width - vv.offsetLeft));
+                right = Math.max(right, obR);
+            }
+            try {
+                if (typeof AndroidInterface !== 'undefined' && AndroidInterface.getInsetTopPx) {
+                    var nt = +AndroidInterface.getInsetTopPx();
+                    var nb = +AndroidInterface.getInsetBottomPx();
+                    var nl = +AndroidInterface.getInsetLeftPx();
+                    var nr = +AndroidInterface.getInsetRightPx();
+                    if (!isNaN(nt)) top = Math.max(top, nt);
+                    if (!isNaN(nb)) bottom = Math.max(bottom, nb);
+                    if (!isNaN(nl)) left = Math.max(left, nl);
+                    if (!isNaN(nr)) right = Math.max(right, nr);
+                }
+            } catch (e1) {}
+            var rs = document.documentElement.style;
+            rs.setProperty('--sat', top + 'px');
+            rs.setProperty('--sar', right + 'px');
+            rs.setProperty('--sab', bottom + 'px');
+            rs.setProperty('--sal', left + 'px');
+        } catch (e) {}
+    }
+    window.__jdmsApplySafeInsetCssVars = __jdmsApplySafeInsetCssVars;
+    __jdmsApplySafeInsetCssVars();
+})();
+    </script>
 </head>
 <body>
-    <script>(function(){try{var p=document.createElement('div');p.setAttribute('aria-hidden','true');p.style.cssText='position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;visibility:hidden;overflow:hidden;z-index:0;padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0)';document.documentElement.appendChild(p);var cs=getComputedStyle(p);document.documentElement.style.setProperty('--sat',(parseFloat(cs.paddingTop)||0)+'px');document.documentElement.style.setProperty('--sar',(parseFloat(cs.paddingRight)||0)+'px');document.documentElement.style.setProperty('--sab',(parseFloat(cs.paddingBottom)||0)+'px');document.documentElement.style.setProperty('--sal',(parseFloat(cs.paddingLeft)||0)+'px');p.remove();}catch(e){}})();</script>
     <div id="top-status-bar-blur"></div>
 
     <div id="theme-panel" class="slide-panel open">
@@ -233,26 +281,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
     <script>
         function refreshLayoutSafeArea() {
-            const probe = document.createElement('div');
-            probe.setAttribute('aria-hidden', 'true');
-            probe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;visibility:hidden;overflow:hidden;z-index:0;padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0);';
-            document.documentElement.appendChild(probe);
-            const cs = getComputedStyle(probe);
-            let top = parseFloat(cs.paddingTop) || 0;
-            let right = parseFloat(cs.paddingRight) || 0;
-            let bottom = parseFloat(cs.paddingBottom) || 0;
-            let left = parseFloat(cs.paddingLeft) || 0;
-            probe.remove();
-            const vv = window.visualViewport;
-            if (vv && vv.scale <= 1.02) {
-                const obscuredBottom = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
-                bottom = Math.max(bottom, obscuredBottom);
-            }
-            const rs = document.documentElement.style;
-            rs.setProperty('--sat', top + 'px');
-            rs.setProperty('--sar', right + 'px');
-            rs.setProperty('--sab', bottom + 'px');
-            rs.setProperty('--sal', left + 'px');
+            if (window.__jdmsApplySafeInsetCssVars) window.__jdmsApplySafeInsetCssVars();
         }
 
         function closeStandalonePage() {
