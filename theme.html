@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#f2f4f6">
+    <title>테마 설정 · My JDMS</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>window.lucide = window.lucide || { createIcons: function () {} };</script>
+    <style>
+        :root {
+            --sat: env(safe-area-inset-top, 0px);
+            --sar: env(safe-area-inset-right, 0px);
+            --sab: env(safe-area-inset-bottom, 0px);
+            --sal: env(safe-area-inset-left, 0px);
+            --primary: #3182f6;
+            --primary-light: #e8f3ff;
+            --bg: #f2f4f6;
+            --text-main: #191f28;
+            --text-sub: #4e5968;
+            --text-mute: #8b95a1;
+            --card-bg: #ffffff;
+            --border: #e5e8eb;
+        }
+        body.dark-mode {
+            --bg: #141414;
+            --text-main: #f3f3f3;
+            --text-sub: #c2c2c2;
+            --text-mute: #9a9a9a;
+            --card-bg: #1d1d1d;
+            --border: #303030;
+            --primary-light: rgba(49, 130, 246, 0.18);
+        }
+        ::-webkit-scrollbar { display: none !important; }
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
+        }
+        html {
+            background-color: var(--bg);
+            min-height: 100%;
+            min-height: -webkit-fill-available;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            min-height: 100dvh;
+            overscroll-behavior-y: none;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            overflow: hidden;
+        }
+        #top-status-bar-blur {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: calc(var(--sat) + 20px);
+            background: linear-gradient(180deg, rgba(233, 243, 255, 0.92) 0%, rgba(242, 246, 252, 0.72) 55%, rgba(242, 244, 246, 0.2) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1500;
+            pointer-events: none;
+        }
+        body.dark-mode #top-status-bar-blur {
+            background: linear-gradient(180deg, rgba(20,20,20,0.95) 0%, rgba(20,20,20,0.82) 55%, rgba(20,20,20,0.2) 100%);
+        }
+        .slide-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            min-height: 100dvh;
+            background: #ffffff;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            padding-top: var(--sat);
+            padding-left: var(--sal);
+            padding-right: var(--sar);
+            padding-bottom: var(--sab);
+        }
+        body.dark-mode .slide-panel {
+            background: #141414 !important;
+            color: var(--text-main);
+        }
+        body.dark-mode [data-lucide] {
+            color: var(--text-main) !important;
+            stroke: currentColor !important;
+        }
+        .theme-panel-wrap {
+            padding: 18px 20px calc(24px + var(--sab));
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+        }
+        .theme-mode-row {
+            margin-top: 8px;
+            margin-bottom: 14px;
+        }
+        .theme-mode-options {
+            display: flex;
+            gap: 8px;
+        }
+        .theme-mode-btn {
+            flex: 1;
+            height: 44px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text-sub);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.14s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+        .theme-mode-btn.active {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: rgba(49, 130, 246, 0.35);
+        }
+        body.dark-mode .theme-mode-btn {
+            background: #1d1d1d !important;
+            color: var(--text-main) !important;
+            border-color: #303030 !important;
+        }
+        body.dark-mode .theme-mode-btn.active {
+            background: #2b2b2b !important;
+            color: #5ea2ff !important;
+            border-color: rgba(94, 162, 255, 0.5) !important;
+        }
+        .theme-mode-btn:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+    <div id="top-status-bar-blur"></div>
+
+    <div id="theme-panel" class="slide-panel open">
+        <div style="display: flex; justify-content: space-between; padding: 16px 20px; align-items: center;">
+            <div onclick="leavePage()" style="cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; margin-left: -8px; -webkit-tap-highlight-color: transparent; z-index: 10;">
+                <i data-lucide="chevron-left" style="width: 28px; height: 28px; color: #191f28; pointer-events: none;"></i>
+            </div>
+            <div style="font-size: 18px; font-weight: 700; letter-spacing: -0.3px;">테마 설정</div>
+            <div style="width: 32px;"></div>
+        </div>
+        <div class="theme-panel-wrap">
+            <div class="theme-mode-row">
+                <label style="display:block; font-size:14px; font-weight:600; color:var(--text-sub); margin-bottom:8px; margin-left:4px;">테마 모드</label>
+                <div class="theme-mode-options">
+                    <button type="button" id="theme-light-btn" class="theme-mode-btn" onclick="setThemeMode('light')">라이트</button>
+                    <button type="button" id="theme-dark-btn" class="theme-mode-btn" onclick="setThemeMode('dark')">다크</button>
+                    <button type="button" id="theme-auto-btn" class="theme-mode-btn" onclick="setThemeMode('auto')">자동</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function refreshLayoutSafeArea() {
+            const probe = document.createElement('div');
+            probe.setAttribute('aria-hidden', 'true');
+            probe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;visibility:hidden;overflow:hidden;z-index:0;padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0);';
+            document.documentElement.appendChild(probe);
+            const cs = getComputedStyle(probe);
+            let top = parseFloat(cs.paddingTop) || 0;
+            let right = parseFloat(cs.paddingRight) || 0;
+            let bottom = parseFloat(cs.paddingBottom) || 0;
+            let left = parseFloat(cs.paddingLeft) || 0;
+            probe.remove();
+            const vv = window.visualViewport;
+            if (vv && vv.scale <= 1.02) {
+                const obscuredBottom = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+                bottom = Math.max(bottom, obscuredBottom);
+            }
+            const rs = document.documentElement.style;
+            rs.setProperty('--sat', top + 'px');
+            rs.setProperty('--sar', right + 'px');
+            rs.setProperty('--sab', bottom + 'px');
+            rs.setProperty('--sal', left + 'px');
+        }
+
+        function closeStandalonePage() {
+            try {
+                if (typeof AndroidInterface !== 'undefined') {
+                    if (typeof AndroidInterface.finish === 'function') { AndroidInterface.finish(); return; }
+                    if (typeof AndroidInterface.closeApp === 'function') { AndroidInterface.closeApp(); return; }
+                    if (typeof AndroidInterface.exitApp === 'function') { AndroidInterface.exitApp(); return; }
+                }
+            } catch (e) {}
+            try { window.close(); } catch (e) {}
+            try {
+                if (window.opener && !window.opener.closed) { window.opener.focus(); }
+            } catch (e) {}
+            setTimeout(function () {
+                if (window.closed) return;
+                if (history.length > 1) { history.back(); return; }
+                try { window.close(); } catch (e2) {}
+            }, 80);
+        }
+        function leavePage() { closeStandalonePage(); }
+
+        const THEME_MODE_KEY = 'theme_mode';
+
+        function getNativeThemeMode() {
+            try {
+                if (typeof AndroidInterface !== 'undefined' && AndroidInterface.getThemeMode) {
+                    const m = AndroidInterface.getThemeMode();
+                    if (m === 'light' || m === 'dark' || m === 'auto') return m;
+                }
+            } catch (e) {}
+            return '';
+        }
+        function saveNativeThemeMode(mode) {
+            try {
+                if (typeof AndroidInterface !== 'undefined' && AndroidInterface.saveThemeMode) {
+                    AndroidInterface.saveThemeMode(mode);
+                }
+            } catch (e) {}
+        }
+        const darkQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+        let themeMode = getNativeThemeMode() || localStorage.getItem(THEME_MODE_KEY) || 'auto';
+        localStorage.setItem(THEME_MODE_KEY, themeMode);
+
+        function updateThemeButtons() {
+            const lightBtn = document.getElementById('theme-light-btn');
+            const darkBtn = document.getElementById('theme-dark-btn');
+            const autoBtn = document.getElementById('theme-auto-btn');
+            if (!lightBtn || !darkBtn || !autoBtn) return;
+            lightBtn.classList.toggle('active', themeMode === 'light');
+            darkBtn.classList.toggle('active', themeMode === 'dark');
+            autoBtn.classList.toggle('active', themeMode === 'auto');
+        }
+        function applyTheme(mode) {
+            const shouldDark = mode === 'dark' || (mode === 'auto' && darkQuery && darkQuery.matches);
+            document.body.classList.toggle('dark-mode', !!shouldDark);
+            const metaTheme = document.querySelector('meta[name="theme-color"]');
+            const color = shouldDark ? '#141414' : '#f2f4f6';
+            if (metaTheme) metaTheme.setAttribute('content', color);
+            try {
+                if (typeof AndroidInterface !== 'undefined') {
+                    const useDarkIcons = !shouldDark;
+                    if (AndroidInterface.setStatusBarDarkIcons) AndroidInterface.setStatusBarDarkIcons(useDarkIcons);
+                    if (AndroidInterface.setStatusBarStyle) AndroidInterface.setStatusBarStyle(useDarkIcons ? 'dark' : 'light');
+                }
+            } catch (e) {}
+            updateThemeButtons();
+        }
+        function setThemeMode(mode) {
+            themeMode = mode;
+            localStorage.setItem(THEME_MODE_KEY, mode);
+            saveNativeThemeMode(mode);
+            applyTheme(themeMode);
+        }
+        window.setThemeMode = setThemeMode;
+
+        applyTheme(themeMode);
+        if (darkQuery && darkQuery.addEventListener) {
+            darkQuery.addEventListener('change', () => { if (themeMode === 'auto') applyTheme('auto'); });
+        }
+        window.addEventListener('storage', (e) => {
+            if (e.key === THEME_MODE_KEY && e.newValue) {
+                themeMode = e.newValue;
+                applyTheme(themeMode);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            refreshLayoutSafeArea();
+            window.addEventListener('resize', refreshLayoutSafeArea);
+            window.addEventListener('orientationchange', () => setTimeout(refreshLayoutSafeArea, 150));
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', refreshLayoutSafeArea);
+                window.visualViewport.addEventListener('scroll', refreshLayoutSafeArea);
+            }
+            if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+        });
+    </script>
+</body>
+</html>

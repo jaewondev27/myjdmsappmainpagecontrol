@@ -2,12 +2,16 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#f2f4f6">
     <title>My JDMS</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
+            --sat: env(safe-area-inset-top, 0px);
+            --sar: env(safe-area-inset-right, 0px);
+            --sab: env(safe-area-inset-bottom, 0px);
+            --sal: env(safe-area-inset-left, 0px);
             --primary: #3182f6;
             --primary-light: #e8f3ff;
             --bg: #f2f4f6;
@@ -15,7 +19,7 @@
             --text-sub: #4e5968;
             --text-mute: #8b95a1;
             --card-bg: #ffffff;
-            --nav-bg: #ffffff;
+            --nav-bg: rgba(255, 255, 255, 0.85);
             --border: #e5e8eb;
         }
 
@@ -25,7 +29,7 @@
             --text-sub: #c2c2c2;
             --text-mute: #9a9a9a;
             --card-bg: #1d1d1d;
-            --nav-bg: #141414;
+            --nav-bg: rgba(20, 20, 20, 0.9);
             --border: #303030;
             --primary-light: rgba(49, 130, 246, 0.18);
         }
@@ -46,6 +50,12 @@
             overscroll-behavior-y: none;
         }
 
+        html {
+            background-color: var(--bg);
+            min-height: 100%;
+            min-height: -webkit-fill-available;
+        }
+
         body {
             margin: 0;
             padding: 0;
@@ -54,10 +64,10 @@
             color: var(--text-main);
             user-select: none;
             overflow-x: hidden;
-            padding-top: calc(env(safe-area-inset-top) + 20px);
-            padding-bottom: env(safe-area-inset-bottom);
-            padding-left: env(safe-area-inset-left);
-            padding-right: env(safe-area-inset-right);
+            padding-top: calc(var(--sat) + 20px);
+            padding-bottom: var(--sab);
+            padding-left: var(--sal);
+            padding-right: var(--sar);
         }
 
         /* --- 상단 상태바 블러 영역 --- */
@@ -66,22 +76,17 @@
             top: 0;
             left: 0;
             right: 0;
-            height: calc(env(safe-area-inset-top) + 20px);
-            background:
-                radial-gradient(140% 90% at 50% -30%, rgba(242,244,246,1) 0%, rgba(242,244,246,0.72) 52%, rgba(242,244,246,0) 100%),
-                linear-gradient(180deg, rgba(242,244,246,0.9) 0%, rgba(242,244,246,0) 100%);
+            height: calc(var(--sat) + 20px);
+            background: linear-gradient(180deg, rgba(233, 243, 255, 0.92) 0%, rgba(242, 246, 252, 0.72) 55%, rgba(242, 244, 246, 0.2) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             z-index: 1000;
             pointer-events: none;
         }
 
-        body.dark-mode #top-status-bar-blur {
-            background:
-                radial-gradient(140% 90% at 50% -30%, rgba(20,20,20,1) 0%, rgba(20,20,20,0.72) 52%, rgba(20,20,20,0) 100%),
-                linear-gradient(180deg, rgba(20,20,20,0.9) 0%, rgba(20,20,20,0) 100%);
-        }
+        body.dark-mode #top-status-bar-blur { background: linear-gradient(180deg, rgba(20,20,20,0.95) 0%, rgba(20,20,20,0.82) 55%, rgba(20,20,20,0.2) 100%); }
         body.dark-mode #splash-screen,
         body.dark-mode #setup-screen,
-        body.dark-mode .slide-panel,
         body.dark-mode .picker-panel,
         body.dark-mode .version-modal-content,
         body.dark-mode .custom-error-card { background: #141414 !important; color: var(--text-main); }
@@ -100,16 +105,10 @@
         body.dark-mode #custom-error-modal,
         body.dark-mode #ai-coming-modal { background: rgba(0,0,0,0.62) !important; }
         body.dark-mode .error-message,
-        body.dark-mode #app-info-version,
-        body.dark-mode #app-info-status,
         body.dark-mode .profile-desc,
         body.dark-mode .today-date { color: var(--text-mute) !important; }
-        body.dark-mode #app-info-panel i,
-        body.dark-mode #settings-panel i,
-        body.dark-mode #theme-panel i { color: var(--text-main) !important; }
         body.dark-mode .offline-fallback { background: #1d1d1d; color: var(--text-sub); }
         body.dark-mode .setup-note { background: #1f1f1f; color: #d7d7d7; }
-        body.dark-mode #app-info-panel > div:last-child button { background: #1d1d1d !important; color: var(--text-main) !important; border: 1px solid #303030 !important; }
         body.dark-mode .nav-item:active { background-color: #2a2a2a !important; }
         body.dark-mode .floating-tab-item:active { background-color: rgba(255, 255, 255, 0.1) !important; }
         body.dark-mode .splash-text { color: #ffffff !important; }
@@ -239,7 +238,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: calc(env(safe-area-inset-top) + 36px) 24px calc(env(safe-area-inset-bottom) + 28px);
+            padding: calc(var(--sat) + 36px) 24px calc(var(--sab) + 28px);
             background:
                 radial-gradient(circle at 12% 0%, rgba(49, 130, 246, 0.14), transparent 42%),
                 radial-gradient(circle at 88% 15%, rgba(80, 164, 255, 0.12), transparent 44%),
@@ -411,7 +410,7 @@
 
         /* Main Content */
         .page-content {
-            padding-bottom: calc(80px + env(safe-area-inset-bottom));
+            padding-bottom: calc(80px + var(--sab));
             position: relative;
         }
 
@@ -540,12 +539,14 @@
             right: 0;
             height: auto;
             background: var(--nav-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             display: flex;
             justify-content: space-around;
             align-items: flex-start;
             padding-top: 12px;
             border-top: 1px solid var(--border);
-            padding-bottom: calc(12px + env(safe-area-inset-bottom));
+            padding-bottom: calc(12px + var(--sab));
             z-index: 1000;
             border-radius: 20px 20px 0 0;
             overflow: hidden;
@@ -574,7 +575,7 @@
         body.segment-mode .bottom-nav {
             left: 14px;
             right: 14px;
-            bottom: calc(env(safe-area-inset-bottom) + 8px);
+            bottom: calc(var(--sab) + 8px);
             border-radius: 999px;
             border-top: 1px solid transparent;
             box-shadow: 0 10px 26px rgba(0,0,0,0.14);
@@ -584,6 +585,8 @@
             align-items: center;
             justify-content: space-between;
             background: var(--nav-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
         }
 
         body.segment-mode .nav-item {
@@ -640,7 +643,7 @@
             display: none;
             gap: 8px;
             z-index: 1001;
-            padding-bottom: env(safe-area-inset-bottom);
+            padding-bottom: var(--sab);
         }
 
         .floating-tab-bar.visible {
@@ -649,7 +652,7 @@
             justify-content: space-around;
             align-items: flex-start;
             padding-top: 12px;
-            padding-bottom: calc(12px + env(safe-area-inset-bottom));
+            padding-bottom: calc(12px + var(--sab));
         }
 
         .floating-tab-item {
@@ -781,7 +784,7 @@
             transition: right 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             display: flex;
             flex-direction: column;
-            padding-top: env(safe-area-inset-top);
+            padding-top: var(--sat);
         }
 
         .slide-panel.open {
@@ -900,7 +903,7 @@
             bottom: 0;
             background: #ffffff;
             border-radius: 24px 24px 0 0;
-            padding: 14px 18px calc(env(safe-area-inset-bottom) + 18px);
+            padding: 14px 18px calc(var(--sab) + 18px);
             transform: translateY(100%);
             transition: transform 0.32s cubic-bezier(0.2, 0.85, 0.2, 1);
             max-height: 68vh;
@@ -983,7 +986,7 @@
         #back-exit-toast {
             position: fixed;
             left: 50%;
-            bottom: calc(96px + env(safe-area-inset-bottom));
+            bottom: calc(96px + var(--sab));
             transform: translateX(-50%) translateY(16px);
             background: rgba(20, 20, 20, 0.92);
             color: #ffffff;
@@ -1336,7 +1339,7 @@
             display: flex;
             border-top: 1px solid #e5e8eb;
             background: #ffffff;
-            padding-bottom: env(safe-area-inset-bottom, 0px); 
+            padding-bottom: var(--sab); 
         }
 
         .banner-btn {
@@ -1402,7 +1405,7 @@
         }
 
         #offline-toast.show {
-            top: calc(env(safe-area-inset-top) + 20px);
+            top: calc(var(--sat) + 20px);
         }
 
         #offline-toast-icon-wrap {
@@ -1722,96 +1725,6 @@
             </div>
         </div>
 
-        <div id="app-info-panel" class="slide-panel">
-            <div style="display: flex; justify-content: space-between; padding: 16px 20px; align-items: center;">
-                <div onclick="window.closeAppInfo()" style="cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; margin-left: -8px; -webkit-tap-highlight-color: transparent; z-index: 10;">
-                    <i data-lucide="chevron-left" style="width: 28px; height: 28px; color: #191f28; pointer-events: none;"></i>
-                </div>
-                <i data-lucide="info" style="width: 24px; height: 24px; color: #191f28;"></i>
-            </div>
-            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: -160px;">
-                <h1 id="app-info-title" style="font-size: 32px; font-weight: 700; margin: 0 0 12px 0; letter-spacing: -0.5px; cursor: pointer; -webkit-tap-highlight-color: transparent;">My JDMS</h1>
-                <p id="app-info-version" style="font-size: 15px; color: #8b95a1; margin: 0 0 4px 0;">버전 2.0.0.1</p>
-                <p style="font-size: 15px; color: #8b95a1; margin: 0 0 12px 0;">made by 신재원</p>
-                <p id="app-info-status" style="font-size: 15px; color: #8b95a1; margin: 0 0 16px 0;">최신 버전입니다.</p>
-                <div id="app-info-loading" style="display: none; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 16px;">
-                    <div style="width: 24px; height: 24px; position: relative;">
-                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 3px solid #e5e8eb; border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
-                    </div>
-                    <span style="font-size: 13px; color: var(--text-mute);">업데이트 확인 중...</span>
-                </div>
-                <button id="update-check-btn" onclick="window.checkForUpdates()" style="width: 100%; max-width: 200px; padding: 12px; border-radius: 24px; background: var(--primary); color: #ffffff; font-size: 14px; font-weight: 600; border: none; cursor: pointer; -webkit-tap-highlight-color: transparent; display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 16px;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/><polyline points="21 3 21 9 15 9"/></svg>
-                    업데이트 확인
-                </button>
-            </div>
-            <div style="padding: 24px 24px 60px 24px;">
-                <button style="width: 100%; padding: 18px; border-radius: 24px; background: #f2f4f6; color: #191f28; font-size: 16px; font-weight: 600; border: none; cursor: pointer; -webkit-tap-highlight-color: transparent;">오픈소스 라이선스</button>
-            </div>
-        </div>
-
-        <div id="settings-panel" class="slide-panel">
-            <div style="display: flex; justify-content: space-between; padding: 16px 20px; align-items: center;">
-                <div onclick="window.closeSettingsPanel()" style="cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; margin-left: -8px; -webkit-tap-highlight-color: transparent; z-index: 10;">
-                    <i data-lucide="chevron-left" style="width: 28px; height: 28px; color: #191f28; pointer-events: none;"></i>
-                </div>
-                <div style="font-size: 18px; font-weight: 700; letter-spacing: -0.3px;">내 정보 설정</div>
-                <div style="width: 32px;"></div>
-            </div>
-            <div class="settings-form-wrap">
-                <div class="input-group">
-                    <label>이름</label>
-                    <input type="text" id="settings-name" placeholder="예: 홍길동">
-                </div>
-                <div class="input-group">
-                    <label>학년</label>
-                    <button type="button" id="settings-grade-trigger" class="select-trigger placeholder" onclick="window.openPicker('settings','grade')">
-                        <span id="settings-grade-display">학년 선택</span>
-                        <i data-lucide="chevrons-up-down" style="width:18px; height:18px; color:#94a3b8;"></i>
-                    </button>
-                    <input type="hidden" id="settings-grade">
-                </div>
-                <div class="input-group">
-                    <label>반</label>
-                    <button type="button" id="settings-class-trigger" class="select-trigger placeholder" onclick="window.openPicker('settings','class')">
-                        <span id="settings-class-display">반 선택</span>
-                        <i data-lucide="chevrons-up-down" style="width:18px; height:18px; color:#94a3b8;"></i>
-                    </button>
-                    <input type="hidden" id="settings-class">
-                </div>
-                <div class="input-group">
-                    <label>번호</label>
-                    <button type="button" id="settings-number-trigger" class="select-trigger placeholder" onclick="window.openPicker('settings','number')">
-                        <span id="settings-number-display">번호 선택</span>
-                        <i data-lucide="chevrons-up-down" style="width:18px; height:18px; color:#94a3b8;"></i>
-                    </button>
-                    <input type="hidden" id="settings-number">
-                </div>
-                <button class="settings-save-btn" onclick="window.saveSettings()">저장하기</button>
-                <button class="settings-reset-btn" onclick="window.resetAppSettings()">설정 초기화</button>
-            </div>
-        </div>
-
-        <div id="theme-panel" class="slide-panel">
-            <div style="display: flex; justify-content: space-between; padding: 16px 20px; align-items: center;">
-                <div onclick="window.closeThemePanel()" style="cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; margin-left: -8px; -webkit-tap-highlight-color: transparent; z-index: 10;">
-                    <i data-lucide="chevron-left" style="width: 28px; height: 28px; color: #191f28; pointer-events: none;"></i>
-                </div>
-                <div style="font-size: 18px; font-weight: 700; letter-spacing: -0.3px;">테마 설정</div>
-                <div style="width: 32px;"></div>
-            </div>
-            <div class="theme-panel-wrap">
-                <div class="theme-mode-row">
-                    <label style="display:block; font-size:14px; font-weight:600; color:var(--text-sub); margin-bottom:8px; margin-left:4px;">테마 모드</label>
-                    <div class="theme-mode-options">
-                        <button type="button" id="theme-light-btn" class="theme-mode-btn" onclick="window.setThemeMode('light')">라이트</button>
-                        <button type="button" id="theme-dark-btn" class="theme-mode-btn" onclick="window.setThemeMode('dark')">다크</button>
-                        <button type="button" id="theme-auto-btn" class="theme-mode-btn" onclick="window.setThemeMode('auto')">자동</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div id="picker-sheet">
             <div class="picker-backdrop" onclick="window.closePicker()"></div>
             <div class="picker-panel">
@@ -1862,6 +1775,35 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            function refreshLayoutSafeArea() {
+                const probe = document.createElement('div');
+                probe.setAttribute('aria-hidden', 'true');
+                probe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;visibility:hidden;overflow:hidden;z-index:0;padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0);';
+                document.documentElement.appendChild(probe);
+                const cs = getComputedStyle(probe);
+                let top = parseFloat(cs.paddingTop) || 0;
+                let right = parseFloat(cs.paddingRight) || 0;
+                let bottom = parseFloat(cs.paddingBottom) || 0;
+                let left = parseFloat(cs.paddingLeft) || 0;
+                probe.remove();
+                const vv = window.visualViewport;
+                if (vv && vv.scale <= 1.02) {
+                    const obscuredBottom = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+                    bottom = Math.max(bottom, obscuredBottom);
+                }
+                const rs = document.documentElement.style;
+                rs.setProperty('--sat', top + 'px');
+                rs.setProperty('--sar', right + 'px');
+                rs.setProperty('--sab', bottom + 'px');
+                rs.setProperty('--sal', left + 'px');
+            }
+            refreshLayoutSafeArea();
+            window.addEventListener('resize', refreshLayoutSafeArea);
+            window.addEventListener('orientationchange', () => setTimeout(refreshLayoutSafeArea, 150));
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', refreshLayoutSafeArea);
+                window.visualViewport.addEventListener('scroll', refreshLayoutSafeArea);
+            }
             lucide.createIcons();
             const THEME_MODE_KEY = 'theme_mode';
             function getNativeThemeMode() {
@@ -1994,22 +1936,47 @@
             }
 
             window.handleAndroidBack = function() {
-                if (document.getElementById('version-modal').classList.contains('show')) { closeVersionModal(); return true; }
-                if (document.getElementById('picker-sheet').classList.contains('show')) { closePicker(); return true; }
-                if (document.getElementById('custom-error-modal').classList.contains('show')) { closeErrorModal(); return true; }
-                if (document.getElementById('ai-coming-modal').classList.contains('show')) { closeAiComingModal(); return true; }
-                if (document.getElementById('wifi-offline-modal').classList.contains('show')) { document.getElementById('wifi-offline-modal').classList.remove('show'); return true; }
-                if (document.getElementById('theme-panel').classList.contains('open')) { closeThemePanel(); return true; }
-                if (document.getElementById('settings-panel').classList.contains('open')) { closeSettingsPanel(); return true; }
-                if (document.getElementById('app-info-panel').classList.contains('open')) { closeAppInfo(); return true; }
-                return false;
+                if (document.getElementById('version-modal').classList.contains('show')) { window.__backExitFirstTapAt = 0; closeVersionModal(); return true; }
+                if (document.getElementById('picker-sheet').classList.contains('show')) { window.__backExitFirstTapAt = 0; closePicker(); return true; }
+                if (document.getElementById('custom-error-modal').classList.contains('show')) { window.__backExitFirstTapAt = 0; closeErrorModal(); return true; }
+                if (document.getElementById('ai-coming-modal').classList.contains('show')) { window.__backExitFirstTapAt = 0; closeAiComingModal(); return true; }
+                if (document.getElementById('wifi-offline-modal').classList.contains('show')) { window.__backExitFirstTapAt = 0; document.getElementById('wifi-offline-modal').classList.remove('show'); return true; }
+                const now = Date.now();
+                const exitWindowMs = 2200;
+                if (window.__backExitFirstTapAt && (now - window.__backExitFirstTapAt) < exitWindowMs) {
+                    window.__backExitFirstTapAt = 0;
+                    try {
+                        if (typeof AndroidInterface !== 'undefined' && typeof AndroidInterface.finish === 'function') {
+                            AndroidInterface.finish();
+                            return true;
+                        }
+                    } catch (e) {}
+                    try {
+                        if (typeof AndroidInterface !== 'undefined' && typeof AndroidInterface.closeApp === 'function') {
+                            AndroidInterface.closeApp();
+                            return true;
+                        }
+                    } catch (e) {}
+                    try {
+                        if (typeof AndroidInterface !== 'undefined' && typeof AndroidInterface.exitApp === 'function') {
+                            AndroidInterface.exitApp();
+                            return true;
+                        }
+                    } catch (e) {}
+                    window.close();
+                    return true;
+                }
+                window.__backExitFirstTapAt = now;
+                window.showBackExitToast();
+                return true;
             };
 
             window.showBackExitToast = function() {
                 const t = document.getElementById('back-exit-toast');
+                if (!t) return;
                 t.classList.add('show');
                 clearTimeout(window.__backToastTimer);
-                window.__backToastTimer = setTimeout(() => t.classList.remove('show'), 1200);
+                window.__backToastTimer = setTimeout(() => t.classList.remove('show'), 1800);
             };
 
             let preloadedBanner = null; 
@@ -2073,62 +2040,21 @@
             const bottomNav = document.querySelector('.bottom-nav');
             const floatingTabBar = document.getElementById('floating-tab-bar');
             const floatingTabItems = document.querySelectorAll('.floating-tab-item');
-            const appInfoPanel = document.getElementById('app-info-panel');
-            const settingsPanel = document.getElementById('settings-panel');
-            const themePanel = document.getElementById('theme-panel');
-            const panelRouteMap = { appInfo: '/app-info', settings: '/settings', theme: '/theme' };
-
-            function currentPath() {
-                try { return window.location.pathname || '/'; } catch (e) { return '/'; }
-            }
-
-            function pushPanelRoute(path, panelKey) {
-                try { history.pushState({ panel: panelKey }, '', path); } catch (e) {}
-            }
-
-            function applyPanelVisibilityFromPath() {
-                const path = currentPath();
-                settingsPanel.classList.toggle('open', path.endsWith(panelRouteMap.settings));
-                appInfoPanel.classList.toggle('open', path.endsWith(panelRouteMap.appInfo));
-                themePanel.classList.toggle('open', path.endsWith(panelRouteMap.theme));
-            }
-
-            function closePanelWithBackFallback(panelKey) {
-                const targetPath = panelRouteMap[panelKey];
-                if (currentPath().endsWith(targetPath)) history.back();
-                else {
-                    if (panelKey === 'settings') settingsPanel.classList.remove('open');
-                    if (panelKey === 'appInfo') appInfoPanel.classList.remove('open');
-                    if (panelKey === 'theme') themePanel.classList.remove('open');
-                }
-            }
+            const REMOTE_CONTROL_BASE = 'https://jaewondev27.github.io/myjdmsappmainpagecontrol';
 
             window.switchPageTo = function(page) { switchPage(page); };
             window.openAppInfo = function() {
-                appInfoPanel.classList.add('open');
-                pushPanelRoute(panelRouteMap.appInfo, 'appInfo');
+                window.open(`${REMOTE_CONTROL_BASE}/inform`, '_blank');
             };
-            window.closeAppInfo = function() { closePanelWithBackFallback('appInfo'); };
+            window.closeAppInfo = function() {};
             window.openSettingsPanel = function() {
-                if (!userData) {
-                    showErrorModal('초기 정보 입력 후 사용할 수 있어요.');
-                    return;
-                }
-                updateThemeButtons();
-                document.getElementById('settings-name').value = userData.name || '';
-                setPickerValue('settings', 'grade', userData.grade);
-                setPickerValue('settings', 'class', userData.class);
-                setPickerValue('settings', 'number', userData.number);
-                settingsPanel.classList.add('open');
-                pushPanelRoute(panelRouteMap.settings, 'settings');
+                window.open(`${REMOTE_CONTROL_BASE}/mysetting`, '_blank');
             };
-            window.closeSettingsPanel = function() { closePanelWithBackFallback('settings'); };
+            window.closeSettingsPanel = function() {};
             window.openThemePanel = function() {
-                updateThemeButtons();
-                themePanel.classList.add('open');
-                pushPanelRoute(panelRouteMap.theme, 'theme');
+                window.open(`${REMOTE_CONTROL_BASE}/theme`, '_blank');
             };
-            window.closeThemePanel = function() { closePanelWithBackFallback('theme'); };
+            window.closeThemePanel = function() {};
 
             function getPickerOptions(field) {
                 if (field === 'grade') return Array.from({ length: 3 }, (_, i) => i + 1);
@@ -2190,7 +2116,9 @@
             };
 
             window.saveSettings = function() {
-                const name = document.getElementById('settings-name').value.trim();
+                const nameEl = document.getElementById('settings-name');
+                if (!nameEl) return;
+                const name = nameEl.value.trim();
                 const grade = document.getElementById('settings-grade').value;
                 const cls = document.getElementById('settings-class').value;
                 const num = document.getElementById('settings-number').value;
@@ -2202,7 +2130,6 @@
                 localStorage.setItem('userData', JSON.stringify(userData));
                 updateHeader();
                 reloadCurrentPageIframes();
-                closeSettingsPanel();
             };
             window.resetAppSettings = function() {
                 if (!confirm('설정을 초기화하고 처음부터 다시 시작할까요?')) return;
@@ -2216,9 +2143,8 @@
                 setPickerValue('settings', 'class', '');
                 setPickerValue('settings', 'number', '');
                 document.getElementById('setup-name').value = '';
-                document.getElementById('settings-name').value = '';
-                window.closeSettingsPanel();
-                window.closeThemePanel();
+                const sn = document.getElementById('settings-name');
+                if (sn) sn.value = '';
                 window.closePicker();
                 window.closeErrorModal();
                 mainContent.classList.add('hidden');
@@ -2445,6 +2371,30 @@
                 }
             }
 
+            function syncUserDataFromSettingsPage() {
+                try {
+                    const raw = localStorage.getItem('userData');
+                    const next = raw ? JSON.parse(raw) : null;
+                    if (!next || next.grade == null || next.class == null || next.number == null) return;
+                    const changed = !userData || userData.name !== next.name || userData.grade !== next.grade || userData.class !== next.class || userData.number !== next.number;
+                    if (!changed) return;
+                    userData = next;
+                    setPickerValue('setup', 'grade', userData.grade);
+                    setPickerValue('setup', 'class', userData.class);
+                    setPickerValue('setup', 'number', userData.number);
+                    if (mainContent && !mainContent.classList.contains('hidden')) {
+                        updateHeader();
+                        reloadCurrentPageIframes();
+                    }
+                } catch (err) {}
+            }
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'userData') syncUserDataFromSettingsPage();
+            });
+            window.addEventListener('message', (e) => {
+                if (e && e.data && e.data.type === 'myjdms-userData-updated') syncUserDataFromSettingsPage();
+            });
+
             function loadTodayTimetableIframe() { safeLoadIframe('today-timetable-iframe', `https://sigan.onrender.com/todaysigan?grade=${userData.grade}&class=${userData.class}`); }
             function loadHomeLunchIframe() { safeLoadIframe('home-lunch-iframe', `https://sigan.onrender.com/lunch?grade=${userData.grade}&class=${userData.class}`); }
             function loadWeeklyTimetableIframe() { safeLoadIframe('weekly-timetable-iframe', `https://sigan.onrender.com/sigan?grade=${userData.grade}&class=${userData.class}`); }
@@ -2508,84 +2458,9 @@
                 }
             }
 
-            async function checkForUpdates() {
-                const loadingEl = document.getElementById('app-info-loading');
-                const statusEl = document.getElementById('app-info-status');
-                const btnEl = document.getElementById('update-check-btn');
-
-                loadingEl.style.display = 'flex';
-                statusEl.style.display = 'none';
-                btnEl.style.display = 'none';
-
-                try {
-                    const versions = await fetchAvailableVersions();
-                    const currentVersion = getCurrentVersion();
-                    const latestVersion = versions.length > 0 ? versions[0] : currentVersion;
-
-                    loadingEl.style.display = 'none';
-                    btnEl.style.display = 'flex';
-
-                    if (compareVersions(latestVersion, currentVersion) > 0) {
-                        statusEl.textContent = `새 버전 ${latestVersion}이(가) 있습니다.`;
-                        statusEl.style.color = '#3182f6';
-                        statusEl.style.display = 'block';
-                        if (typeof UpdateInterface !== 'undefined' && UpdateInterface.showUpdatePage) {
-                            UpdateInterface.showUpdatePage(latestVersion);
-                        }
-                    } else {
-                        statusEl.textContent = '최신 버전입니다.';
-                        statusEl.style.color = '#8b95a1';
-                        statusEl.style.display = 'block';
-                    }
-                } catch (e) {
-                    loadingEl.style.display = 'none';
-                    btnEl.style.display = 'flex';
-                    statusEl.textContent = '업데이트 확인에 실패했습니다.';
-                    statusEl.style.color = '#f04452';
-                    statusEl.style.display = 'block';
-                }
-            }
-
-            window.checkForUpdates = checkForUpdates;
-
-            const originalOpenAppInfo = window.openAppInfo;
-            window.openAppInfo = function() {
-                originalOpenAppInfo();
-                const currentVersion = getCurrentVersion();
-                document.getElementById('app-info-version').textContent = `버전 ${currentVersion}`;
-                document.getElementById('app-info-status').textContent = '최신 버전입니다.';
-                document.getElementById('app-info-status').style.color = '#8b95a1';
-                document.getElementById('app-info-loading').style.display = 'none';
-                document.getElementById('update-check-btn').style.display = 'flex';
-                checkForUpdates();
-            };
-
-            window.addEventListener('popstate', () => {
-                applyPanelVisibilityFromPath();
-            });
-
-            applyPanelVisibilityFromPath();
-
             const initialNativeVersion = getNativeVersion();
             if (initialNativeVersion) {
                 localStorage.setItem(APP_VERSION_KEY, initialNativeVersion);
-            }
-
-            let titleTapCount = 0;
-            let titleTapTimer = null;
-            const appInfoTitle = document.getElementById('app-info-title');
-            if (appInfoTitle) {
-                appInfoTitle.addEventListener('click', () => {
-                    titleTapCount++;
-                    if (titleTapTimer) clearTimeout(titleTapTimer);
-                    titleTapTimer = setTimeout(() => {
-                        titleTapCount = 0;
-                    }, 500);
-                    if (titleTapCount >= 5) {
-                        titleTapCount = 0;
-                        window.showVersionSelector();
-                    }
-                });
             }
 
             window.showVersionSelector = async function() {

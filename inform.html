@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#f2f4f6">
+    <title>앱 정보 · My JDMS</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>window.lucide = window.lucide || { createIcons: function () {} };</script>
+    <style>
+        :root {
+            --sat: env(safe-area-inset-top, 0px);
+            --sar: env(safe-area-inset-right, 0px);
+            --sab: env(safe-area-inset-bottom, 0px);
+            --sal: env(safe-area-inset-left, 0px);
+            --primary: #3182f6;
+            --primary-light: #e8f3ff;
+            --bg: #f2f4f6;
+            --text-main: #191f28;
+            --text-sub: #4e5968;
+            --text-mute: #8b95a1;
+            --card-bg: #ffffff;
+            --border: #e5e8eb;
+        }
+        body.dark-mode {
+            --bg: #141414;
+            --text-main: #f3f3f3;
+            --text-sub: #c2c2c2;
+            --text-mute: #9a9a9a;
+            --card-bg: #1d1d1d;
+            --border: #303030;
+            --primary-light: rgba(49, 130, 246, 0.18);
+        }
+        ::-webkit-scrollbar { display: none !important; }
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
+        }
+        html {
+            background-color: var(--bg);
+            min-height: 100%;
+            min-height: -webkit-fill-available;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            min-height: 100dvh;
+            overscroll-behavior-y: none;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            overflow: hidden;
+        }
+        #top-status-bar-blur {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: calc(var(--sat) + 20px);
+            background: linear-gradient(180deg, rgba(233, 243, 255, 0.92) 0%, rgba(242, 246, 252, 0.72) 55%, rgba(242, 244, 246, 0.2) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1500;
+            pointer-events: none;
+        }
+        body.dark-mode #top-status-bar-blur {
+            background: linear-gradient(180deg, rgba(20,20,20,0.95) 0%, rgba(20,20,20,0.82) 55%, rgba(20,20,20,0.2) 100%);
+        }
+        .slide-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            min-height: 100dvh;
+            background: #ffffff;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            padding-top: var(--sat);
+            padding-left: var(--sal);
+            padding-right: var(--sar);
+            padding-bottom: var(--sab);
+        }
+        body.dark-mode .slide-panel {
+            background: #141414 !important;
+            color: var(--text-main);
+        }
+        body.dark-mode [data-lucide] {
+            color: var(--text-main) !important;
+            stroke: currentColor !important;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #version-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+        #version-modal.show { display: flex; }
+        .version-modal-content {
+            background: white;
+            width: calc(100% - 48px);
+            max-width: 360px;
+            max-height: 70vh;
+            border-radius: 28px;
+            padding: 24px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+        }
+        body.dark-mode #version-modal { background: rgba(0,0,0,0.6); }
+        body.dark-mode .version-modal-content { background: #1d1d1d; border: 1px solid #303030; }
+        body.dark-mode .version-modal-title,
+        body.dark-mode .version-item-label { color: #f2f2f2; }
+        body.dark-mode .version-loading { color: #a3a3a3; }
+        body.dark-mode .version-item { background: #252525; }
+        body.dark-mode .version-modal-close { background: #2b2b2b; color: #f2f2f2; }
+        .version-modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            text-align: center;
+            color: var(--text-main);
+        }
+        .version-list {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 16px;
+        }
+        .version-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            border-radius: 16px;
+            margin-bottom: 8px;
+            background: #f9fafb;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .version-item:active { background: #e5e8eb; }
+        .version-item.current { background: var(--primary-light); }
+        .version-item-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        .version-item-badge {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+        .version-item.current .version-item-badge {
+            background: var(--primary);
+            color: white;
+        }
+        .version-modal-close {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 22px;
+            background: var(--primary);
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .version-modal-close:active { background: #2563c9; }
+        .version-loading {
+            text-align: center;
+            padding: 24px;
+            color: var(--text-mute);
+            font-size: 14px;
+        }
+        body.dark-mode .inform-license-btn {
+            background: #1d1d1d !important;
+            color: var(--text-main) !important;
+            border: 1px solid #303030;
+        }
+    </style>
+</head>
+<body>
+    <div id="top-status-bar-blur"></div>
+
+    <div id="app-info-panel" class="slide-panel open">
+        <div style="display: flex; justify-content: space-between; padding: 16px 20px; align-items: center;">
+            <div onclick="leavePage()" style="cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; margin-left: -8px; -webkit-tap-highlight-color: transparent; z-index: 10;">
+                <i data-lucide="chevron-left" style="width: 28px; height: 28px; color: #191f28; pointer-events: none;"></i>
+            </div>
+            <i data-lucide="info" style="width: 24px; height: 24px; color: #191f28;"></i>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: -160px; min-height: 0; overflow-y: auto;">
+            <h1 id="app-info-title" style="font-size: 32px; font-weight: 700; margin: 0 0 12px 0; letter-spacing: -0.5px; cursor: pointer; -webkit-tap-highlight-color: transparent;">My JDMS</h1>
+            <p id="app-info-version" style="font-size: 15px; color: #8b95a1; margin: 0 0 4px 0;">버전 2.0.0.1</p>
+            <p style="font-size: 15px; color: #8b95a1; margin: 0 0 12px 0;">made by 신재원</p>
+            <p id="app-info-status" style="font-size: 15px; color: #8b95a1; margin: 0 0 16px 0;">최신 버전입니다.</p>
+            <div id="app-info-loading" style="display: none; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 16px;">
+                <div style="width: 24px; height: 24px; position: relative;">
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 3px solid #e5e8eb; border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+                </div>
+                <span style="font-size: 13px; color: var(--text-mute);">업데이트 확인 중...</span>
+            </div>
+            <button id="update-check-btn" type="button" onclick="checkForUpdates()" style="width: 100%; max-width: 200px; padding: 12px; border-radius: 24px; background: var(--primary); color: #ffffff; font-size: 14px; font-weight: 600; border: none; cursor: pointer; -webkit-tap-highlight-color: transparent; display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 16px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/><polyline points="21 3 21 9 15 9"/></svg>
+                업데이트 확인
+            </button>
+        </div>
+        <div style="padding: 24px 24px calc(24px + var(--sab)); flex-shrink: 0;">
+            <button type="button" class="inform-license-btn" style="width: 100%; padding: 18px; border-radius: 24px; background: #f2f4f6; color: #191f28; font-size: 16px; font-weight: 600; border: none; cursor: pointer; -webkit-tap-highlight-color: transparent;" onclick="alert('오픈소스 라이선스 정보는 추후 제공 예정이에요.')">오픈소스 라이선스</button>
+        </div>
+    </div>
+
+    <div id="version-modal">
+        <div class="version-modal-content">
+            <div class="version-modal-title">버전 선택</div>
+            <div id="version-list" class="version-list">
+                <div class="version-loading">버전을 불러오는 중...</div>
+            </div>
+            <button type="button" class="version-modal-close" onclick="closeVersionModal()">닫기</button>
+        </div>
+    </div>
+
+    <script>
+        function refreshLayoutSafeArea() {
+            const probe = document.createElement('div');
+            probe.setAttribute('aria-hidden', 'true');
+            probe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;visibility:hidden;overflow:hidden;z-index:0;padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0);';
+            document.documentElement.appendChild(probe);
+            const cs = getComputedStyle(probe);
+            let top = parseFloat(cs.paddingTop) || 0;
+            let right = parseFloat(cs.paddingRight) || 0;
+            let bottom = parseFloat(cs.paddingBottom) || 0;
+            let left = parseFloat(cs.paddingLeft) || 0;
+            probe.remove();
+            const vv = window.visualViewport;
+            if (vv && vv.scale <= 1.02) {
+                const obscuredBottom = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+                bottom = Math.max(bottom, obscuredBottom);
+            }
+            const rs = document.documentElement.style;
+            rs.setProperty('--sat', top + 'px');
+            rs.setProperty('--sar', right + 'px');
+            rs.setProperty('--sab', bottom + 'px');
+            rs.setProperty('--sal', left + 'px');
+        }
+
+        function closeStandalonePage() {
+            try {
+                if (typeof AndroidInterface !== 'undefined') {
+                    if (typeof AndroidInterface.finish === 'function') { AndroidInterface.finish(); return; }
+                    if (typeof AndroidInterface.closeApp === 'function') { AndroidInterface.closeApp(); return; }
+                    if (typeof AndroidInterface.exitApp === 'function') { AndroidInterface.exitApp(); return; }
+                }
+            } catch (e) {}
+            try { window.close(); } catch (e) {}
+            try {
+                if (window.opener && !window.opener.closed) { window.opener.focus(); }
+            } catch (e) {}
+            setTimeout(function () {
+                if (window.closed) return;
+                if (history.length > 1) { history.back(); return; }
+                try { window.close(); } catch (e2) {}
+            }, 80);
+        }
+        function leavePage() { closeStandalonePage(); }
+
+        const THEME_MODE_KEY = 'theme_mode';
+        const APP_VERSION_KEY = 'app_version';
+        const DEFAULT_VERSION = '2.0.0.1';
+        const GITHUB_UPDATE_URL = 'https://api.github.com/repos/jaewondev27/myjdms-updater/contents/update';
+
+        function getNativeThemeMode() {
+            try {
+                if (typeof AndroidInterface !== 'undefined' && AndroidInterface.getThemeMode) {
+                    const m = AndroidInterface.getThemeMode();
+                    if (m === 'light' || m === 'dark' || m === 'auto') return m;
+                }
+            } catch (e) {}
+            return '';
+        }
+        function saveNativeThemeMode(mode) {
+            try {
+                if (typeof AndroidInterface !== 'undefined' && AndroidInterface.saveThemeMode) {
+                    AndroidInterface.saveThemeMode(mode);
+                }
+            } catch (e) {}
+        }
+        const darkQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+        let themeMode = getNativeThemeMode() || localStorage.getItem(THEME_MODE_KEY) || 'auto';
+        localStorage.setItem(THEME_MODE_KEY, themeMode);
+
+        function applyTheme(mode) {
+            const shouldDark = mode === 'dark' || (mode === 'auto' && darkQuery && darkQuery.matches);
+            document.body.classList.toggle('dark-mode', !!shouldDark);
+            const metaTheme = document.querySelector('meta[name="theme-color"]');
+            const color = shouldDark ? '#141414' : '#f2f4f6';
+            if (metaTheme) metaTheme.setAttribute('content', color);
+            try {
+                if (typeof AndroidInterface !== 'undefined') {
+                    const useDarkIcons = !shouldDark;
+                    if (AndroidInterface.setStatusBarDarkIcons) AndroidInterface.setStatusBarDarkIcons(useDarkIcons);
+                    if (AndroidInterface.setStatusBarStyle) AndroidInterface.setStatusBarStyle(useDarkIcons ? 'dark' : 'light');
+                }
+            } catch (e) {}
+        }
+        applyTheme(themeMode);
+        if (darkQuery && darkQuery.addEventListener) {
+            darkQuery.addEventListener('change', () => { if (themeMode === 'auto') applyTheme('auto'); });
+        }
+        window.addEventListener('storage', (e) => {
+            if (e.key === THEME_MODE_KEY && e.newValue) {
+                themeMode = e.newValue;
+                applyTheme(themeMode);
+            }
+        });
+
+        function getNativeVersion() {
+            try {
+                if (typeof UpdateInterface !== 'undefined' && UpdateInterface.getVersion) {
+                    const v = UpdateInterface.getVersion();
+                    if (v) return String(v).trim();
+                }
+            } catch (e) {}
+            try {
+                if (typeof AndroidInterface !== 'undefined' && AndroidInterface.getVersion) {
+                    const v = AndroidInterface.getVersion();
+                    if (v) return String(v).trim();
+                }
+            } catch (e) {}
+            return '';
+        }
+        function getCurrentVersion() {
+            const nativeVersion = getNativeVersion();
+            if (nativeVersion) {
+                localStorage.setItem(APP_VERSION_KEY, nativeVersion);
+                return nativeVersion;
+            }
+            return localStorage.getItem(APP_VERSION_KEY) || DEFAULT_VERSION;
+        }
+        function compareVersions(v1, v2) {
+            const parts1 = v1.split('.').map(Number);
+            const parts2 = v2.split('.').map(Number);
+            for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+                const p1 = parts1[i] || 0;
+                const p2 = parts2[i] || 0;
+                if (p1 > p2) return 1;
+                if (p1 < p2) return -1;
+            }
+            return 0;
+        }
+        async function fetchAvailableVersions() {
+            try {
+                const response = await fetch(GITHUB_UPDATE_URL);
+                const data = await response.json();
+                if (Array.isArray(data)) {
+                    return data
+                        .filter(item => item.type === 'dir' && /^\d+\.\d+\.\d+(?:\.\d+)?$/.test(item.name))
+                        .map(item => item.name)
+                        .sort((a, b) => compareVersions(b, a));
+                }
+            } catch (e) { console.error(e); }
+            return [];
+        }
+        async function checkForUpdates() {
+            const loadingEl = document.getElementById('app-info-loading');
+            const statusEl = document.getElementById('app-info-status');
+            const btnEl = document.getElementById('update-check-btn');
+            loadingEl.style.display = 'flex';
+            statusEl.style.display = 'none';
+            btnEl.style.display = 'none';
+            try {
+                const versions = await fetchAvailableVersions();
+                const currentVersion = getCurrentVersion();
+                const latestVersion = versions.length > 0 ? versions[0] : currentVersion;
+                loadingEl.style.display = 'none';
+                btnEl.style.display = 'flex';
+                if (compareVersions(latestVersion, currentVersion) > 0) {
+                    statusEl.textContent = `새 버전 ${latestVersion}이(가) 있습니다.`;
+                    statusEl.style.color = '#3182f6';
+                    statusEl.style.display = 'block';
+                    if (typeof UpdateInterface !== 'undefined' && UpdateInterface.showUpdatePage) {
+                        UpdateInterface.showUpdatePage(latestVersion);
+                    }
+                } else {
+                    statusEl.textContent = '최신 버전입니다.';
+                    statusEl.style.color = '#8b95a1';
+                    statusEl.style.display = 'block';
+                }
+            } catch (e) {
+                loadingEl.style.display = 'none';
+                btnEl.style.display = 'flex';
+                statusEl.textContent = '업데이트 확인에 실패했습니다.';
+                statusEl.style.color = '#f04452';
+                statusEl.style.display = 'block';
+            }
+        }
+        function closeVersionModal() {
+            document.getElementById('version-modal').classList.remove('show');
+        }
+        window.showVersionSelector = async function () {
+            const modal = document.getElementById('version-modal');
+            const listEl = document.getElementById('version-list');
+            modal.classList.add('show');
+            listEl.innerHTML = '<div class="version-loading">버전을 불러오는 중...</div>';
+            try {
+                const versions = await fetchAvailableVersions();
+                const currentVersion = getCurrentVersion();
+                if (versions.length === 0) {
+                    listEl.innerHTML = '<div class="version-loading">사용 가능한 버전이 없습니다.</div>';
+                    return;
+                }
+                let html = '';
+                versions.forEach(v => {
+                    const isCurrent = v === currentVersion;
+                    html += `<div class="version-item ${isCurrent ? 'current' : ''}" onclick="selectVersion('${v}')">
+                        <span class="version-item-label">${v}</span>
+                        <span class="version-item-badge">${isCurrent ? '현재' : (compareVersions(v, currentVersion) > 0 ? '최신' : '이전')}</span>
+                    </div>`;
+                });
+                listEl.innerHTML = html;
+            } catch (e) {
+                listEl.innerHTML = '<div class="version-loading">버전 목록을 불러오지 못했습니다.</div>';
+            }
+        };
+        function selectVersion(version) {
+            closeVersionModal();
+            const currentVersion = getCurrentVersion();
+            if (version === currentVersion) {
+                alert('이미 현재 버전입니다.');
+                return;
+            }
+            if (typeof UpdateInterface !== 'undefined' && UpdateInterface.showUpdatePage) {
+                UpdateInterface.showUpdatePage(version);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            refreshLayoutSafeArea();
+            window.addEventListener('resize', refreshLayoutSafeArea);
+            window.addEventListener('orientationchange', () => setTimeout(refreshLayoutSafeArea, 150));
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', refreshLayoutSafeArea);
+                window.visualViewport.addEventListener('scroll', refreshLayoutSafeArea);
+            }
+            if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+
+            const cv = getCurrentVersion();
+            document.getElementById('app-info-version').textContent = `버전 ${cv}`;
+            const nvInit = getNativeVersion();
+            if (nvInit) localStorage.setItem(APP_VERSION_KEY, nvInit);
+            checkForUpdates();
+
+            let titleTapCount = 0;
+            let titleTapTimer = null;
+            document.getElementById('app-info-title').addEventListener('click', () => {
+                titleTapCount++;
+                if (titleTapTimer) clearTimeout(titleTapTimer);
+                titleTapTimer = setTimeout(() => { titleTapCount = 0; }, 500);
+                if (titleTapCount >= 5) {
+                    titleTapCount = 0;
+                    window.showVersionSelector();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#f2f4f6">
+    <title>내 정보 설정 · My JDMS</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>window.lucide = window.lucide || { createIcons: function () {} };</script>
+    <style>
+        :root {
+            --sat: env(safe-area-inset-top, 0px);
+            --sar: env(safe-area-inset-right, 0px);
+            --sab: env(safe-area-inset-bottom, 0px);
+            --sal: env(safe-area-inset-left, 0px);
+            --primary: #3182f6;
+            --primary-light: #e8f3ff;
+            --bg: #f2f4f6;
+            --text-main: #191f28;
+            --text-sub: #4e5968;
+            --text-mute: #8b95a1;
+            --card-bg: #ffffff;
+            --border: #e5e8eb;
+        }
+        body.dark-mode {
+            --bg: #141414;
+            --text-main: #f3f3f3;
+            --text-sub: #c2c2c2;
+            --text-mute: #9a9a9a;
+            --card-bg: #1d1d1d;
+            --border: #303030;
+            --primary-light: rgba(49, 130, 246, 0.18);
+        }
+        ::-webkit-scrollbar { display: none !important; }
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
+        }
+        html {
+            background-color: var(--bg);
+            min-height: 100%;
+            min-height: -webkit-fill-available;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            min-height: 100dvh;
+            overscroll-behavior-y: none;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            overflow: hidden;
+        }
+        #top-status-bar-blur {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: calc(var(--sat) + 20px);
+            background: linear-gradient(180deg, rgba(233, 243, 255, 0.92) 0%, rgba(242, 246, 252, 0.72) 55%, rgba(242, 244, 246, 0.2) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1500;
+            pointer-events: none;
+        }
+        body.dark-mode #top-status-bar-blur {
+            background: linear-gradient(180deg, rgba(20,20,20,0.95) 0%, rgba(20,20,20,0.82) 55%, rgba(20,20,20,0.2) 100%);
+        }
+        .slide-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            min-height: 100dvh;
+            background: #ffffff;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            padding-top: var(--sat);
+            padding-left: var(--sal);
+            padding-right: var(--sar);
+            padding-bottom: 0;
+        }
+        body.dark-mode .slide-panel {
+            background: #141414 !important;
+            color: var(--text-main);
+        }
+        body.dark-mode [data-lucide] {
+            color: var(--text-main) !important;
+            stroke: currentColor !important;
+        }
+        .settings-form-wrap {
+            padding: 18px 20px calc(24px + var(--sab));
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+        }
+        .input-group {
+            margin-bottom: 14px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-sub);
+            margin-bottom: 8px;
+            margin-left: 4px;
+        }
+        .input-group input {
+            width: 100%;
+            height: 58px;
+            border-radius: 16px;
+            border: 1px solid #e3e8ef;
+            padding: 0 18px;
+            font-size: 16px;
+            font-weight: 600;
+            background: #f8fafc;
+            outline: none;
+            color: var(--text-main);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.16s ease, background-color 0.2s ease;
+        }
+        .input-group input:focus {
+            border-color: var(--primary);
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(49, 130, 246, 0.14);
+            transform: translateY(-1px);
+        }
+        body.dark-mode .select-trigger,
+        body.dark-mode .input-group input,
+        body.dark-mode .settings-reset-btn {
+            background: #1d1d1d !important;
+            color: var(--text-main) !important;
+            border-color: #303030 !important;
+        }
+        body.dark-mode .settings-reset-btn:active {
+            background: #2a2a2a !important;
+        }
+        .select-trigger {
+            width: 100%;
+            height: 58px;
+            border-radius: 16px;
+            border: 1px solid #e3e8ef;
+            background: #f8fafc;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 16px;
+            font-weight: 600;
+            color: #202939;
+            cursor: pointer;
+            transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.18s ease;
+        }
+        .select-trigger.placeholder {
+            color: #8b95a1;
+        }
+        .select-trigger:active {
+            transform: scale(0.995);
+        }
+        .settings-save-btn {
+            width: 100%;
+            height: 56px;
+            border: none;
+            border-radius: 16px;
+            background: var(--primary);
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        .settings-save-btn:active {
+            transform: scale(0.98);
+        }
+        .settings-reset-btn {
+            width: 100%;
+            height: 52px;
+            border: none;
+            border-radius: 14px;
+            background: #f1f5f9;
+            color: #334155;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.14s ease, background-color 0.2s ease;
+        }
+        .settings-reset-btn:active {
+            transform: scale(0.98);
+            background: #e2e8f0;
+        }
+
+        #picker-sheet {
+            position: fixed;
+            inset: 0;
+            z-index: 2500;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.26s ease;
+        }
+        #picker-sheet.show {
+            display: block;
+        }
+        #picker-sheet.active {
+            opacity: 1;
+        }
+        .picker-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.35);
+        }
+        body.dark-mode .picker-backdrop {
+            background: rgba(0,0,0,0.62);
+        }
+        .picker-panel {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #ffffff;
+            border-radius: 24px 24px 0 0;
+            padding: 14px 18px calc(var(--sab) + 18px);
+            transform: translateY(100%);
+            transition: transform 0.32s cubic-bezier(0.2, 0.85, 0.2, 1);
+            max-height: 68vh;
+            overflow-y: auto;
+            will-change: transform;
+        }
+        body.dark-mode .picker-panel {
+            background: #141414 !important;
+            color: var(--text-main);
+        }
+        #picker-sheet.active .picker-panel {
+            transform: translateY(0);
+        }
+        #picker-sheet.dragging .picker-panel {
+            transition: none !important;
+        }
+        .picker-handle {
+            width: 46px;
+            height: 5px;
+            border-radius: 999px;
+            background: #d4dbe4;
+            margin: 0 auto 14px;
+        }
+        body.dark-mode .picker-handle {
+            background: #444;
+        }
+        .picker-title {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .picker-option {
+            width: 100%;
+            border: none;
+            border-radius: 14px;
+            padding: 14px 12px;
+            margin-bottom: 8px;
+            background: #f3f6fa;
+            color: #1f2937;
+            font-size: 15px;
+            font-weight: 700;
+            text-align: left;
+            cursor: pointer;
+            transition: transform 0.18s ease, background-color 0.18s ease;
+        }
+        body.dark-mode .picker-option {
+            background: #1f1f1f;
+            color: #ededed;
+        }
+        body.dark-mode .picker-option:active {
+            background: #2a2a2a !important;
+        }
+        .picker-option:active {
+            transform: scale(0.99);
+            background: #e9eef5;
+        }
+
+        #custom-error-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 3200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.48);
+            padding: 24px;
+            opacity: 0;
+            transition: opacity 0.22s ease;
+        }
+        #custom-error-modal.show {
+            display: flex;
+        }
+        #custom-error-modal.active {
+            opacity: 1;
+        }
+        body.dark-mode #custom-error-modal {
+            background: rgba(0,0,0,0.62) !important;
+        }
+        .custom-error-card {
+            width: min(92vw, 340px);
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 24px 20px 18px;
+            text-align: center;
+            transform: translateY(14px) scale(0.98);
+            transition: transform 0.26s cubic-bezier(0.2, 0.85, 0.2, 1);
+        }
+        body.dark-mode .custom-error-card {
+            background: #141414 !important;
+            color: var(--text-main);
+            border: 1px solid #303030;
+        }
+        #custom-error-modal.active .custom-error-card {
+            transform: translateY(0) scale(1);
+        }
+        .error-icon-circle {
+            width: 62px;
+            height: 62px;
+            border-radius: 999px;
+            margin: 0 auto 12px;
+            background: #ffeff1;
+            color: #ef4444;
+            font-size: 34px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        .error-icon-circle.shake {
+            animation: icon-shake 0.52s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+        }
+        @keyframes icon-shake {
+            0% { transform: translateX(0); }
+            20% { transform: translateX(-5px); }
+            40% { transform: translateX(5px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+            100% { transform: translateX(0); }
+        }
+        .error-title {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 6px;
+            letter-spacing: -0.3px;
+        }
+        .error-message {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 14px;
+            line-height: 1.5;
+        }
+        body.dark-mode .error-message {
+            color: var(--text-mute) !important;
+        }
+        .error-confirm-btn {
+            width: 100%;
+            height: 48px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #3182f6 0%, #2067e9 100%);
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.14s ease, opacity 0.2s ease;
+        }
+        .error-confirm-btn:active {
+            transform: scale(0.98);
+            opacity: 0.96;
+        }
+    </style>
+</head>
+<body>
+    <div id="top-status-bar-blur"></div>
+
+    <div id="settings-panel" class="slide-panel open">
+        <div style="display: flex; justify-content: space-between; padding: 16px 20px; align-items: center;">
+            <div onclick="leavePage()" style="cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; margin-left: -8px; -webkit-tap-highlight-color: transparent; z-index: 10;">
+                <i data-lucide="chevron-left" style="width: 28px; height: 28px; color: #191f28; pointer-events: none;"></i>
+            </div>
+            <div style="font-size: 18px; font-weight: 700; letter-spacing: -0.3px;">내 정보 설정</div>
+            <div style="width: 32px;"></div>
+        </div>
+        <div class="settings-form-wrap">
+            <div class="input-group">
+                <label>이름</label>
+                <input type="text" id="settings-name" placeholder="예: 홍길동" autocomplete="name">
+            </div>
+            <div class="input-group">
+                <label>학년</label>
+                <button type="button" id="settings-grade-trigger" class="select-trigger placeholder" onclick="openPicker('settings','grade')">
+                    <span id="settings-grade-display">학년 선택</span>
+                    <i data-lucide="chevrons-up-down" style="width:18px; height:18px; color:#94a3b8;"></i>
+                </button>
+                <input type="hidden" id="settings-grade">
+            </div>
+            <div class="input-group">
+                <label>반</label>
+                <button type="button" id="settings-class-trigger" class="select-trigger placeholder" onclick="openPicker('settings','class')">
+                    <span id="settings-class-display">반 선택</span>
+                    <i data-lucide="chevrons-up-down" style="width:18px; height:18px; color:#94a3b8;"></i>
+                </button>
+                <input type="hidden" id="settings-class">
+            </div>
+            <div class="input-group">
+                <label>번호</label>
+                <button type="button" id="settings-number-trigger" class="select-trigger placeholder" onclick="openPicker('settings','number')">
+                    <span id="settings-number-display">번호 선택</span>
+                    <i data-lucide="chevrons-up-down" style="width:18px; height:18px; color:#94a3b8;"></i>
+                </button>
+                <input type="hidden" id="settings-number">
+            </div>
+            <button type="button" class="settings-save-btn" onclick="saveSettings()">저장하기</button>
+            <button type="button" class="settings-reset-btn" onclick="resetAppSettings()">설정 초기화</button>
+        </div>
+    </div>
+
+    <div id="picker-sheet">
+        <div class="picker-backdrop" onclick="closePicker()"></div>
+        <div class="picker-panel">
+            <div class="picker-handle"></div>
+            <div id="picker-title" class="picker-title">선택</div>
+            <div id="picker-options"></div>
+        </div>
+    </div>
+
+    <div id="custom-error-modal">
+        <div class="custom-error-card">
+            <div id="error-icon" class="error-icon-circle">!</div>
+            <div class="error-title">입력이 필요해요</div>
+            <div id="error-message" class="error-message">모든 항목을 선택해주세요.</div>
+            <button type="button" class="error-confirm-btn" onclick="closeErrorModal()">확인</button>
+        </div>
+    </div>
+
+    <script>
+        function refreshLayoutSafeArea() {
+            const probe = document.createElement('div');
+            probe.setAttribute('aria-hidden', 'true');
+            probe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;visibility:hidden;overflow:hidden;z-index:0;padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0);';
+            document.documentElement.appendChild(probe);
+            const cs = getComputedStyle(probe);
+            let top = parseFloat(cs.paddingTop) || 0;
+            let right = parseFloat(cs.paddingRight) || 0;
+            let bottom = parseFloat(cs.paddingBottom) || 0;
+            let left = parseFloat(cs.paddingLeft) || 0;
+            probe.remove();
+            const vv = window.visualViewport;
+            if (vv && vv.scale <= 1.02) {
+                const obscuredBottom = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+                bottom = Math.max(bottom, obscuredBottom);
+            }
+            const rs = document.documentElement.style;
+            rs.setProperty('--sat', top + 'px');
+            rs.setProperty('--sar', right + 'px');
+            rs.setProperty('--sab', bottom + 'px');
+            rs.setProperty('--sal', left + 'px');
+        }
+
+        function closeStandalonePage() {
+            try {
+                if (typeof AndroidInterface !== 'undefined') {
+                    if (typeof AndroidInterface.finish === 'function') { AndroidInterface.finish(); return; }
+                    if (typeof AndroidInterface.closeApp === 'function') { AndroidInterface.closeApp(); return; }
+                    if (typeof AndroidInterface.exitApp === 'function') { AndroidInterface.exitApp(); return; }
+                }
+            } catch (e) {}
+            try { window.close(); } catch (e) {}
+            try {
+                if (window.opener && !window.opener.closed) { window.opener.focus(); }
+            } catch (e) {}
+            setTimeout(function () {
+                if (window.closed) return;
+                if (history.length > 1) { history.back(); return; }
+                try { window.close(); } catch (e2) {}
+            }, 80);
+        }
+        function leavePage() { closeStandalonePage(); }
+
+        const THEME_MODE_KEY = 'theme_mode';
+        function getNativeThemeMode() {
+            try {
+                if (typeof AndroidInterface !== 'undefined' && AndroidInterface.getThemeMode) {
+                    const m = AndroidInterface.getThemeMode();
+                    if (m === 'light' || m === 'dark' || m === 'auto') return m;
+                }
+            } catch (e) {}
+            return '';
+        }
+        const darkQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+        let themeMode = getNativeThemeMode() || localStorage.getItem(THEME_MODE_KEY) || 'auto';
+
+        function applyThemeFromStorage() {
+            const shouldDark = themeMode === 'dark' || (themeMode === 'auto' && darkQuery && darkQuery.matches);
+            document.body.classList.toggle('dark-mode', !!shouldDark);
+            const meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.setAttribute('content', shouldDark ? '#141414' : '#f2f4f6');
+            try {
+                if (typeof AndroidInterface !== 'undefined') {
+                    const useDarkIcons = !shouldDark;
+                    if (AndroidInterface.setStatusBarDarkIcons) AndroidInterface.setStatusBarDarkIcons(useDarkIcons);
+                    if (AndroidInterface.setStatusBarStyle) AndroidInterface.setStatusBarStyle(useDarkIcons ? 'dark' : 'light');
+                }
+            } catch (e) {}
+        }
+        applyThemeFromStorage();
+        if (darkQuery && darkQuery.addEventListener) {
+            darkQuery.addEventListener('change', () => { if (themeMode === 'auto') applyThemeFromStorage(); });
+        }
+        window.addEventListener('storage', (e) => {
+            if (e.key === THEME_MODE_KEY && e.newValue) {
+                themeMode = e.newValue;
+                applyThemeFromStorage();
+            }
+        });
+
+        let userData = null;
+        try { userData = JSON.parse(localStorage.getItem('userData')) || null; } catch (e) { userData = null; }
+
+        let currentPickerContext = null;
+        const pickerSheet = document.getElementById('picker-sheet');
+        const pickerPanel = document.querySelector('.picker-panel');
+        let pickerDragStartY = 0, pickerDragDeltaY = 0, pickerDragging = false;
+
+        function getPickerOptions(field) {
+            if (field === 'grade') return Array.from({ length: 3 }, (_, i) => i + 1);
+            if (field === 'class') return Array.from({ length: 20 }, (_, i) => i + 1);
+            return Array.from({ length: 40 }, (_, i) => i + 1);
+        }
+        function getPickerUnit(field) {
+            if (field === 'grade') return '학년';
+            if (field === 'class') return '반';
+            return '번';
+        }
+        function setPickerValue(context, field, value) {
+            const input = document.getElementById(`${context}-${field}`);
+            const display = document.getElementById(`${context}-${field}-display`);
+            const trigger = document.getElementById(`${context}-${field}-trigger`);
+            if (!input || !display || !trigger) return;
+            if (!value) {
+                input.value = '';
+                display.textContent = `${field === 'grade' ? '학년' : (field === 'class' ? '반' : '번호')} 선택`;
+                trigger.classList.add('placeholder');
+                return;
+            }
+            input.value = value;
+            display.textContent = `${value}${getPickerUnit(field)}`;
+            trigger.classList.remove('placeholder');
+        }
+        function openPicker(context, field) {
+            currentPickerContext = { context, field };
+            const optionsWrap = document.getElementById('picker-options');
+            const title = document.getElementById('picker-title');
+            const label = field === 'grade' ? '학년' : (field === 'class' ? '반' : '번호');
+            title.textContent = `${label} 선택`;
+            optionsWrap.innerHTML = getPickerOptions(field).map(v =>
+                `<button type="button" class="picker-option" onclick="selectPickerValue(${v})">${v}${getPickerUnit(field)}</button>`
+            ).join('');
+            pickerSheet.classList.add('show');
+            pickerSheet.classList.remove('dragging');
+            pickerPanel.style.transform = '';
+            requestAnimationFrame(() => pickerSheet.classList.add('active'));
+        }
+        function closePicker() {
+            pickerSheet.classList.remove('active');
+            pickerSheet.classList.remove('dragging');
+            pickerPanel.style.transform = '';
+            setTimeout(() => pickerSheet.classList.remove('show'), 260);
+            currentPickerContext = null;
+        }
+        function selectPickerValue(value) {
+            if (!currentPickerContext) return;
+            setPickerValue(currentPickerContext.context, currentPickerContext.field, value);
+            closePicker();
+        }
+        function showErrorModal(message) {
+            const modal = document.getElementById('custom-error-modal');
+            const msg = document.getElementById('error-message');
+            const icon = document.getElementById('error-icon');
+            msg.textContent = message;
+            modal.classList.add('show');
+            requestAnimationFrame(() => modal.classList.add('active'));
+            icon.classList.remove('shake');
+            void icon.offsetWidth;
+            icon.classList.add('shake');
+        }
+        function closeErrorModal() {
+            const modal = document.getElementById('custom-error-modal');
+            modal.classList.remove('active');
+            setTimeout(() => modal.classList.remove('show'), 220);
+        }
+        function saveSettings() {
+            const name = document.getElementById('settings-name').value.trim();
+            const grade = document.getElementById('settings-grade').value;
+            const cls = document.getElementById('settings-class').value;
+            const num = document.getElementById('settings-number').value;
+            if (!name || !grade || !cls || !num) {
+                showErrorModal('이름, 학년, 반, 번호를 모두 선택해주세요.');
+                return;
+            }
+            userData = { name, grade: parseInt(grade, 10), class: parseInt(cls, 10), number: parseInt(num, 10) };
+            localStorage.setItem('userData', JSON.stringify(userData));
+            try {
+                if (window.opener && !window.opener.closed) {
+                    window.opener.postMessage({ type: 'myjdms-userData-updated' }, '*');
+                }
+            } catch (e) {}
+            closeStandalonePage();
+        }
+        function resetAppSettings() {
+            if (!confirm('설정을 초기화하고 처음부터 다시 시작할까요?')) return;
+            userData = null;
+            localStorage.removeItem('userData');
+            localStorage.removeItem('hideBannerUntil_v4');
+            setPickerValue('settings', 'grade', '');
+            setPickerValue('settings', 'class', '');
+            setPickerValue('settings', 'number', '');
+            document.getElementById('settings-name').value = '';
+            closePicker();
+            closeErrorModal();
+            alert('초기화했어요. 메인 앱에서 다시 정보를 입력해 주세요.');
+        }
+
+        if (pickerPanel) {
+            pickerPanel.addEventListener('touchstart', (e) => {
+                if (!pickerSheet.classList.contains('active')) return;
+                if (pickerPanel.scrollTop > 0) return;
+                pickerDragging = true;
+                pickerDragStartY = e.touches[0].clientY;
+                pickerDragDeltaY = 0;
+                pickerSheet.classList.add('dragging');
+            }, { passive: true });
+            pickerPanel.addEventListener('touchmove', (e) => {
+                if (!pickerDragging) return;
+                pickerDragDeltaY = Math.max(0, e.touches[0].clientY - pickerDragStartY);
+                if (pickerDragDeltaY > 0) {
+                    e.preventDefault();
+                    pickerPanel.style.transform = `translateY(${pickerDragDeltaY}px)`;
+                }
+            }, { passive: false });
+            pickerPanel.addEventListener('touchend', () => {
+                if (!pickerDragging) return;
+                pickerDragging = false;
+                pickerSheet.classList.remove('dragging');
+                if (pickerDragDeltaY > 90) closePicker();
+                else pickerPanel.style.transform = '';
+                pickerDragDeltaY = 0;
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            refreshLayoutSafeArea();
+            window.addEventListener('resize', refreshLayoutSafeArea);
+            window.addEventListener('orientationchange', () => setTimeout(refreshLayoutSafeArea, 150));
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', refreshLayoutSafeArea);
+                window.visualViewport.addEventListener('scroll', refreshLayoutSafeArea);
+            }
+            if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+            if (userData) {
+                document.getElementById('settings-name').value = userData.name || '';
+                setPickerValue('settings', 'grade', userData.grade);
+                setPickerValue('settings', 'class', userData.class);
+                setPickerValue('settings', 'number', userData.number);
+            }
+        });
+    </script>
+</body>
+</html>
