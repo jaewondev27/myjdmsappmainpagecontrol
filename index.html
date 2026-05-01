@@ -79,56 +79,76 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
     'use strict';
     function __jdmsApplySafeInsetCssVars() {
         try {
+            var CAP_TOP = 88;
+            var CAP_BOT = 128;
             var probe = document.createElement('div');
             probe.setAttribute('aria-hidden', 'true');
-            probe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;visibility:hidden;overflow:hidden;z-index:0;padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0)';
+            probe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;visibility:hidden;overflow:hidden;z-index:0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0);padding-left:0;padding-right:0;';
             document.documentElement.appendChild(probe);
             var cs = getComputedStyle(probe);
-            var top = parseFloat(cs.paddingTop) || 0;
-            var right = parseFloat(cs.paddingRight) || 0;
-            var bottom = parseFloat(cs.paddingBottom) || 0;
-            var left = parseFloat(cs.paddingLeft) || 0;
+            var topEnv = parseFloat(cs.paddingTop) || 0;
+            var bottomEnv = parseFloat(cs.paddingBottom) || 0;
             probe.remove();
-            var vv = window.visualViewport;
-            if (vv && vv.scale <= 1.02) {
-                var obscuredBottom = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
-                bottom = Math.max(bottom, obscuredBottom);
-            }
-            if (top + right + bottom + left < 0.5 && vv && vv.scale <= 1.02) {
-                top = Math.max(top, Math.round(vv.offsetTop || 0));
-                left = Math.max(left, Math.round(vv.offsetLeft || 0));
-                var obR = Math.max(0, Math.round(window.innerWidth - vv.width - vv.offsetLeft));
-                right = Math.max(right, obR);
-            }
+            var nativeT = NaN;
+            var nativeB = NaN;
             try {
                 if (typeof AndroidInterface !== 'undefined' && AndroidInterface.getInsetTopPx) {
-                    var nt = +AndroidInterface.getInsetTopPx();
-                    var nb = +AndroidInterface.getInsetBottomPx();
-                    var nl = +AndroidInterface.getInsetLeftPx();
-                    var nr = +AndroidInterface.getInsetRightPx();
-                    if (!isNaN(nt)) top = Math.max(top, nt);
-                    if (!isNaN(nb)) bottom = Math.max(bottom, nb);
-                    if (!isNaN(nl)) left = Math.max(left, nl);
-                    if (!isNaN(nr)) right = Math.max(right, nr);
+                    nativeT = +AndroidInterface.getInsetTopPx();
+                    nativeB = +AndroidInterface.getInsetBottomPx();
                 }
             } catch (e1) {}
+            var top = 0;
+            if (!isNaN(nativeT) && nativeT > 0.5) top = Math.max(top, nativeT);
+            if (topEnv > 0.5) top = Math.max(top, topEnv);
+            top = Math.min(Math.max(0, top), CAP_TOP);
+            var bottom = 0;
+            if (!isNaN(nativeB) && nativeB > 0.5) bottom = Math.max(bottom, nativeB);
+            if (bottomEnv > 0.5) bottom = Math.max(bottom, bottomEnv);
+            var vv = window.visualViewport;
+            if (vv && vv.scale <= 1.02) {
+                var vvBot = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+                if (vvBot > bottom + 24 && vvBot < 420) bottom = vvBot;
+            }
+            bottom = Math.min(Math.max(0, bottom), CAP_BOT);
             var rs = document.documentElement.style;
-            rs.setProperty('--sat', top + 'px');
-            rs.setProperty('--sar', right + 'px');
-            rs.setProperty('--sab', bottom + 'px');
-            rs.setProperty('--sal', left + 'px');
+            function setInsetVar(name, px) {
+                if (px > 0.5) rs.setProperty(name, px + 'px');
+                else rs.removeProperty(name);
+            }
+            setInsetVar('--sat', top);
+            setInsetVar('--sab', bottom);
+            rs.setProperty('--sar', '0px');
+            rs.setProperty('--sal', '0px');
         } catch (e) {}
     }
+    function __jdmsKickSafeInsets() {
+        __jdmsApplySafeInsetCssVars();
+        if (typeof requestAnimationFrame === 'function') {
+            requestAnimationFrame(function () {
+                __jdmsApplySafeInsetCssVars();
+            });
+        }
+    }
     window.__jdmsApplySafeInsetCssVars = __jdmsApplySafeInsetCssVars;
-    __jdmsApplySafeInsetCssVars();
+    window.__jdmsKickSafeInsets = __jdmsKickSafeInsets;
+    __jdmsKickSafeInsets();
+    [0, 160, 600, 1800].forEach(function (ms) {
+        setTimeout(__jdmsApplySafeInsetCssVars, ms);
+    });
+    window.addEventListener('load', function () { __jdmsKickSafeInsets(); });
+    window.addEventListener('pageshow', function () { __jdmsKickSafeInsets(); });
+    document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) __jdmsKickSafeInsets();
+    });
+    window.addEventListener('focus', function () { __jdmsKickSafeInsets(); });
 })();
     </script>
     <style>
         :root {
             --sat: env(safe-area-inset-top, 0px);
-            --sar: env(safe-area-inset-right, 0px);
+            --sar: 0px;
             --sab: env(safe-area-inset-bottom, 0px);
-            --sal: env(safe-area-inset-left, 0px);
+            --sal: 0px;
             --primary: #3182f6;
             --primary-light: #e8f3ff;
             --bg: #f2f4f6;
@@ -1962,7 +1982,8 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             function refreshLayoutSafeArea() {
-                if (window.__jdmsApplySafeInsetCssVars) window.__jdmsApplySafeInsetCssVars();
+                if (window.__jdmsKickSafeInsets) window.__jdmsKickSafeInsets();
+                else if (window.__jdmsApplySafeInsetCssVars) window.__jdmsApplySafeInsetCssVars();
             }
             refreshLayoutSafeArea();
             window.addEventListener('resize', refreshLayoutSafeArea);
