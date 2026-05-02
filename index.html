@@ -80,7 +80,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
     function __jdmsApplySafeInsetCssVars() {
         try {
             var CAP_TOP = 38;
-            var CAP_BOT = 72;
+            var CAP_BOT = 80;
             var probe = document.createElement('div');
             probe.setAttribute('aria-hidden', 'true');
             probe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;visibility:hidden;overflow:hidden;z-index:0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0);padding-left:0;padding-right:0;';
@@ -113,9 +113,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     bottom = vvBot;
                     vvIme = true;
                 }
-            }
-            if (!vvIme && !isNaN(nativeB) && nativeB > 34 && bottomEnv < 10) {
-                bottom = Math.min(bottom, 24);
             }
             bottom = Math.min(Math.max(0, bottom), CAP_BOT);
             var rs = document.documentElement.style;
@@ -157,7 +154,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             --sar: 0px;
             --sab: env(safe-area-inset-bottom, 0px);
             --sal: 0px;
-            --sab-gap: min(var(--sab), 14px);
+            --sab-gap: var(--sab);
             --nav-morph-duration: 0.62s;
             --nav-morph-ease: cubic-bezier(0.25, 1, 0.35, 1);
             --primary: #3182f6;
@@ -218,7 +215,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             padding-right: 0;
         }
 
-        /* --- 상단 세이프 영역: 블러/밴딩 없이 가장자리 비네팅만 --- */
+        /* --- 상단 세이프 영역: 배경색(--bg)에서 아래로 투명 --- */
         #top-status-bar-vignette {
             position: fixed;
             top: 0;
@@ -227,17 +224,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             height: var(--sat);
             z-index: 1000;
             pointer-events: none;
-            background:
-                radial-gradient(ellipse 72% 160% at 0% 0%, rgba(0, 0, 0, 0.1) 0%, transparent 68%),
-                radial-gradient(ellipse 72% 160% at 100% 0%, rgba(0, 0, 0, 0.1) 0%, transparent 68%),
-                radial-gradient(ellipse 130% 100% at 50% 0%, rgba(0, 0, 0, 0.05) 0%, transparent 62%);
-        }
-
-        body.dark-mode #top-status-bar-vignette {
-            background:
-                radial-gradient(ellipse 72% 160% at 0% 0%, rgba(0, 0, 0, 0.45) 0%, transparent 68%),
-                radial-gradient(ellipse 72% 160% at 100% 0%, rgba(0, 0, 0, 0.45) 0%, transparent 68%),
-                radial-gradient(ellipse 130% 100% at 50% 0%, rgba(0, 0, 0, 0.28) 0%, transparent 62%);
+            background: linear-gradient(180deg, var(--bg) 0%, var(--bg) 48%, transparent 100%);
         }
         body.dark-mode #splash-screen,
         body.dark-mode #setup-screen,
