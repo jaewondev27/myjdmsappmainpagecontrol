@@ -155,6 +155,8 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             --sab: env(safe-area-inset-bottom, 0px);
             --sal: 0px;
             --sab-gap: var(--sab);
+            /* Android native inset is navigation_bar_height; do not stack that again inside our tab bar (iOS keeps env()). */
+            --sab-chrome: max(env(safe-area-inset-bottom, 0px), max(0px, var(--sab) - 56px));
             --nav-morph-duration: 0.62s;
             --nav-morph-ease: cubic-bezier(0.25, 1, 0.35, 1);
             --primary: #3182f6;
@@ -210,7 +212,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             user-select: none;
             overflow-x: hidden;
             padding-top: calc(var(--sat) + 8px);
-            padding-bottom: var(--sab-gap);
+            padding-bottom: 0;
             padding-left: 0;
             padding-right: 0;
         }
@@ -399,7 +401,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: calc(var(--sat) + 28px) 24px calc(28px + var(--sab-gap));
+            padding: calc(var(--sat) + 28px) 24px calc(28px + var(--sab-chrome));
             background:
                 radial-gradient(circle at 12% 0%, rgba(49, 130, 246, 0.14), transparent 42%),
                 radial-gradient(circle at 88% 15%, rgba(80, 164, 255, 0.12), transparent 44%),
@@ -575,7 +577,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         }
 
         .page-content {
-            padding-bottom: calc(80px + var(--sab-gap));
+            padding-bottom: calc(80px + var(--sab-chrome));
             position: relative;
             background-color: var(--bg);
             min-height: calc(100dvh - var(--sat) - 20px);
@@ -589,7 +591,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         }
 
         #page-more {
-            padding-bottom: calc(8px + var(--sab-gap));
+            padding-bottom: calc(8px + var(--sab-chrome));
         }
 
         .home-header {
@@ -706,7 +708,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         }
 
         body.segment-mode .page-content {
-            padding-bottom: calc(84px + var(--sab-gap));
+            padding-bottom: calc(84px + var(--sab-chrome));
         }
 
         #page-timetable:not(.hidden),
@@ -722,7 +724,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
         body.segment-mode #page-timetable .iframe-container,
         body.segment-mode #page-lunch .iframe-container {
-            height: calc(100dvh - var(--sat) - 36px - 8px - 74px - var(--sab-gap));
+            height: calc(100dvh - var(--sat) - 36px - 8px - 74px - var(--sab-chrome));
             min-height: 280px;
         }
         
@@ -753,7 +755,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             align-items: flex-start;
             padding-top: 12px;
             border-top: 1px solid var(--border);
-            padding-bottom: calc(12px + var(--sab-gap));
+            padding-bottom: calc(12px + var(--sab-chrome));
             z-index: 1000;
             border-radius: 20px 20px 0 0;
             overflow: hidden;
@@ -860,7 +862,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             display: none;
             gap: 8px;
             z-index: 1001;
-            padding-bottom: var(--sab-gap);
+            padding-bottom: var(--sab-chrome);
         }
 
         .floating-tab-bar.visible {
@@ -869,7 +871,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             justify-content: space-around;
             align-items: flex-start;
             padding-top: 12px;
-            padding-bottom: calc(12px + var(--sab-gap));
+            padding-bottom: calc(12px + var(--sab-chrome));
         }
 
         .floating-tab-item {
@@ -1123,7 +1125,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             bottom: 0;
             background: #ffffff;
             border-radius: 24px 24px 0 0;
-            padding: 14px 18px calc(18px + var(--sab-gap));
+            padding: 14px 18px calc(18px + var(--sab-chrome));
             transform: translateY(100%);
             transition: transform 0.32s cubic-bezier(0.2, 0.85, 0.2, 1);
             max-height: 68vh;
@@ -1559,7 +1561,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             display: flex;
             border-top: 1px solid #e5e8eb;
             background: #ffffff;
-            padding-bottom: var(--sab-gap); 
+            padding-bottom: var(--sab-chrome); 
         }
 
         .banner-btn {
