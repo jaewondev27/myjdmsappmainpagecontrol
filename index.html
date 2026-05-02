@@ -722,8 +722,8 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             display: block;
         }
 
-        body.segment-mode #page-timetable .iframe-container,
-        body.segment-mode #page-lunch .iframe-container {
+        #page-timetable:not(.hidden) .iframe-container,
+        #page-lunch:not(.hidden) .iframe-container {
             height: calc(100dvh - var(--sat) - 36px - 8px - 74px - var(--sab-chrome));
             min-height: 280px;
         }
@@ -755,7 +755,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             align-items: flex-start;
             padding-top: 12px;
             border-top: 1px solid var(--border);
-            padding-bottom: calc(12px + var(--sab-chrome));
+            padding-bottom: calc(14px + var(--sab-chrome));
             z-index: 1000;
             border-radius: 20px 20px 0 0;
             overflow: hidden;
@@ -2603,7 +2603,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 floatingTabItems.forEach(tab => tab.classList.toggle('active', tab.getAttribute('data-float-page') === target));
                 pages.forEach(p => p.classList.toggle('hidden', p.id !== `page-${target}`));
                 syncNativeStatusBar(target);
-                document.body.classList.toggle('segment-mode', target === 'timetable' || target === 'lunch');
                 if (target === 'home') { loadTodayTimetableIframe(); loadHomeLunchIframe(); }
                 if (target === 'timetable') loadWeeklyTimetableIframe();
                 if (target === 'lunch') loadLunchIframe();
