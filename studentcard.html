@@ -106,9 +106,9 @@
             font-size: 16px;
             font-weight: 800;
             cursor: pointer;
-            transition: transform 0.18s ease;
+            transition: transform 0.34s cubic-bezier(0.18, 0.9, 0.22, 1.35);
         }
-        .btn-primary:active { transform: scale(0.985); }
+        .btn-primary:active { transform: scale(0.965); }
         .btn-secondary {
             border: 1px solid var(--border);
             background: var(--card-bg);
@@ -119,9 +119,9 @@
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
-            transition: transform 0.18s ease, background-color 0.2s ease;
+            transition: transform 0.34s cubic-bezier(0.18, 0.9, 0.22, 1.35), background-color 0.2s ease;
         }
-        .btn-secondary:active { transform: scale(0.985); background: var(--bg); }
+        .btn-secondary:active { transform: scale(0.965); background: var(--bg); }
         .slide-shell {
             height: 100%;
             width: 100%;
@@ -845,11 +845,18 @@
                     closeDeleteConfirmModal();
                     closeRegisterConfirmModal();
                     try {
-                        window.close();
+                        if (typeof AndroidInterface !== "undefined") {
+                            if (typeof AndroidInterface.closeCurrentWebView === "function") { AndroidInterface.closeCurrentWebView(); return; }
+                            if (typeof AndroidInterface.closeWebView === "function") { AndroidInterface.closeWebView(); return; }
+                            if (typeof AndroidInterface.goBack === "function") { AndroidInterface.goBack(); return; }
+                            if (typeof AndroidInterface.finish === "function") { AndroidInterface.finish(); return; }
+                            if (typeof AndroidInterface.closeApp === "function") { AndroidInterface.closeApp(); return; }
+                        }
                     } catch (e) {}
-                    try {
-                        history.back();
-                    } catch (e) {}
+                    try { history.back(); } catch (e) {}
+                    setTimeout(() => {
+                        try { window.close(); } catch (e) {}
+                    }, 120);
                 });
             }
 
@@ -865,23 +872,16 @@
             if (studentCardEl) {
                 let dragging = false;
                 const maxTilt = 20;
-                function resetCard() {
-                    studentCardEl.style.transform = "scale(1) rotateX(0deg) rotateY(0deg) rotateZ(0deg)";
-                    studentCardEl.style.boxShadow = "0 16px 26px rgba(15, 23, 42, 0.22), 0 4px 8px rgba(15, 23, 42, 0.18)";
-                }
-                studentCardEl.addEventListener("pointerdown", (e) => {
-                    dragging = true;
-                    studentCardEl.setPointerCapture(e.pointerId);
+                function pressCard() {
                     studentCardEl.style.transform = "scale(0.97) rotateX(0deg) rotateY(0deg) rotateZ(0deg)";
                     studentCardEl.style.boxShadow = "0 24px 38px rgba(15,23,42,0.26), 0 10px 16px rgba(15,23,42,0.2)";
-                });
-                studentCardEl.addEventListener("pointermove", (e) => {
-                    if (!dragging) return;
+                }
+                function updateCardByPoint(clientX, clientY) {
                     const rect = studentCardEl.getBoundingClientRect();
                     const cx = rect.left + rect.width / 2;
                     const cy = rect.top + rect.height / 2;
-                    const dx = (e.clientX - cx) / (rect.width / 2);
-                    const dy = (e.clientY - cy) / (rect.height / 2);
+                    const dx = (clientX - cx) / (rect.width / 2);
+                    const dy = (clientY - cy) / (rect.height / 2);
                     const rx = Math.max(-maxTilt * 0.7, Math.min(maxTilt * 0.7, -dy * maxTilt * 0.7));
                     const ry = Math.max(-maxTilt, Math.min(maxTilt, dx * maxTilt));
                     const rz = Math.max(-7, Math.min(7, dx * 7));
@@ -889,6 +889,19 @@
                     const dynamicShadowX = (dx * 14).toFixed(1);
                     const dynamicShadowY = (24 + Math.abs(dy) * 8).toFixed(1);
                     studentCardEl.style.boxShadow = `${dynamicShadowX}px ${dynamicShadowY}px 38px rgba(15,23,42,0.28), 0 12px 18px rgba(15,23,42,0.22)`;
+                }
+                function resetCard() {
+                    studentCardEl.style.transform = "scale(1) rotateX(0deg) rotateY(0deg) rotateZ(0deg)";
+                    studentCardEl.style.boxShadow = "0 16px 26px rgba(15, 23, 42, 0.22), 0 4px 8px rgba(15, 23, 42, 0.18)";
+                }
+                studentCardEl.addEventListener("pointerdown", (e) => {
+                    dragging = true;
+                    studentCardEl.setPointerCapture(e.pointerId);
+                    pressCard();
+                });
+                studentCardEl.addEventListener("pointermove", (e) => {
+                    if (!dragging) return;
+                    updateCardByPoint(e.clientX, e.clientY);
                 });
                 studentCardEl.addEventListener("pointerup", () => {
                     dragging = false;
@@ -900,6 +913,28 @@
                 });
                 studentCardEl.addEventListener("pointerleave", () => {
                     if (!dragging) resetCard();
+                });
+                studentCardEl.addEventListener("touchstart", (e) => {
+                    dragging = true;
+                    const t = e.touches[0];
+                    if (!t) return;
+                    pressCard();
+                    updateCardByPoint(t.clientX, t.clientY);
+                }, { passive: true });
+                studentCardEl.addEventListener("touchmove", (e) => {
+                    if (!dragging) return;
+                    const t = e.touches[0];
+                    if (!t) return;
+                    e.preventDefault();
+                    updateCardByPoint(t.clientX, t.clientY);
+                }, { passive: false });
+                studentCardEl.addEventListener("touchend", () => {
+                    dragging = false;
+                    resetCard();
+                });
+                studentCardEl.addEventListener("touchcancel", () => {
+                    dragging = false;
+                    resetCard();
                 });
             }
         })();
