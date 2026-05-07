@@ -673,8 +673,11 @@
             justify-content: center;
             z-index: 120;
             padding: 20px;
+            animation: fadeIn 0.3s ease;
         }
-        .confirm-modal.show { display: flex; }
+        .confirm-modal.show { 
+            display: flex;
+        }
         .confirm-card {
             width: min(360px, 100%);
             background: var(--card-bg);
@@ -682,6 +685,7 @@
             border-radius: 18px;
             padding: 16px;
             box-shadow: 0 14px 34px rgba(0,0,0,0.18);
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .confirm-title {
             font-size: 17px;
@@ -801,10 +805,6 @@
                 </div>
                 <div style="display: flex; gap: 8px; margin: 12px 0 0;">
                     <button id="edit-form-btn" class="btn-secondary" style="flex: 1; height: 48px; font-size: 15px;">수정</button>
-                    <button id="physical-card-add-btn" class="physical-card-btn">실물 학생증 등록</button>
-                </div>
-                <div id="physical-card-view-container" style="margin-top: 8px; display: none;">
-                    <button id="physical-card-view-btn" class="btn-secondary" style="width: 100%; height: 48px; font-size: 15px;">실물 학생증 보기</button>
                 </div>
                 <div class="issue-note" style="margin-top: 12px;">
                     디지털 학생증은 교내 도서관 및 바코드 사용 시설에서 사용할 수 있으며,<br>
@@ -841,62 +841,15 @@
     </div>
 
     <!-- 카메라 스캔 모달 -->
-    <div id="cameraModal" class="camera-modal">
-        <div class="camera-header">
-            <div style="width: 36px;"></div>
-            <div class="camera-title" id="cameraTitle">앞면 스캔</div>
-            <button class="camera-close-btn" id="cameraCancelBtn">✕</button>
-        </div>
-        <div class="camera-container">
-            <video id="cameraVideo" class="camera-video" playsinline autoplay></video>
-            <canvas id="cardDetectCanvas" style="display: none;"></canvas>
-            <div class="camera-overlay">
-                <div class="scan-frame" id="scanFrame"></div>
-                <div class="camera-guide">
-                    <strong id="cameraGuide">카드를 프레임에 맞춰주세요</strong>
-                    <span id="cameraSubGuide">자동으로 스캔됩니다</span>
-                </div>
-            </div>
-        </div>
-        <div class="camera-footer">
-            <button class="camera-btn camera-btn-secondary" id="cameraSkipBtn">건너뛰기</button>
-            <button class="camera-btn camera-btn-primary" id="cameraCaptureBtn">촬영</button>
+    <!-- 등록 완료 모달 -->
+    <div id="registerCompleteModal" class="register-complete-modal">
+        <div class="register-complete-inner">
+            <div class="register-complete-check" id="checkIcon"></div>
+            <div class="register-complete-text">등록이 완료됐습니다</div>
+            <div class="register-complete-desc">디지털 학생증이 저장되었습니다</div>
+            <button class="register-complete-btn" id="registerCompleteBtn">확인</button>
         </div>
     </div>
-    
-    <!-- 숨겨진 파일 입력 -->
-    <input type="file" id="cameraInput" accept="image/*" capture="camera" style="display: none;">
-
-    <!-- 실물 학생증 뷰어 모달 -->
-    <div id="physicalCardModal" class="physical-card-modal">
-        <div class="physical-card-content">
-            <div class="physical-card-header">
-                <div class="physical-card-header-title">실물 학생증</div>
-                <button class="physical-card-close-btn" id="physicalCardCloseBtn">✕</button>
-            </div>
-            <div class="card-flipper" id="cardFlipper">
-                <div class="card-flip-inner" id="cardFlipInner">
-                    <div class="card-flip-front">
-                        <img id="cardFrontImg" class="card-flip-image" src="" alt="앞면">
-                    </div>
-                    <div class="card-flip-back">
-                        <img id="cardBackImg" class="card-flip-image" src="" alt="뒷면">
-                    </div>
-                </div>
-            </div>
-            <div class="card-flip-hint">카드를 눌러 뒤집으세요</div>
-        </div>
-    </div>
-
-        <!-- 등록 완료 모달 -->
-        <div id="registerCompleteModal" class="register-complete-modal">
-            <div class="register-complete-inner">
-                <div class="register-complete-check" id="checkIcon"></div>
-                <div class="register-complete-text">등록이 완료됐습니다</div>
-                <div class="register-complete-desc">실물 학생증이 저장되었습니다</div>
-                <button class="register-complete-btn" id="registerCompleteBtn">확인</button>
-            </div>
-        </div>
 
     <script>
         (function () {
@@ -974,24 +927,7 @@
             const registerOkBtn = document.getElementById("register-ok-btn");
             const topBackBtn = document.getElementById("top-back-btn");
             
-            // 카메라 스캔 관련 요소
-            const cameraModal = document.getElementById("cameraModal");
-            const cameraVideo = document.getElementById("cameraVideo");
-            const scanFrame = document.getElementById("scanFrame");
-            const cameraTitle = document.getElementById("cameraTitle");
-            const cameraGuide = document.getElementById("cameraGuide");
-            const cameraCancelBtn = document.getElementById("cameraCancelBtn");
-            const cameraSkipBtn = document.getElementById("cameraSkipBtn");
-            const cameraCaptureBtn = document.getElementById("cameraCaptureBtn");
-            const physicalCardAddBtn = document.getElementById("physical-card-add-btn");
-            const physicalCardViewBtn = document.getElementById("physical-card-view-btn");
-            const physicalCardViewContainer = document.getElementById("physical-card-view-container");
-            const physicalCardModal = document.getElementById("physicalCardModal");
-            const physicalCardCloseBtn = document.getElementById("physicalCardCloseBtn");
-            const cardFlipper = document.getElementById("cardFlipper");
-            const cardFlipInner = document.getElementById("cardFlipInner");
-            const cardFrontImg = document.getElementById("cardFrontImg");
-            const cardBackImg = document.getElementById("cardBackImg");
+            // 등록 완료 모달
             const registerCompleteModal = document.getElementById("registerCompleteModal");
             const registerCompleteBtn = document.getElementById("registerCompleteBtn");
             
@@ -1000,9 +936,6 @@
             let sheetDragStartY = 0;
             let sheetDragDeltaY = 0;
             let pendingRegisterData = null;
-            let cameraStream = null;
-            let currentScanStep = 0; // 0: front, 1: back
-            let scannedImages = { front: null, back: null };
 
             const nameEl = document.getElementById("name");
             const dropdownState = {};
@@ -1052,167 +985,6 @@
                 return darkRatio > 0.1 && darkRatio < 0.5 && edgeRatio > 0.2;
             }
             
-            async function openCamera() {
-                cameraModal.classList.add("open");
-                currentScanStep = 0;
-                cameraTitle.textContent = "앞면 스캔";
-                cameraGuide.textContent = "카드를 프레임에 맞춰주세요";
-                
-                try {
-                    // 웹뷰 환경 감지
-                    const isWebView = () => {
-                        const ua = navigator.userAgent;
-                        return /wv|WebView/.test(ua) ||
-                               (typeof AndroidInterface !== 'undefined') ||
-                               (typeof webkit !== 'undefined');
-                    };
-                    
-                    if (isWebView()) {
-                        // 웹뷰에서는 파일 입력 사용
-                        const cameraInput = document.getElementById("cameraInput");
-                        cameraInput.onchange = (e) => {
-                            const file = e.target.files[0];
-                            if (file) {
-                                const reader = new FileReader();
-                                reader.onload = (event) => {
-                                    if (currentScanStep === 0) {
-                                        scannedImages.front = event.target.result;
-                                        currentScanStep = 1;
-                                        cameraTitle.textContent = "뒷면 스캔";
-                                        cameraGuide.textContent = "이제 뒷면을 스캔해주세요";
-                                        cameraInput.click();
-                                    } else {
-                                        scannedImages.back = event.target.result;
-                                        closeCameraModal();
-                                        showRegisterCompleteModal();
-                                    }
-                                };
-                                reader.readAsDataURL(file);
-                            }
-                        };
-                        cameraInput.click();
-                    } else {
-                        // 브라우저에서는 getUserMedia 사용
-                        const constraints = {
-                            video: { facingMode: "environment" }
-                        };
-                        
-                        cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
-                        cameraVideo.srcObject = cameraStream;
-                        cameraVideo.onloadedmetadata = () => {
-                            cameraVideo.play();
-                            startCardDetection();
-                        };
-                    }
-                } catch (err) {
-                    console.error("카메라 접근 실패:", err);
-                    alert("카메라 접근 권한이 필요합니다.\n설정에서 카메라 권한을 허용해주세요.");
-                    closeCameraModal();
-                }
-            }
-            
-            function closeCameraModal() {
-                cameraModal.classList.remove("open");
-                if (cameraStream) {
-                    cameraStream.getTracks().forEach(track => track.stop());
-                    cameraStream = null;
-                }
-                cardDetectionRunning = false;
-            }
-            
-            let cardDetectionRunning = false;
-            let detectedCount = 0;
-            const detectionThreshold = 3; // 연속 3회 감지 후 촬영
-            
-            function startCardDetection() {
-                cardDetectionRunning = true;
-                detectedCount = 0;
-                let frameCount = 0;
-                
-                const detectFrame = () => {
-                    if (!cardDetectionRunning || !cameraVideo.srcObject) return;
-                    frameCount++;
-                    
-                    // 매 3 프레임마다 감지 시도
-                    if (frameCount % 3 === 0) {
-                        const canvas = document.getElementById("cardDetectCanvas");
-                        canvas.width = cameraVideo.videoWidth;
-                        canvas.height = cameraVideo.videoHeight;
-                        const ctx = canvas.getContext("2d");
-                        
-                        if (cameraVideo.readyState === cameraVideo.HAVE_ENOUGH_DATA) {
-                            ctx.drawImage(cameraVideo, 0, 0);
-                            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                            
-                            if (detectCardEdges(imageData)) {
-                                detectedCount++;
-                                scanFrame.classList.add("detected");
-                                
-                                if (detectedCount >= detectionThreshold) {
-                                    cardDetectionRunning = false;
-                                    setTimeout(() => captureCard(), 200);
-                                }
-                            } else {
-                                detectedCount = 0;
-                                scanFrame.classList.remove("detected");
-                            }
-                        }
-                    }
-                    
-                    if (cardDetectionRunning) {
-                        requestAnimationFrame(detectFrame);
-                    }
-                };
-                
-                detectFrame();
-            }
-            
-            function captureCard() {
-                const canvas = document.createElement("canvas");
-                canvas.width = cameraVideo.videoWidth;
-                canvas.height = cameraVideo.videoHeight;
-                const ctx = canvas.getContext("2d");
-                ctx.drawImage(cameraVideo, 0, 0);
-                
-                // 카드 영역만 자르기 (대략적인 위치)
-                const croppedCanvas = cropCardImage(canvas);
-                const imageData = croppedCanvas.toDataURL("image/jpeg", 0.8);
-                
-                if (currentScanStep === 0) {
-                    scannedImages.front = imageData;
-                    currentScanStep = 1;
-                    cameraTitle.textContent = "뒷면 스캔";
-                    cameraGuide.textContent = "이제 뒷면을 스캔해주세요";
-                    scanFrame.classList.remove("detected");
-                    detectedCount = 0;
-                    startCardDetection(); // 다시 시작
-                } else {
-                    scannedImages.back = imageData;
-                    cardDetectionRunning = false;
-                    closeCameraModal();
-                    showRegisterCompleteModal();
-                }
-            }
-            
-            function cropCardImage(canvas) {
-                const width = canvas.width;
-                const height = canvas.height;
-                
-                // 화면 중앙의 카드 크기 비율에 맞춰 자르기 (세로 비율)
-                const cardWidth = Math.min(width * 0.7, 280);
-                const cardHeight = cardWidth * 1.6; // 세로 비율 (학생증 비율)
-                const x = (width - cardWidth) / 2;
-                const y = (height - cardHeight) / 2;
-                
-                const croppedCanvas = document.createElement("canvas");
-                croppedCanvas.width = 280;
-                croppedCanvas.height = 448;
-                const ctx = croppedCanvas.getContext("2d");
-                ctx.drawImage(canvas, x, y, cardWidth, cardHeight, 0, 0, 280, 448);
-                
-                return croppedCanvas;
-            }
-            
             function showRegisterCompleteModal() {
                 registerCompleteModal.classList.add("open");
                 // Lucide Check 아이콘 추가
@@ -1222,19 +994,6 @@
             
             function closeRegisterCompleteModal() {
                 registerCompleteModal.classList.remove("open");
-            }
-            
-            function openPhysicalCardViewer() {
-                if (scannedImages.front && scannedImages.back) {
-                    cardFrontImg.src = scannedImages.front;
-                    cardBackImg.src = scannedImages.back;
-                    cardFlipInner.classList.remove("flipped");
-                    physicalCardModal.classList.add("open");
-                }
-            }
-            
-            function closePhysicalCardViewer() {
-                physicalCardModal.classList.remove("open");
             }
             
             function closeAllDropdowns() {
@@ -1371,17 +1130,6 @@
                     width: 1.6
                 });
                 deleteBtn.style.display = "inline-block";
-                
-                // 실물 학생증 표시 여부
-                if (data.physicalCardFront && data.physicalCardBack) {
-                    scannedImages.front = data.physicalCardFront;
-                    scannedImages.back = data.physicalCardBack;
-                    physicalCardViewContainer.style.display = "block";
-                    physicalCardAddBtn.style.display = "none";
-                } else {
-                    physicalCardViewContainer.style.display = "none";
-                    physicalCardAddBtn.style.display = "block";
-                }
             }
 
             function loadSaved() {
@@ -1399,8 +1147,8 @@
             function commitRegister(data) {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
                 renderCard(data);
-                slideShell.classList.add("hidden");
-                stepCard.classList.remove("hidden");
+                closeRegisterConfirmModal();
+                showRegisterCompleteModal();
                 pendingRegisterData = null;
             }
             function saveData() {
@@ -1438,47 +1186,11 @@
                 }, 60);
             }
 
-            // 카메라 관련 이벤트 리스너
-            if (physicalCardAddBtn) {
-                physicalCardAddBtn.addEventListener("click", openCamera);
-            }
-            if (cameraCancelBtn) {
-                cameraCancelBtn.addEventListener("click", closeCameraModal);
-            }
-            if (cameraSkipBtn) {
-                cameraSkipBtn.addEventListener("click", closeCameraModal);
-            }
-            if (cameraCaptureBtn) {
-                cameraCaptureBtn.addEventListener("click", captureCard);
-            }
-            if (physicalCardViewBtn) {
-                physicalCardViewBtn.addEventListener("click", openPhysicalCardViewer);
-            }
-            if (physicalCardCloseBtn) {
-                physicalCardCloseBtn.addEventListener("click", closePhysicalCardViewer);
-            }
-            if (physicalCardModal) {
-                physicalCardModal.addEventListener("click", (e) => {
-                    if (e.target === physicalCardModal) closePhysicalCardViewer();
-                });
-            }
-            if (cardFlipper) {
-                cardFlipper.addEventListener("click", () => {
-                    cardFlipInner.classList.toggle("flipped");
-                });
-            }
             if (registerCompleteBtn) {
                 registerCompleteBtn.addEventListener("click", () => {
                     closeRegisterCompleteModal();
-                    // 학생증 저장 처리
-                    const saved = loadSaved();
-                    if (saved) {
-                        saved.physicalCardFront = scannedImages.front;
-                        saved.physicalCardBack = scannedImages.back;
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
-                        physicalCardViewContainer.style.display = "block";
-                        physicalCardAddBtn.style.display = "none";
-                    }
+                    slideShell.classList.add("hidden");
+                    stepCard.classList.remove("hidden");
                 });
             }
 
