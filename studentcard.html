@@ -306,6 +306,57 @@
             transform: scale(0.99);
             background: var(--bg);
         }
+        .confirm-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.42);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 120;
+            padding: 20px;
+        }
+        .confirm-modal.show { display: flex; }
+        .confirm-card {
+            width: min(360px, 100%);
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 16px;
+            box-shadow: 0 14px 34px rgba(0,0,0,0.18);
+        }
+        .confirm-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+        .confirm-text {
+            margin-top: 8px;
+            color: var(--text-sub);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .confirm-actions {
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .confirm-btn {
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text-main);
+            border-radius: 12px;
+            height: 44px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .confirm-btn.danger {
+            border-color: #ef4444;
+            background: #ef4444;
+            color: #fff;
+        }
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
@@ -387,6 +438,16 @@
         <h3 id="dropdown-sheet-title" class="sheet-title"></h3>
         <div id="dropdown-sheet-list" class="sheet-list"></div>
     </section>
+    <div id="delete-confirm-modal" class="confirm-modal">
+        <div class="confirm-card">
+            <div class="confirm-title">학생증 삭제</div>
+            <div class="confirm-text">정말 삭제할까요? 삭제하면 입력한 학생증 정보가 모두 초기화됩니다.</div>
+            <div class="confirm-actions">
+                <button id="delete-cancel-btn" class="confirm-btn">취소</button>
+                <button id="delete-ok-btn" class="confirm-btn danger">삭제</button>
+            </div>
+        </div>
+    </div>
     <script>
         (function () {
             const STORAGE_KEY = "myjdms_student_card_v1";
@@ -453,6 +514,9 @@
             const sheetPanel = document.getElementById("dropdown-sheet-panel");
             const sheetTitle = document.getElementById("dropdown-sheet-title");
             const sheetList = document.getElementById("dropdown-sheet-list");
+            const deleteConfirmModal = document.getElementById("delete-confirm-modal");
+            const deleteCancelBtn = document.getElementById("delete-cancel-btn");
+            const deleteOkBtn = document.getElementById("delete-ok-btn");
             let activeDropdownField = null;
             let sheetDragging = false;
             let sheetDragStartY = 0;
@@ -479,6 +543,14 @@
                 sheetPanel.setAttribute("aria-hidden", "true");
                 activeDropdownField = null;
                 closeAllDropdowns();
+            }
+            function openDeleteConfirmModal() {
+                if (!deleteConfirmModal) return;
+                deleteConfirmModal.classList.add("show");
+            }
+            function closeDeleteConfirmModal() {
+                if (!deleteConfirmModal) return;
+                deleteConfirmModal.classList.remove("show");
             }
             function openBottomSheet(field) {
                 const def = dropdownDefs[field];
@@ -620,15 +692,6 @@
 
             function resetAll() {
                 closeBottomSheet();
-                let proceed = true;
-                try {
-                    if (typeof window.confirm === "function") {
-                        proceed = window.confirm("학생증을 삭제하고 다시 등록할까요?");
-                    }
-                } catch (e) {
-                    proceed = true;
-                }
-                if (!proceed) return;
                 localStorage.removeItem(STORAGE_KEY);
                 nameEl.value = "";
                 Object.keys(dropdownDefs).forEach((field) => {
@@ -639,6 +702,9 @@
                 stepCard.classList.add("hidden");
                 slideShell.classList.remove("hidden");
                 slideShell.classList.remove("step-form");
+                setTimeout(() => {
+                    window.location.reload();
+                }, 60);
             }
 
             toFormBtn.addEventListener("click", () => slideShell.classList.add("step-form"));
@@ -647,7 +713,17 @@
                 slideShell.classList.remove("step-form");
             });
             saveBtn.addEventListener("click", saveData);
-            deleteBtn.addEventListener("click", resetAll);
+            deleteBtn.addEventListener("click", openDeleteConfirmModal);
+            if (deleteCancelBtn) deleteCancelBtn.addEventListener("click", closeDeleteConfirmModal);
+            if (deleteOkBtn) deleteOkBtn.addEventListener("click", () => {
+                closeDeleteConfirmModal();
+                resetAll();
+            });
+            if (deleteConfirmModal) {
+                deleteConfirmModal.addEventListener("click", (e) => {
+                    if (e.target === deleteConfirmModal) closeDeleteConfirmModal();
+                });
+            }
 
             const saved = loadSaved();
             if (saved) {
