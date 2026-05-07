@@ -45,6 +45,7 @@
             background: var(--bg);
             color: var(--text-main);
             overflow: hidden;
+            user-select: none;
         }
         .topbar {
             position: sticky;
@@ -56,6 +57,21 @@
             padding: calc(var(--sat) + 12px) 16px 12px;
             border-bottom: 1px solid var(--border);
             background: var(--bg);
+        }
+        .topbar-left {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .back-btn {
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text-main);
+            border-radius: 10px;
+            padding: 7px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
         }
         .topbar-title { font-size: 20px; font-weight: 800; }
         .delete-btn {
@@ -149,6 +165,7 @@
             background: transparent;
             color: var(--text-main);
             transition: border-color 0.2s ease, transform 0.16s ease;
+            user-select: text;
         }
         .input:focus { border-color: var(--primary); transform: translateY(-1px); }
         .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -217,6 +234,38 @@
             transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
             transform-style: preserve-3d;
             will-change: transform;
+            user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            box-shadow: 0 16px 26px rgba(15, 23, 42, 0.22), 0 4px 8px rgba(15, 23, 42, 0.18);
+        }
+        .student-card::before {
+            content: "";
+            position: absolute;
+            inset: auto 10px -9px 10px;
+            height: 16px;
+            border-radius: 0 0 22px 22px;
+            background: linear-gradient(180deg, rgba(148,163,184,0.6), rgba(100,116,139,0.82));
+            transform: translateZ(-1px);
+            filter: blur(0.2px);
+            z-index: -1;
+        }
+        body.dark-mode .student-card::before {
+            background: linear-gradient(180deg, rgba(71,85,105,0.82), rgba(30,41,59,0.95));
+        }
+        .student-card::after {
+            content: "";
+            position: absolute;
+            inset: -1px;
+            border-radius: 28px;
+            border: 1px solid rgba(255,255,255,0.34);
+            pointer-events: none;
+            mix-blend-mode: soft-light;
+        }
+        .student-card * {
+            user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
         }
         body.dark-mode .student-card {
             background: linear-gradient(170deg, rgba(79,157,255,0.28), rgba(79,157,255,0.08));
@@ -357,6 +406,15 @@
             background: #ef4444;
             color: #fff;
         }
+        .issue-note {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px dashed var(--border);
+            color: var(--text-sub);
+            font-size: 12px;
+            line-height: 1.5;
+        }
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
@@ -365,7 +423,10 @@
 </head>
 <body>
     <header class="topbar">
-        <div class="topbar-title">학생증</div>
+        <div class="topbar-left">
+            <button id="top-back-btn" class="back-btn">뒤로가기</button>
+            <div class="topbar-title">학생증</div>
+        </div>
         <button id="delete-btn" class="delete-btn">학생증 삭제</button>
     </header>
     <main class="container">
@@ -430,6 +491,10 @@
                     <div id="barcode-num" class="barcode-num"></div>
                 </div>
             </div>
+            <div class="issue-note">
+                디지털 학생증은 교내 도서관 및 바코드 사용 시설에서 사용할 수 있으며,<br>
+                외부 신원 확인 용도로는 사용할 수 없습니다.
+            </div>
         </section>
     </main>
     <div id="dropdown-sheet-backdrop" class="sheet-backdrop"></div>
@@ -445,6 +510,16 @@
             <div class="confirm-actions">
                 <button id="delete-cancel-btn" class="confirm-btn">취소</button>
                 <button id="delete-ok-btn" class="confirm-btn danger">삭제</button>
+            </div>
+        </div>
+    </div>
+    <div id="register-confirm-modal" class="confirm-modal">
+        <div class="confirm-card">
+            <div class="confirm-title">학생증 등록</div>
+            <div id="register-confirm-text" class="confirm-text">이 정보로 등록하시겠습니까?</div>
+            <div class="confirm-actions">
+                <button id="register-cancel-btn" class="confirm-btn">취소</button>
+                <button id="register-ok-btn" class="confirm-btn danger">등록</button>
             </div>
         </div>
     </div>
@@ -517,10 +592,16 @@
             const deleteConfirmModal = document.getElementById("delete-confirm-modal");
             const deleteCancelBtn = document.getElementById("delete-cancel-btn");
             const deleteOkBtn = document.getElementById("delete-ok-btn");
+            const registerConfirmModal = document.getElementById("register-confirm-modal");
+            const registerConfirmText = document.getElementById("register-confirm-text");
+            const registerCancelBtn = document.getElementById("register-cancel-btn");
+            const registerOkBtn = document.getElementById("register-ok-btn");
+            const topBackBtn = document.getElementById("top-back-btn");
             let activeDropdownField = null;
             let sheetDragging = false;
             let sheetDragStartY = 0;
             let sheetDragDeltaY = 0;
+            let pendingRegisterData = null;
 
             const nameEl = document.getElementById("name");
             const dropdownState = {};
@@ -551,6 +632,17 @@
             function closeDeleteConfirmModal() {
                 if (!deleteConfirmModal) return;
                 deleteConfirmModal.classList.remove("show");
+            }
+            function openRegisterConfirmModal(data) {
+                if (!registerConfirmModal || !registerConfirmText) return;
+                registerConfirmText.innerHTML =
+                    "이 정보로 등록하시겠습니까?<br>" +
+                    `${data.name} / ${data.grade}학년 / 현재 ${data.currentClass}반 ${data.currentNumber}번`;
+                registerConfirmModal.classList.add("show");
+            }
+            function closeRegisterConfirmModal() {
+                if (!registerConfirmModal) return;
+                registerConfirmModal.classList.remove("show");
             }
             function openBottomSheet(field) {
                 const def = dropdownDefs[field];
@@ -671,6 +763,13 @@
                 }
             }
 
+            function commitRegister(data) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                renderCard(data);
+                slideShell.classList.add("hidden");
+                stepCard.classList.remove("hidden");
+                pendingRegisterData = null;
+            }
             function saveData() {
                 const name = nameEl.value.trim();
                 const grade = dropdownState.grade;
@@ -684,14 +783,13 @@
                     return;
                 }
                 const data = { name, grade, enterYear, enterClass, enterNumber, currentClass, currentNumber };
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                renderCard(data);
-                slideShell.classList.add("hidden");
-                stepCard.classList.remove("hidden");
+                pendingRegisterData = data;
+                openRegisterConfirmModal(data);
             }
 
             function resetAll() {
                 closeBottomSheet();
+                closeRegisterConfirmModal();
                 localStorage.removeItem(STORAGE_KEY);
                 nameEl.value = "";
                 Object.keys(dropdownDefs).forEach((field) => {
@@ -724,6 +822,36 @@
                     if (e.target === deleteConfirmModal) closeDeleteConfirmModal();
                 });
             }
+            if (registerCancelBtn) registerCancelBtn.addEventListener("click", () => {
+                pendingRegisterData = null;
+                closeRegisterConfirmModal();
+            });
+            if (registerOkBtn) registerOkBtn.addEventListener("click", () => {
+                if (!pendingRegisterData) return;
+                closeRegisterConfirmModal();
+                commitRegister(pendingRegisterData);
+            });
+            if (registerConfirmModal) {
+                registerConfirmModal.addEventListener("click", (e) => {
+                    if (e.target === registerConfirmModal) {
+                        pendingRegisterData = null;
+                        closeRegisterConfirmModal();
+                    }
+                });
+            }
+            if (topBackBtn) {
+                topBackBtn.addEventListener("click", () => {
+                    closeBottomSheet();
+                    closeDeleteConfirmModal();
+                    closeRegisterConfirmModal();
+                    try {
+                        window.close();
+                    } catch (e) {}
+                    try {
+                        history.back();
+                    } catch (e) {}
+                });
+            }
 
             const saved = loadSaved();
             if (saved) {
@@ -736,14 +864,16 @@
 
             if (studentCardEl) {
                 let dragging = false;
-                const maxTilt = 6;
+                const maxTilt = 20;
                 function resetCard() {
-                    studentCardEl.style.transform = "scale(1) rotateX(0deg) rotateY(0deg)";
+                    studentCardEl.style.transform = "scale(1) rotateX(0deg) rotateY(0deg) rotateZ(0deg)";
+                    studentCardEl.style.boxShadow = "0 16px 26px rgba(15, 23, 42, 0.22), 0 4px 8px rgba(15, 23, 42, 0.18)";
                 }
                 studentCardEl.addEventListener("pointerdown", (e) => {
                     dragging = true;
                     studentCardEl.setPointerCapture(e.pointerId);
-                    studentCardEl.style.transform = "scale(0.985) rotateX(0deg) rotateY(0deg)";
+                    studentCardEl.style.transform = "scale(0.97) rotateX(0deg) rotateY(0deg) rotateZ(0deg)";
+                    studentCardEl.style.boxShadow = "0 24px 38px rgba(15,23,42,0.26), 0 10px 16px rgba(15,23,42,0.2)";
                 });
                 studentCardEl.addEventListener("pointermove", (e) => {
                     if (!dragging) return;
@@ -754,7 +884,11 @@
                     const dy = (e.clientY - cy) / (rect.height / 2);
                     const rx = Math.max(-maxTilt * 0.7, Math.min(maxTilt * 0.7, -dy * maxTilt * 0.7));
                     const ry = Math.max(-maxTilt, Math.min(maxTilt, dx * maxTilt));
-                    studentCardEl.style.transform = `scale(0.985) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
+                    const rz = Math.max(-7, Math.min(7, dx * 7));
+                    studentCardEl.style.transform = `scale(0.97) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg)`;
+                    const dynamicShadowX = (dx * 14).toFixed(1);
+                    const dynamicShadowY = (24 + Math.abs(dy) * 8).toFixed(1);
+                    studentCardEl.style.boxShadow = `${dynamicShadowX}px ${dynamicShadowY}px 38px rgba(15,23,42,0.28), 0 12px 18px rgba(15,23,42,0.22)`;
                 });
                 studentCardEl.addEventListener("pointerup", () => {
                     dragging = false;
