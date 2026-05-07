@@ -96,6 +96,315 @@
         .warn-title { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
         .warn-text { margin-top: 8px; color: var(--text-sub); line-height: 1.55; font-size: 14px; }
         .next-wrap { margin-top: auto; padding: 0 16px calc(16px + var(--sab)); }
+        
+        /* 실물 학생증 버튼 */
+        .physical-card-btn {
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--primary);
+            border-radius: 14px;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.16s ease, background-color 0.2s ease;
+            width: auto;
+        }
+        .physical-card-btn:active { transform: scale(0.95); background: var(--bg); }
+        
+        /* 카메라 스캔 모달 */
+        .camera-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #000;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            animation: fadeIn 0.3s ease;
+        }
+        .camera-modal.open { display: flex; }
+        
+        .camera-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        .camera-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .camera-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            pointer-events: none;
+        }
+        .scan-frame {
+            position: relative;
+            width: 320px;
+            height: 200px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            background: transparent;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.3);
+            transition: border-color 0.3s ease;
+        }
+        .scan-frame.detected {
+            border-color: #3182f6;
+            box-shadow: inset 0 0 30px rgba(49,130,246,0.3), 0 0 20px rgba(49,130,246,0.5);
+        }
+        .camera-guide {
+            color: #fff;
+            text-align: center;
+            margin-top: 40px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .camera-guide strong {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        
+        .camera-header {
+            padding: calc(12px + var(--sat)) 16px 12px;
+            background: rgba(0,0,0,0.4);
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+        .camera-close-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 10px;
+            width: 36px;
+            height: 36px;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            transition: background-color 0.2s ease;
+        }
+        .camera-close-btn:active { background: rgba(255,255,255,0.3); }
+        .camera-title {
+            flex: 1;
+            text-align: center;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        .camera-footer {
+            padding: 16px calc(16px + var(--sab));
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+        .camera-btn {
+            flex: 1;
+            height: 48px;
+            border: none;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: transform 0.16s ease;
+        }
+        .camera-btn:active { transform: scale(0.95); }
+        .camera-btn-primary {
+            background: #3182f6;
+            color: #fff;
+        }
+        .camera-btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        /* 실물 학생증 뷰어 모달 */
+        .physical-card-modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            top: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+            align-items: flex-end;
+            animation: fadeIn 0.3s ease;
+        }
+        .physical-card-modal.open {
+            display: flex;
+        }
+        .physical-card-content {
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 28px 28px 0 0;
+            padding: 20px 16px calc(20px + var(--sab));
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.4s cubic-bezier(0.22, 0.9, 0.22, 1);
+        }
+        .physical-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .physical-card-header-title {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+        .physical-card-close-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            width: 36px;
+            height: 36px;
+            color: var(--text-main);
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            transition: background-color 0.2s ease;
+        }
+        .physical-card-close-btn:active { background: var(--bg); }
+        
+        .card-flipper {
+            perspective: 1000px;
+            height: 280px;
+            cursor: pointer;
+            margin: 0 auto;
+        }
+        .card-flip-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+        }
+        .card-flip-inner.flipped {
+            transform: rotateY(180deg);
+        }
+        .card-flip-front,
+        .card-flip-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .card-flip-back {
+            transform: rotateY(180deg);
+        }
+        .card-flip-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .card-flip-hint {
+            text-align: center;
+            color: var(--text-mute);
+            font-size: 13px;
+            margin-top: 12px;
+        }
+        
+        /* 등록 완료 모달 */
+        .register-complete-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .register-complete-modal.open {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+        .register-complete-inner {
+            background: var(--card-bg);
+            border-radius: 28px;
+            padding: 40px 20px;
+            text-align: center;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin: 0 20px;
+        }
+        .register-complete-check {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background: #e3f2fd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: scaleInCheck 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s both;
+        }
+        .register-complete-check::after {
+            content: "✓";
+            font-size: 56px;
+            color: #3182f6;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .register-complete-text {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            margin-bottom: 8px;
+        }
+        .register-complete-desc {
+            font-size: 14px;
+            color: var(--text-sub);
+            margin-bottom: 32px;
+        }
+        .register-complete-btn {
+            width: 100%;
+            max-width: 320px;
+            height: 48px;
+            background: #3182f6;
+            color: #fff;
+            border: none;
+            border-radius: 16px;
+            font-weight: 800;
+            font-size: 15px;
+            cursor: pointer;
+            transition: transform 0.16s ease;
+            margin: 0 auto;
+        }
+        .register-complete-btn:active { transform: scale(0.95); }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.7); } to { opacity: 1; transform: scale(1); } }
+        @keyframes scaleInCheck { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
         .btn-primary {
             border: none;
             background: var(--primary);
@@ -275,7 +584,7 @@
         .beta { font-size: 11px; font-weight: 800; color: var(--primary); }
         .sc-main { margin-top: 14px; line-height: 1.6; font-size: 14px; color: var(--text-main); }
         .barcode-wrap {
-            margin-top: auto;
+            margin-top: 12px;
             background: #fff;
             border-radius: 14px;
             padding: 14px 8px 8px;
@@ -407,7 +716,7 @@
             color: #fff;
         }
         .issue-note {
-            margin-top: 10px;
+            margin-top: auto;
             padding: 10px 12px;
             border-radius: 12px;
             border: 1px dashed var(--border);
@@ -490,13 +799,19 @@
                     <svg id="barcode"></svg>
                     <div id="barcode-num" class="barcode-num"></div>
                 </div>
-            </div>
-            <div class="issue-note">
-                디지털 학생증은 교내 도서관 및 바코드 사용 시설에서 사용할 수 있으며,<br>
-                외부 신원 확인 용도로는 사용할 수 없습니다.
+                <div style="display: flex; gap: 8px; margin: 12px 0 0;">
+                    <button id="edit-form-btn" class="btn-secondary" style="flex: 1; height: 48px; font-size: 15px;">수정</button>
+                    <button id="physical-card-add-btn" class="physical-card-btn">실물 학생증 등록</button>
+                </div>
+                <div id="physical-card-view-container" style="margin-top: 8px; display: none;">
+                    <button id="physical-card-view-btn" class="btn-secondary" style="width: 100%; height: 48px; font-size: 15px;">실물 학생증 보기</button>
+                </div>
+                <div class="issue-note" style="margin-top: 12px;">
+                    디지털 학생증은 교내 도서관 및 바코드 사용 시설에서 사용할 수 있으며,<br>
+                    외부 신원 확인 용도로는 사용할 수 없습니다.
+                </div>
             </div>
         </section>
-    </main>
     <div id="dropdown-sheet-backdrop" class="sheet-backdrop"></div>
     <section id="dropdown-sheet-panel" class="sheet-panel" aria-hidden="true">
         <div class="sheet-handle"></div>
@@ -523,6 +838,62 @@
             </div>
         </div>
     </div>
+    </div>
+
+    <!-- 카메라 스캔 모달 -->
+    <div id="cameraModal" class="camera-modal">
+        <div class="camera-header">
+            <div style="width: 36px;"></div>
+            <div class="camera-title" id="cameraTitle">앞면 스캔</div>
+            <button class="camera-close-btn" id="cameraCancelBtn">✕</button>
+        </div>
+        <div class="camera-container">
+            <video id="cameraVideo" class="camera-video" playsinline></video>
+            <div class="camera-overlay">
+                <div class="scan-frame" id="scanFrame"></div>
+                <div class="camera-guide">
+                    <strong id="cameraGuide">카드를 프레임에 맞춰주세요</strong>
+                    <span id="cameraSubGuide">자동으로 스캔됩니다</span>
+                </div>
+            </div>
+        </div>
+        <div class="camera-footer">
+            <button class="camera-btn camera-btn-secondary" id="cameraSkipBtn">건너뛰기</button>
+            <button class="camera-btn camera-btn-primary" id="cameraCaptureBtn">촬영</button>
+        </div>
+    </div>
+
+    <!-- 실물 학생증 뷰어 모달 -->
+    <div id="physicalCardModal" class="physical-card-modal">
+        <div class="physical-card-content">
+            <div class="physical-card-header">
+                <div class="physical-card-header-title">실물 학생증</div>
+                <button class="physical-card-close-btn" id="physicalCardCloseBtn">✕</button>
+            </div>
+            <div class="card-flipper" id="cardFlipper">
+                <div class="card-flip-inner" id="cardFlipInner">
+                    <div class="card-flip-front">
+                        <img id="cardFrontImg" class="card-flip-image" src="" alt="앞면">
+                    </div>
+                    <div class="card-flip-back">
+                        <img id="cardBackImg" class="card-flip-image" src="" alt="뒷면">
+                    </div>
+                </div>
+            </div>
+            <div class="card-flip-hint">카드를 눌러 뒤집으세요</div>
+        </div>
+    </div>
+
+    <!-- 등록 완료 모달 -->
+    <div id="registerCompleteModal" class="register-complete-modal">
+        <div class="register-complete-inner">
+            <div class="register-complete-check"></div>
+            <div class="register-complete-text">등록이 완료됐습니다</div>
+            <div class="register-complete-desc">실물 학생증이 저장되었습니다</div>
+            <button class="register-complete-btn" id="registerCompleteBtn">확인</button>
+        </div>
+    </div>
+
     <script>
         (function () {
             const STORAGE_KEY = "myjdms_student_card_v1";
@@ -578,6 +949,7 @@
             const slideShell = document.getElementById("slide-shell");
             const stepCard = document.getElementById("step-card");
             const toFormBtn = document.getElementById("to-form-btn");
+            const editFormBtn = document.getElementById("edit-form-btn");
             const backBtn = document.getElementById("back-btn");
             const saveBtn = document.getElementById("save-btn");
             const deleteBtn = document.getElementById("delete-btn");
@@ -597,11 +969,36 @@
             const registerCancelBtn = document.getElementById("register-cancel-btn");
             const registerOkBtn = document.getElementById("register-ok-btn");
             const topBackBtn = document.getElementById("top-back-btn");
+            
+            // 카메라 스캔 관련 요소
+            const cameraModal = document.getElementById("cameraModal");
+            const cameraVideo = document.getElementById("cameraVideo");
+            const scanFrame = document.getElementById("scanFrame");
+            const cameraTitle = document.getElementById("cameraTitle");
+            const cameraGuide = document.getElementById("cameraGuide");
+            const cameraCancelBtn = document.getElementById("cameraCancelBtn");
+            const cameraSkipBtn = document.getElementById("cameraSkipBtn");
+            const cameraCaptureBtn = document.getElementById("cameraCaptureBtn");
+            const physicalCardAddBtn = document.getElementById("physical-card-add-btn");
+            const physicalCardViewBtn = document.getElementById("physical-card-view-btn");
+            const physicalCardViewContainer = document.getElementById("physical-card-view-container");
+            const physicalCardModal = document.getElementById("physicalCardModal");
+            const physicalCardCloseBtn = document.getElementById("physicalCardCloseBtn");
+            const cardFlipper = document.getElementById("cardFlipper");
+            const cardFlipInner = document.getElementById("cardFlipInner");
+            const cardFrontImg = document.getElementById("cardFrontImg");
+            const cardBackImg = document.getElementById("cardBackImg");
+            const registerCompleteModal = document.getElementById("registerCompleteModal");
+            const registerCompleteBtn = document.getElementById("registerCompleteBtn");
+            
             let activeDropdownField = null;
             let sheetDragging = false;
             let sheetDragStartY = 0;
             let sheetDragDeltaY = 0;
             let pendingRegisterData = null;
+            let cameraStream = null;
+            let currentScanStep = 0; // 0: front, 1: back
+            let scannedImages = { front: null, back: null };
 
             const nameEl = document.getElementById("name");
             const dropdownState = {};
@@ -615,6 +1012,160 @@
                 currentNumber: { label: "현재 번호", values: Array.from({ length: 40 }, (_, i) => i + 1), suffix: "번", defaultValue: 1 }
             };
 
+            function closeAllDropdowns() {
+                document.querySelectorAll(".dropdown").forEach((el) => el.classList.remove("open"));
+            }
+            
+            // 카메라 스캔 함수들
+            async function openCamera() {
+                cameraModal.classList.add("open");
+                currentScanStep = 0;
+                cameraTitle.textContent = "앞면 스캔";
+                cameraGuide.textContent = "카드를 프레임에 맞춰주세요";
+                
+                try {
+                    cameraStream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }
+                    });
+                    cameraVideo.srcObject = cameraStream;
+                    cameraVideo.play();
+                    startCardDetection();
+                } catch (err) {
+                    console.error("카메라 접근 실패:", err);
+                    alert("카메라 접근 권한이 필요합니다.");
+                    closeCameraModal();
+                }
+            }
+            
+            function closeCameraModal() {
+                cameraModal.classList.remove("open");
+                if (cameraStream) {
+                    cameraStream.getTracks().forEach(track => track.stop());
+                    cameraStream = null;
+                }
+                cardDetectionRunning = false;
+            }
+            
+            let cardDetectionRunning = false;
+            function startCardDetection() {
+                cardDetectionRunning = true;
+                let frameCount = 0;
+                
+                const detectFrame = () => {
+                    if (!cardDetectionRunning) return;
+                    frameCount++;
+                    
+                    // 매 4 프레임마다 감지 시도
+                    if (frameCount % 4 === 0) {
+                        const canvas = document.createElement("canvas");
+                        canvas.width = cameraVideo.videoWidth;
+                        canvas.height = cameraVideo.videoHeight;
+                        const ctx = canvas.getContext("2d");
+                        ctx.drawImage(cameraVideo, 0, 0);
+                        
+                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        if (isCardDetected(imageData)) {
+                            scanFrame.classList.add("detected");
+                            setTimeout(() => captureCard(), 300);
+                        } else {
+                            scanFrame.classList.remove("detected");
+                        }
+                    }
+                    
+                    if (cardDetectionRunning) {
+                        requestAnimationFrame(detectFrame);
+                    }
+                };
+                
+                detectFrame();
+            }
+            
+            function isCardDetected(imageData) {
+                const data = imageData.data;
+                let edgePixels = 0;
+                let totalPixels = data.length / 4;
+                
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+                    const gray = (r + g + b) / 3;
+                    
+                    // 엣지 감지 (밝기 차이가 큰 부분)
+                    if (Math.abs(gray - 128) > 50) {
+                        edgePixels++;
+                    }
+                }
+                
+                return edgePixels / totalPixels > 0.15;
+            }
+            
+            function captureCard() {
+                const canvas = document.createElement("canvas");
+                canvas.width = cameraVideo.videoWidth;
+                canvas.height = cameraVideo.videoHeight;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(cameraVideo, 0, 0);
+                
+                // 카드 영역만 자르기 (대략적인 위치)
+                const croppedCanvas = cropCardImage(canvas);
+                const imageData = croppedCanvas.toDataURL("image/jpeg");
+                
+                if (currentScanStep === 0) {
+                    scannedImages.front = imageData;
+                    currentScanStep = 1;
+                    cameraTitle.textContent = "뒷면 스캔";
+                    cameraGuide.textContent = "이제 뒷면을 스캔해주세요";
+                    scanFrame.classList.remove("detected");
+                    // 계속 촬영
+                } else {
+                    scannedImages.back = imageData;
+                    cardDetectionRunning = false;
+                    closeCameraModal();
+                    showRegisterCompleteModal();
+                }
+            }
+            
+            function cropCardImage(canvas) {
+                const width = canvas.width;
+                const height = canvas.height;
+                
+                // 화면 중앙의 카드 크기 비율에 맞춰 자르기
+                const cardWidth = Math.min(width * 0.8, 320 * (width / 375));
+                const cardHeight = cardWidth * 0.625; // 카드 비율
+                const x = (width - cardWidth) / 2;
+                const y = (height - cardHeight) / 2;
+                
+                const croppedCanvas = document.createElement("canvas");
+                croppedCanvas.width = 320;
+                croppedCanvas.height = 200;
+                const ctx = croppedCanvas.getContext("2d");
+                ctx.drawImage(canvas, x, y, cardWidth, cardHeight, 0, 0, 320, 200);
+                
+                return croppedCanvas;
+            }
+            
+            function showRegisterCompleteModal() {
+                registerCompleteModal.classList.add("open");
+            }
+            
+            function closeRegisterCompleteModal() {
+                registerCompleteModal.classList.remove("open");
+            }
+            
+            function openPhysicalCardViewer() {
+                if (scannedImages.front && scannedImages.back) {
+                    cardFrontImg.src = scannedImages.front;
+                    cardBackImg.src = scannedImages.back;
+                    cardFlipInner.classList.remove("flipped");
+                    physicalCardModal.classList.add("open");
+                }
+            }
+            
+            function closePhysicalCardViewer() {
+                physicalCardModal.classList.remove("open");
+            }
+            
             function closeAllDropdowns() {
                 document.querySelectorAll(".dropdown").forEach((el) => el.classList.remove("open"));
             }
@@ -749,6 +1300,17 @@
                     width: 1.6
                 });
                 deleteBtn.style.display = "inline-block";
+                
+                // 실물 학생증 표시 여부
+                if (data.physicalCardFront && data.physicalCardBack) {
+                    scannedImages.front = data.physicalCardFront;
+                    scannedImages.back = data.physicalCardBack;
+                    physicalCardViewContainer.style.display = "block";
+                    physicalCardAddBtn.style.display = "none";
+                } else {
+                    physicalCardViewContainer.style.display = "none";
+                    physicalCardAddBtn.style.display = "block";
+                }
             }
 
             function loadSaved() {
@@ -805,7 +1367,54 @@
                 }, 60);
             }
 
+            // 카메라 관련 이벤트 리스너
+            if (physicalCardAddBtn) {
+                physicalCardAddBtn.addEventListener("click", openCamera);
+            }
+            if (cameraCancelBtn) {
+                cameraCancelBtn.addEventListener("click", closeCameraModal);
+            }
+            if (cameraSkipBtn) {
+                cameraSkipBtn.addEventListener("click", closeCameraModal);
+            }
+            if (cameraCaptureBtn) {
+                cameraCaptureBtn.addEventListener("click", captureCard);
+            }
+            if (physicalCardViewBtn) {
+                physicalCardViewBtn.addEventListener("click", openPhysicalCardViewer);
+            }
+            if (physicalCardCloseBtn) {
+                physicalCardCloseBtn.addEventListener("click", closePhysicalCardViewer);
+            }
+            if (physicalCardModal) {
+                physicalCardModal.addEventListener("click", (e) => {
+                    if (e.target === physicalCardModal) closePhysicalCardViewer();
+                });
+            }
+            if (cardFlipper) {
+                cardFlipper.addEventListener("click", () => {
+                    cardFlipInner.classList.toggle("flipped");
+                });
+            }
+            if (registerCompleteBtn) {
+                registerCompleteBtn.addEventListener("click", () => {
+                    closeRegisterCompleteModal();
+                    // 학생증 저장 처리
+                    const saved = loadSaved();
+                    if (saved) {
+                        saved.physicalCardFront = scannedImages.front;
+                        saved.physicalCardBack = scannedImages.back;
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+                        physicalCardViewContainer.style.display = "block";
+                        physicalCardAddBtn.style.display = "none";
+                    }
+                });
+            }
+
             toFormBtn.addEventListener("click", () => slideShell.classList.add("step-form"));
+            if (editFormBtn) {
+                editFormBtn.addEventListener("click", () => slideShell.classList.add("step-form"));
+            }
             backBtn.addEventListener("click", () => {
                 closeBottomSheet();
                 slideShell.classList.remove("step-form");
