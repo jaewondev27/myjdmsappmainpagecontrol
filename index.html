@@ -2438,13 +2438,13 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             const REMOTE_CONTROL_BASE = 'https://jaewondev27.github.io/myjdmsappmainpagecontrol';
             const NOTICE_ITEMS = [
                 {
-                    title: '2·3학년 소변검사 안내',
-                    content: '5월 8일(금) 2학년·3학년 대상 소변검사가 진행됩니다. 검사 하루 전날 밤에는 꼭 소변을 보고 자주세요.',
-                    effectiveDate: '2026-05-08'
-                }
+                    title: '소변검사 실시안내',
+                    content: '2학년, 3학년 소변검사를 5월8일 금에 실시합니다. 검사하루전 저녁 소변을 보세요.',
+                    effectiveDate: '2026-05-08',
+                    expireDate: '2026-05-09'
+                },
             ];
             let noticeAutoSlideTimer = null;
-            const iframeLoadedUrlMap = {};
 
             window.switchPageTo = function(page) { switchPage(page); };
             window.openAppInfo = function() {
@@ -2472,6 +2472,9 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     today.setHours(0, 0, 0, 0);
                     return NOTICE_ITEMS.filter((item) => {
                         if (!item || !item.effectiveDate) return false;
+                        const start = new Date(item.effectiveDate);
+                        start.setHours(0, 0, 0, 0);
+                        if (Number.isNaN(start.getTime()) || start.getTime() > today.getTime()) return false;
                         if (!item.expireDate) return true;
                         const end = new Date(item.expireDate);
                         end.setHours(23, 59, 59, 999);
@@ -2606,7 +2609,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 userData = { name, grade: parseInt(grade), class: parseInt(cls), number: parseInt(num) };
                 localStorage.setItem('userData', JSON.stringify(userData));
                 updateHeader();
-                reloadCurrentPageIframes(true);
+                reloadCurrentPageIframes();
             };
             window.resetAppSettings = function() {
                 if (!confirm('설정을 초기화하고 처음부터 다시 시작할까요?')) return;
@@ -2702,7 +2705,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 closeOfflineToast();
                 document.querySelectorAll('.timetable-iframe').forEach(iframe => iframe.style.display = 'block');
                 document.querySelectorAll('.offline-fallback').forEach(fallback => fallback.style.display = 'none');
-                reloadCurrentPageIframes(true);
+                reloadCurrentPageIframes();
             });
 
             const pageContent = document.getElementById('page-content');
@@ -2751,14 +2754,13 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 const shimmer = document.getElementById('refresh-shimmer');
                 overlay.classList.remove('hidden'); overlay.style.opacity = '1';
                 shimmer.style.animation = 'shimmer-sweep 1.2s cubic-bezier(0.4, 0, 0.2, 1) 2 forwards';
-                reloadCurrentPageIframes(true);
+                reloadCurrentPageIframes();
                 setTimeout(() => { overlay.style.opacity = '0'; setTimeout(() => overlay.classList.add('hidden'), 300); }, 2400); 
             }
 
-            function safeLoadIframe(iframeId, url, forceReload) {
+            function safeLoadIframe(iframeId, url) {
                 const iframe = document.getElementById(iframeId);
                 if (!iframe) return;
-                const force = !!forceReload;
                 iframe.onload = function() {
                     try {
                         const doc = iframe.contentDocument || iframe.contentWindow.document;
@@ -2772,22 +2774,14 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     } catch (e) {}
                 };
                 if (!navigator.onLine) { iframe.style.display = 'none'; iframe.parentElement.querySelector('.offline-fallback').style.display = 'flex'; }
-                else {
-                    iframe.style.display = 'block';
-                    iframe.parentElement.querySelector('.offline-fallback').style.display = 'none';
-                    const alreadyLoaded = iframeLoadedUrlMap[iframeId] === url;
-                    if (!force && alreadyLoaded) return;
-                    iframeLoadedUrlMap[iframeId] = url;
-                    iframe.src = url;
-                }
+                else { iframe.style.display = 'block'; iframe.parentElement.querySelector('.offline-fallback').style.display = 'none'; iframe.src = url; }
             }
 
-            function reloadCurrentPageIframes(forceReload) {
-                const force = !!forceReload;
+            function reloadCurrentPageIframes() {
                 const page = document.querySelector('.nav-item.active').getAttribute('data-page');
-                if (page === 'home') { loadTodayTimetableIframe(force); loadHomeLunchIframe(force); }
-                else if (page === 'timetable') loadWeeklyTimetableIframe(force);
-                else if (page === 'lunch') loadLunchIframe(force);
+                if (page === 'home') { loadTodayTimetableIframe(); loadHomeLunchIframe(); }
+                else if (page === 'timetable') loadWeeklyTimetableIframe();
+                else if (page === 'lunch') loadLunchIframe();
             }
 
             function transitionFromSetupToApp() {
@@ -2840,13 +2834,9 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 floatingTabItems.forEach(tab => tab.classList.toggle('active', tab.getAttribute('data-float-page') === target));
                 pages.forEach(p => p.classList.toggle('hidden', p.id !== `page-${target}`));
                 syncNativeStatusBar(target);
-                if (target === 'home') {
-                    renderNoticeBanners();
-                    loadTodayTimetableIframe(false);
-                    loadHomeLunchIframe(false);
-                }
-                if (target === 'timetable') loadWeeklyTimetableIframe(false);
-                if (target === 'lunch') loadLunchIframe(false);
+                if (target === 'home') { loadTodayTimetableIframe(); loadHomeLunchIframe(); }
+                if (target === 'timetable') loadWeeklyTimetableIframe();
+                if (target === 'lunch') loadLunchIframe();
             }
 
             function startApp() {
@@ -2854,8 +2844,8 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 updateHeader();
                 try { renderNoticeBanners(); } catch (e) {}
                 if (!navigator.onLine) showOfflineToast();
-                loadTodayTimetableIframe(false);
-                loadHomeLunchIframe(false);
+                loadTodayTimetableIframe();
+                loadHomeLunchIframe();
             }
 
             function updateHeader() {
@@ -2898,10 +2888,10 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 if (e && e.data && e.data.type === 'myjdms-userData-updated') syncUserDataFromSettingsPage();
             });
 
-            function loadTodayTimetableIframe(forceReload) { safeLoadIframe('today-timetable-iframe', `https://sigan.onrender.com/todaysigan?grade=${userData.grade}&class=${userData.class}`, forceReload); }
-            function loadHomeLunchIframe(forceReload) { safeLoadIframe('home-lunch-iframe', `https://sigan.onrender.com/lunch?grade=${userData.grade}&class=${userData.class}`, forceReload); }
-            function loadWeeklyTimetableIframe(forceReload) { safeLoadIframe('weekly-timetable-iframe', `https://sigan.onrender.com/sigan?grade=${userData.grade}&class=${userData.class}`, forceReload); }
-            function loadLunchIframe(forceReload) { safeLoadIframe('lunch-iframe', `https://sigan.onrender.com/lunch?grade=${userData.grade}&class=${userData.class}`, forceReload); }
+            function loadTodayTimetableIframe() { safeLoadIframe('today-timetable-iframe', `https://sigan.onrender.com/todaysigan?grade=${userData.grade}&class=${userData.class}`); }
+            function loadHomeLunchIframe() { safeLoadIframe('home-lunch-iframe', `https://sigan.onrender.com/lunch?grade=${userData.grade}&class=${userData.class}`); }
+            function loadWeeklyTimetableIframe() { safeLoadIframe('weekly-timetable-iframe', `https://sigan.onrender.com/sigan?grade=${userData.grade}&class=${userData.class}`); }
+            function loadLunchIframe() { safeLoadIframe('lunch-iframe', `https://sigan.onrender.com/lunch?grade=${userData.grade}&class=${userData.class}`); }
 
             const APP_VERSION_KEY = 'app_version';
             const DEFAULT_VERSION = '2.0.0.1';
