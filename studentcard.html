@@ -1024,15 +1024,36 @@
                 cameraGuide.textContent = "카드를 프레임에 맞춰주세요";
                 
                 try {
-                    cameraStream = await navigator.mediaDevices.getUserMedia({
-                        video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }
-                    });
+                    // 웹뷰 환경 확인
+                    const isWebView = () => {
+                        const ua = navigator.userAgent;
+                        return /wv|WebView/.test(ua) ||
+                               (typeof AndroidInterface !== 'undefined') ||
+                               (typeof webkit !== 'undefined');
+                    };
+                    
+                    const constraints = {
+                        video: {
+                            facingMode: "environment",
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 }
+                        }
+                    };
+                    
+                    // 웹뷰 환경에서는 더 느슨한 제약 조건 사용
+                    if (isWebView()) {
+                        constraints.video = { facingMode: "environment" };
+                    }
+                    
+                    cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
                     cameraVideo.srcObject = cameraStream;
-                    cameraVideo.play();
-                    startCardDetection();
+                    cameraVideo.onloadedmetadata = () => {
+                        cameraVideo.play();
+                        startCardDetection();
+                    };
                 } catch (err) {
                     console.error("카메라 접근 실패:", err);
-                    alert("카메라 접근 권한이 필요합니다.");
+                    alert("카메라 접근 권한이 필요합니다. 설정에서 카메라 권한을 허용해주세요.");
                     closeCameraModal();
                 }
             }
@@ -1480,7 +1501,18 @@
 
             if (studentCardEl) {
                 let dragging = false;
+                let dragDistance = 0;
                 const maxTilt = 20;
+                const dragThreshold = 10; // 드래그로 인정하는 최소 거리
+                
+                function isButtonClick(target) {
+                    // 클릭된 요소가 버튼이거나 버튼 내부인지 확인
+                    return target instanceof Element && (
+                        target.tagName === 'BUTTON' ||
+                        target.closest('button') !== null
+                    );
+                }
+                
                 function pressCard() {
                     studentCardEl.style.transform = "scale(0.97) rotateX(0deg) rotateY(0deg) rotateZ(0deg)";
                     studentCardEl.style.boxShadow = "0 24px 38px rgba(15,23,42,0.26), 0 10px 16px rgba(15,23,42,0.2)";
@@ -1503,47 +1535,92 @@
                     studentCardEl.style.transform = "scale(1) rotateX(0deg) rotateY(0deg) rotateZ(0deg)";
                     studentCardEl.style.boxShadow = "0 16px 26px rgba(15, 23, 42, 0.22), 0 4px 8px rgba(15, 23, 42, 0.18)";
                 }
+                
+                let pointerStartX = 0;
+                let pointerStartY = 0;
+                
                 studentCardEl.addEventListener("pointerdown", (e) => {
+                    if (isButtonClick(e.target)) return;
                     dragging = true;
+                    dragDistance = 0;
+                    pointerStartX = e.clientX;
+                    pointerStartY = e.clientY;
                     studentCardEl.setPointerCapture(e.pointerId);
                     pressCard();
                 });
                 studentCardEl.addEventListener("pointermove", (e) => {
                     if (!dragging) return;
-                    updateCardByPoint(e.clientX, e.clientY);
+                    const deltaX = Math.abs(e.clientX - pointerStartX);
+                    const deltaY = Math.abs(e.clientY - pointerStartY);
+                    dragDistance = Math.max(deltaX, deltaY);
+                    
+                    // 드래그 거리가 일정 이상일 때만 카드 움직임
+                    if (dragDistance > dragThreshold) {
+                        updateCardByPoint(e.clientX, e.clientY);
+                    }
                 });
                 studentCardEl.addEventListener("pointerup", () => {
                     dragging = false;
-                    resetCard();
+                    // 드래그 거리가 짧으면 (버튼 클릭 정도) 리셋
+                    if (dragDistance < dragThreshold) {
+                        resetCard();
+                    }
+                    // 실제 드래그한 경우는 카드 방향 유지
                 });
                 studentCardEl.addEventListener("pointercancel", () => {
                     dragging = false;
-                    resetCard();
+                    if (dragDistance < dragThreshold) {
+                        resetCard();
+                    }
                 });
                 studentCardEl.addEventListener("pointerleave", () => {
-                    if (!dragging) resetCard();
+                    if (!dragging) {
+                        // 드래그 중이 아니면 리셋 안함
+                    }
                 });
+                
+                let touchStartX = 0;
+                let touchStartY = 0;
+                
                 studentCardEl.addEventListener("touchstart", (e) => {
+                    if (isButtonClick(e.target)) return;
                     dragging = true;
+                    dragDistance = 0;
                     const t = e.touches[0];
                     if (!t) return;
+                    touchStartX = t.clientX;
+                    touchStartY = t.clientY;
                     pressCard();
-                    updateCardByPoint(t.clientX, t.clientY);
                 }, { passive: true });
                 studentCardEl.addEventListener("touchmove", (e) => {
                     if (!dragging) return;
                     const t = e.touches[0];
                     if (!t) return;
-                    e.preventDefault();
-                    updateCardByPoint(t.clientX, t.clientY);
+                    
+                    const deltaX = Math.abs(t.clientX - touchStartX);
+                    const deltaY = Math.abs(t.clientY - touchStartY);
+                    dragDistance = Math.max(deltaX, deltaY);
+                    
+                    // 드래그 거리가 일정 이상일 때만 카드 움직임
+                    if (dragDistance > dragThreshold) {
+                        e.preventDefault();
+                        updateCardByPoint(t.clientX, t.clientY);
+                    }
                 }, { passive: false });
                 studentCardEl.addEventListener("touchend", () => {
                     dragging = false;
-                    resetCard();
+                    // 드래그한 경우와 단순 클릭 구분
+                    if (dragDistance < dragThreshold) {
+                        // 단순 클릭 - 리셋
+                        resetCard();
+                    }
+                    // 드래그한 경우는 카드 상태 유지
                 });
                 studentCardEl.addEventListener("touchcancel", () => {
                     dragging = false;
-                    resetCard();
+                    if (dragDistance < dragThreshold) {
+                        resetCard();
+                    }
                 });
             }
         })();
