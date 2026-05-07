@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#f2f4f6">
+    <title>디지털 학생증</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+    <style>
+        :root {
+            --sat: env(safe-area-inset-top, 0px);
+            --sab: env(safe-area-inset-bottom, 0px);
+            --topbar-h: 72px;
+            --bg: #f2f4f6;
+            --card-bg: #ffffff;
+            --text-main: #191f28;
+            --text-sub: #4e5968;
+            --text-mute: #8b95a1;
+            --primary: #3182f6;
+            --border: #e5e8eb;
+            --danger: #dc2626;
+        }
+        body.dark-mode {
+            --bg: #141414;
+            --card-bg: #1d1d1d;
+            --text-main: #f3f3f3;
+            --text-sub: #c2c2c2;
+            --text-mute: #8f98a3;
+            --primary: #4f9dff;
+            --border: #303030;
+            --danger: #f87171;
+        }
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            overflow: hidden;
+        }
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: calc(var(--sat) + 12px) 16px 12px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg);
+        }
+        .topbar-title { font-size: 20px; font-weight: 800; }
+        .delete-btn {
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            background: transparent;
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: none;
+        }
+        .container { height: calc(100dvh - var(--topbar-h)); }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 16px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+        }
+        .warn-title { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
+        .warn-text { margin-top: 8px; color: var(--text-sub); line-height: 1.55; font-size: 14px; }
+        .next-wrap { margin-top: auto; padding: 0 16px calc(16px + var(--sab)); }
+        .btn-primary {
+            border: none;
+            background: var(--primary);
+            color: #fff;
+            border-radius: 16px;
+            width: 100%;
+            height: 56px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.18s ease;
+        }
+        .btn-primary:active { transform: scale(0.985); }
+        .btn-secondary {
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text-main);
+            border-radius: 16px;
+            width: 100%;
+            height: 56px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.18s ease, background-color 0.2s ease;
+        }
+        .btn-secondary:active { transform: scale(0.985); background: var(--bg); }
+        .slide-shell {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+        .slide-track {
+            display: flex;
+            width: 200%;
+            height: 100%;
+            transition: transform 0.42s cubic-bezier(0.22, 0.9, 0.22, 1);
+        }
+        .slide-shell.step-form .slide-track { transform: translateX(-50%); }
+        .slide-page {
+            width: 50%;
+            height: 100%;
+            padding: 12px 12px calc(8px + var(--sab));
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .full-screen-card {
+            border-radius: 0;
+            border: none;
+            box-shadow: none;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+            padding: 20px 16px 0;
+            animation: fadeInUp 0.35s ease;
+        }
+        .form { display: grid; gap: 10px; margin-top: 12px; }
+        .form-animate { animation: fadeInUp 0.35s ease; }
+        .input {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 13px 14px;
+            font-size: 14px;
+            background: transparent;
+            color: var(--text-main);
+        }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .dropdown { position: relative; }
+        .dropdown-btn {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            height: 50px;
+            background: var(--card-bg);
+            color: var(--text-main);
+            text-align: left;
+            padding: 0 14px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .dropdown-list {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: calc(100% + 6px);
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            max-height: 210px;
+            overflow: auto;
+            display: none;
+            z-index: 30;
+            box-shadow: 0 10px 26px rgba(0,0,0,0.08);
+            scrollbar-width: none;
+        }
+        .dropdown-list::-webkit-scrollbar { display: none; }
+        .dropdown.open .dropdown-list { display: block; }
+        .dropdown-item {
+            width: 100%;
+            text-align: left;
+            background: transparent;
+            border: none;
+            padding: 11px 12px;
+            color: var(--text-main);
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .dropdown-item:active { background: var(--border); }
+        .button-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .guide-list {
+            margin-top: 14px;
+            padding-left: 18px;
+            color: var(--text-sub);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .guide-list li { margin-bottom: 8px; }
+        .student-card {
+            width: min(320px, 100%);
+            min-height: 540px;
+            margin: 4px auto 0;
+            border-radius: 28px;
+            border: 1px solid var(--border);
+            background: linear-gradient(170deg, rgba(49,130,246,0.2), rgba(49,130,246,0.06));
+            padding: 18px 16px;
+            display: flex;
+            flex-direction: column;
+        }
+        body.dark-mode .student-card {
+            background: linear-gradient(170deg, rgba(79,157,255,0.28), rgba(79,157,255,0.08));
+        }
+        .sc-head { display: flex; justify-content: space-between; align-items: center; }
+        .sc-title { font-weight: 800; font-size: 17px; }
+        .beta { font-size: 11px; font-weight: 800; color: var(--primary); }
+        .sc-main { margin-top: 14px; line-height: 1.6; font-size: 14px; color: var(--text-main); }
+        .barcode-wrap {
+            margin-top: auto;
+            background: #fff;
+            border-radius: 14px;
+            padding: 14px 8px 8px;
+            overflow: hidden;
+            text-align: center;
+        }
+        #barcode {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+        }
+        .barcode-num { text-align: center; margin-top: 8px; font-weight: 700; font-size: 13px; color: #111827; letter-spacing: 0.3px; }
+        .hidden { display: none !important; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-title">학생증</div>
+        <button id="delete-btn" class="delete-btn">학생증 삭제</button>
+    </header>
+    <main class="container">
+        <section id="slide-shell" class="slide-shell">
+            <div class="slide-track">
+                <article class="slide-page">
+                    <section class="full-screen-card">
+                        <div class="warn-title">학생증 베타 안내</div>
+                        <div class="warn-text">
+                            학생증은 베타 기능입니다.<br>
+                            다른 사람의 학생증 위조 및 부정 사용은 금지됩니다.<br>
+                            사용으로 발생하는 문제에 대해 My JDMS는 책임지지 않습니다.
+                        </div>
+                        <ul class="guide-list">
+                            <li>입학 당시 학급 정보를 정확히 입력해야 올바른 바코드가 생성됩니다.</li>
+                            <li>입력 정보는 기기 로컬 저장소에만 저장되며 서버로 전송되지 않습니다.</li>
+                            <li>분실 또는 기기 변경 시 학생증 삭제 후 다시 발급해주세요.</li>
+                        </ul>
+                        <div class="next-wrap">
+                            <button id="to-form-btn" class="btn-primary">다음</button>
+                        </div>
+                    </section>
+                </article>
+                <article class="slide-page">
+                    <section class="card form-animate">
+                        <div class="warn-title">학생 정보 입력</div>
+                        <div class="form">
+                            <input id="name" class="input" type="text" placeholder="이름">
+                            <div class="dropdown" data-field="grade"></div>
+                            <div class="dropdown" data-field="enterYear"></div>
+                            <div class="row">
+                                <div class="dropdown" data-field="enterClass"></div>
+                                <div class="dropdown" data-field="enterNumber"></div>
+                            </div>
+                            <div class="button-row">
+                                <button id="back-btn" class="btn-secondary">뒤로</button>
+                                <button id="save-btn" class="btn-primary">학생증 발급</button>
+                            </div>
+                        </div>
+                    </section>
+                </article>
+            </div>
+        </section>
+
+        <section id="step-card" class="card hidden" style="margin:12px;">
+            <div class="student-card">
+                <div class="sc-head">
+                    <div class="sc-title">My JDMS 디지털 학생증</div>
+                    <div class="beta">BETA</div>
+                </div>
+                <div id="student-info" class="sc-main"></div>
+                <div class="barcode-wrap">
+                    <svg id="barcode"></svg>
+                    <div id="barcode-num" class="barcode-num"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script>
+        (function () {
+            const STORAGE_KEY = "myjdms_student_card_v1";
+            const THEME_MODE_KEY = "theme_mode";
+            const BC_KEY = "myjdms_theme_sync_v1";
+            let themeMode = localStorage.getItem(THEME_MODE_KEY) || "auto";
+            const darkQuery = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+            const topbarEl = document.querySelector(".topbar");
+
+            function applySafeArea() {
+                try {
+                    const root = document.documentElement.style;
+                    const top = (typeof AndroidInterface !== "undefined" && AndroidInterface.getInsetTopPx) ? (+AndroidInterface.getInsetTopPx() || 0) : 0;
+                    const bottom = (typeof AndroidInterface !== "undefined" && AndroidInterface.getInsetBottomPx) ? (+AndroidInterface.getInsetBottomPx() || 0) : 0;
+                    if (top > 0) root.setProperty("--sat", Math.min(top, 38) + "px");
+                    if (bottom > 0) root.setProperty("--sab", Math.min(bottom, 80) + "px");
+                } catch (e) {}
+            }
+            function applyLayoutVars() {
+                try {
+                    if (!topbarEl) return;
+                    const h = Math.max(56, Math.round(topbarEl.getBoundingClientRect().height));
+                    document.documentElement.style.setProperty("--topbar-h", h + "px");
+                } catch (e) {}
+            }
+            function applyTheme(mode) {
+                const shouldDark = mode === "dark" || (mode === "auto" && darkQuery && darkQuery.matches);
+                document.body.classList.toggle("dark-mode", !!shouldDark);
+                const meta = document.querySelector('meta[name="theme-color"]');
+                if (meta) meta.setAttribute("content", shouldDark ? "#141414" : "#f2f4f6");
+            }
+            function setTheme(mode) {
+                if (mode !== "light" && mode !== "dark" && mode !== "auto") return;
+                themeMode = mode;
+                localStorage.setItem(THEME_MODE_KEY, mode);
+                applyTheme(mode);
+            }
+            try {
+                const bc = new BroadcastChannel(BC_KEY);
+                bc.onmessage = (ev) => { if (ev && ev.data && ev.data.mode) setTheme(ev.data.mode); };
+            } catch (e) {}
+            window.addEventListener("storage", (e) => {
+                if (e.key === THEME_MODE_KEY && e.newValue) setTheme(e.newValue);
+            });
+            if (darkQuery && darkQuery.addEventListener) darkQuery.addEventListener("change", () => applyTheme(themeMode));
+            applyTheme(themeMode);
+
+            applySafeArea();
+            applyLayoutVars();
+            window.addEventListener("resize", applyLayoutVars);
+            window.addEventListener("orientationchange", () => setTimeout(applyLayoutVars, 120));
+
+            const slideShell = document.getElementById("slide-shell");
+            const stepCard = document.getElementById("step-card");
+            const toFormBtn = document.getElementById("to-form-btn");
+            const backBtn = document.getElementById("back-btn");
+            const saveBtn = document.getElementById("save-btn");
+            const deleteBtn = document.getElementById("delete-btn");
+            const infoEl = document.getElementById("student-info");
+            const barcodeEl = document.getElementById("barcode");
+            const barcodeNumEl = document.getElementById("barcode-num");
+
+            const nameEl = document.getElementById("name");
+            const dropdownState = {};
+            const yearNow = new Date().getFullYear();
+            const dropdownDefs = {
+                grade: { label: "현재 학년", values: [1, 2, 3], suffix: "학년", defaultValue: 1 },
+                enterYear: { label: "입학년도", values: Array.from({ length: 12 }, (_, i) => yearNow - 10 + i), suffix: "년", defaultValue: yearNow },
+                enterClass: { label: "입학당시 반", values: Array.from({ length: 20 }, (_, i) => i + 1), suffix: "반", defaultValue: 1 },
+                enterNumber: { label: "입학당시 번호", values: Array.from({ length: 40 }, (_, i) => i + 1), suffix: "번", defaultValue: 1 }
+            };
+
+            function closeAllDropdowns(exceptField) {
+                document.querySelectorAll(".dropdown").forEach((el) => {
+                    if (el.dataset.field !== exceptField) el.classList.remove("open");
+                });
+            }
+            function renderDropdown(field) {
+                const def = dropdownDefs[field];
+                const host = document.querySelector(`.dropdown[data-field="${field}"]`);
+                if (!def || !host) return;
+                const value = dropdownState[field];
+                host.innerHTML = `
+                    <button type="button" class="dropdown-btn">${def.label}: ${value}${def.suffix}</button>
+                    <div class="dropdown-list">
+                        ${def.values.map((v) => `<button type="button" class="dropdown-item" data-value="${v}">${v}${def.suffix}</button>`).join("")}
+                    </div>
+                `;
+                const btn = host.querySelector(".dropdown-btn");
+                btn.addEventListener("click", () => {
+                    const open = host.classList.contains("open");
+                    closeAllDropdowns(field);
+                    host.classList.toggle("open", !open);
+                });
+                host.querySelectorAll(".dropdown-item").forEach((item) => {
+                    item.addEventListener("click", () => {
+                        dropdownState[field] = parseInt(item.dataset.value, 10);
+                        host.classList.remove("open");
+                        renderDropdown(field);
+                    });
+                });
+            }
+            Object.keys(dropdownDefs).forEach((field) => {
+                dropdownState[field] = dropdownDefs[field].defaultValue;
+                renderDropdown(field);
+            });
+            document.addEventListener("click", (e) => {
+                if (!(e.target instanceof Element)) return;
+                if (!e.target.closest(".dropdown")) closeAllDropdowns();
+            });
+
+            function pad2(n) { return String(n).padStart(2, "0"); }
+            function buildStudentNumber(grade, cls, num) {
+                return String(grade) + String(cls).padStart(2, "0") + pad2(num);
+            }
+            function buildBarcodeValue(enterYear, grade, cls, num) {
+                const yy = String(enterYear).slice(-2);
+                return "M" + yy + buildStudentNumber(grade, cls, num);
+            }
+
+            function renderCard(data) {
+                const studentNo = buildStudentNumber(1, data.enterClass, data.enterNumber);
+                const barcodeValue = buildBarcodeValue(data.enterYear, 1, data.enterClass, data.enterNumber);
+                infoEl.innerHTML =
+                    "<strong>" + data.name + "</strong><br>" +
+                    "현재 " + data.grade + "학년<br>" +
+                    data.enterYear + "년 입학 / 입학당시 " + data.enterClass + "반 " + data.enterNumber + "번<br>" +
+                    "학번 " + studentNo;
+                barcodeNumEl.textContent = barcodeValue;
+                JsBarcode(barcodeEl, barcodeValue, {
+                    format: "CODE39",
+                    displayValue: false,
+                    margin: 0,
+                    height: 76,
+                    width: 1.6
+                });
+                deleteBtn.style.display = "inline-block";
+            }
+
+            function loadSaved() {
+                try {
+                    const raw = localStorage.getItem(STORAGE_KEY);
+                    if (!raw) return null;
+                    const data = JSON.parse(raw);
+                    if (!data || !data.name) return null;
+                    return data;
+                } catch (e) {
+                    return null;
+                }
+            }
+
+            function saveData() {
+                const name = nameEl.value.trim();
+                const grade = dropdownState.grade;
+                const enterYear = dropdownState.enterYear;
+                const enterClass = dropdownState.enterClass;
+                const enterNumber = dropdownState.enterNumber;
+                if (!name) {
+                    alert("이름을 입력해주세요.");
+                    return;
+                }
+                const data = { name, grade, enterYear, enterClass, enterNumber };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                renderCard(data);
+                slideShell.classList.add("hidden");
+                stepCard.classList.remove("hidden");
+            }
+
+            function resetAll() {
+                if (!confirm("학생증을 삭제하고 다시 등록할까요?")) return;
+                localStorage.removeItem(STORAGE_KEY);
+                nameEl.value = "";
+                Object.keys(dropdownDefs).forEach((field) => {
+                    dropdownState[field] = dropdownDefs[field].defaultValue;
+                    renderDropdown(field);
+                });
+                deleteBtn.style.display = "none";
+                stepCard.classList.add("hidden");
+                slideShell.classList.remove("hidden");
+                slideShell.classList.remove("step-form");
+            }
+
+            toFormBtn.addEventListener("click", () => slideShell.classList.add("step-form"));
+            backBtn.addEventListener("click", () => slideShell.classList.remove("step-form"));
+            saveBtn.addEventListener("click", saveData);
+            deleteBtn.addEventListener("click", resetAll);
+
+            const saved = loadSaved();
+            if (saved) {
+                renderCard(saved);
+                slideShell.classList.add("hidden");
+                stepCard.classList.remove("hidden");
+            } else {
+                deleteBtn.style.display = "none";
+            }
+        })();
+    </script>
+</body>
+</html>
