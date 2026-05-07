@@ -30,7 +30,14 @@
             --border: #303030;
             --danger: #f87171;
         }
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        button:focus,
+        button:focus-visible,
+        input:focus,
+        input:focus-visible {
+            outline: none;
+            box-shadow: none;
+        }
         html, body { height: 100%; }
         body {
             margin: 0;
@@ -141,7 +148,9 @@
             font-size: 14px;
             background: transparent;
             color: var(--text-main);
+            transition: border-color 0.2s ease, transform 0.16s ease;
         }
+        .input:focus { border-color: var(--primary); transform: translateY(-1px); }
         .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .dropdown { position: relative; }
         .dropdown-btn {
@@ -156,24 +165,9 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
+            transition: border-color 0.2s ease, transform 0.16s ease;
         }
-        .dropdown-list {
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: calc(100% + 6px);
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            max-height: 210px;
-            overflow: auto;
-            display: none;
-            z-index: 30;
-            box-shadow: 0 10px 26px rgba(0,0,0,0.08);
-            scrollbar-width: none;
-        }
-        .dropdown-list::-webkit-scrollbar { display: none; }
-        .dropdown.open .dropdown-list { display: block; }
+        .dropdown.open .dropdown-btn { border-color: var(--primary); transform: translateY(-1px); }
         .dropdown-item {
             width: 100%;
             text-align: left;
@@ -199,6 +193,17 @@
             line-height: 1.6;
         }
         .guide-list li { margin-bottom: 8px; }
+        .form-guide {
+            margin-top: 4px;
+            padding: 11px 12px;
+            border-radius: 12px;
+            border: 1px dashed var(--border);
+            background: rgba(49,130,246,0.06);
+            color: var(--text-sub);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        body.dark-mode .form-guide { background: rgba(79,157,255,0.12); }
         .student-card {
             width: min(320px, 100%);
             min-height: 540px;
@@ -209,6 +214,9 @@
             padding: 18px 16px;
             display: flex;
             flex-direction: column;
+            transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform-style: preserve-3d;
+            will-change: transform;
         }
         body.dark-mode .student-card {
             background: linear-gradient(170deg, rgba(79,157,255,0.28), rgba(79,157,255,0.08));
@@ -232,6 +240,72 @@
         }
         .barcode-num { text-align: center; margin-top: 8px; font-weight: 700; font-size: 13px; color: #111827; letter-spacing: 0.3px; }
         .hidden { display: none !important; }
+        .sheet-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.34);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            z-index: 80;
+        }
+        .sheet-backdrop.show { opacity: 1; pointer-events: auto; }
+        .sheet-panel {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--card-bg);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            border: 1px solid var(--border);
+            border-bottom: none;
+            transform: translateY(100%);
+            transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+            z-index: 81;
+            padding: 10px 12px calc(10px + var(--sab));
+            max-height: min(58dvh, 460px);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .sheet-panel.show { transform: translateY(0); }
+        .sheet-panel.dragging { transition: none !important; }
+        .sheet-handle {
+            width: 42px;
+            height: 4px;
+            border-radius: 999px;
+            background: var(--border);
+            margin: 2px auto 6px;
+        }
+        .sheet-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin: 0 2px 2px;
+        }
+        .sheet-list {
+            overflow: auto;
+            display: grid;
+            gap: 6px;
+            scrollbar-width: none;
+        }
+        .sheet-list::-webkit-scrollbar { display: none; }
+        .sheet-item {
+            width: 100%;
+            text-align: left;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text-main);
+            border-radius: 12px;
+            padding: 11px 12px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .sheet-item:active {
+            transform: scale(0.99);
+            background: var(--bg);
+        }
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
@@ -275,6 +349,14 @@
                                 <div class="dropdown" data-field="enterClass"></div>
                                 <div class="dropdown" data-field="enterNumber"></div>
                             </div>
+                            <div class="row">
+                                <div class="dropdown" data-field="currentClass"></div>
+                                <div class="dropdown" data-field="currentNumber"></div>
+                            </div>
+                            <div class="form-guide">
+                                입학당시 반/번호는 입학 시점 정보를 입력하고,<br>
+                                현재 반/번호는 지금 재학 중인 학급 정보를 입력하세요.
+                            </div>
                             <div class="button-row">
                                 <button id="back-btn" class="btn-secondary">뒤로</button>
                                 <button id="save-btn" class="btn-primary">학생증 발급</button>
@@ -299,6 +381,12 @@
             </div>
         </section>
     </main>
+    <div id="dropdown-sheet-backdrop" class="sheet-backdrop"></div>
+    <section id="dropdown-sheet-panel" class="sheet-panel" aria-hidden="true">
+        <div class="sheet-handle"></div>
+        <h3 id="dropdown-sheet-title" class="sheet-title"></h3>
+        <div id="dropdown-sheet-list" class="sheet-list"></div>
+    </section>
     <script>
         (function () {
             const STORAGE_KEY = "myjdms_student_card_v1";
@@ -360,6 +448,15 @@
             const infoEl = document.getElementById("student-info");
             const barcodeEl = document.getElementById("barcode");
             const barcodeNumEl = document.getElementById("barcode-num");
+            const studentCardEl = document.querySelector(".student-card");
+            const sheetBackdrop = document.getElementById("dropdown-sheet-backdrop");
+            const sheetPanel = document.getElementById("dropdown-sheet-panel");
+            const sheetTitle = document.getElementById("dropdown-sheet-title");
+            const sheetList = document.getElementById("dropdown-sheet-list");
+            let activeDropdownField = null;
+            let sheetDragging = false;
+            let sheetDragStartY = 0;
+            let sheetDragDeltaY = 0;
 
             const nameEl = document.getElementById("name");
             const dropdownState = {};
@@ -368,46 +465,97 @@
                 grade: { label: "현재 학년", values: [1, 2, 3], suffix: "학년", defaultValue: 1 },
                 enterYear: { label: "입학년도", values: Array.from({ length: 12 }, (_, i) => yearNow - 10 + i), suffix: "년", defaultValue: yearNow },
                 enterClass: { label: "입학당시 반", values: Array.from({ length: 20 }, (_, i) => i + 1), suffix: "반", defaultValue: 1 },
-                enterNumber: { label: "입학당시 번호", values: Array.from({ length: 40 }, (_, i) => i + 1), suffix: "번", defaultValue: 1 }
+                enterNumber: { label: "입학당시 번호", values: Array.from({ length: 40 }, (_, i) => i + 1), suffix: "번", defaultValue: 1 },
+                currentClass: { label: "현재 반", values: Array.from({ length: 20 }, (_, i) => i + 1), suffix: "반", defaultValue: 1 },
+                currentNumber: { label: "현재 번호", values: Array.from({ length: 40 }, (_, i) => i + 1), suffix: "번", defaultValue: 1 }
             };
 
-            function closeAllDropdowns(exceptField) {
-                document.querySelectorAll(".dropdown").forEach((el) => {
-                    if (el.dataset.field !== exceptField) el.classList.remove("open");
+            function closeAllDropdowns() {
+                document.querySelectorAll(".dropdown").forEach((el) => el.classList.remove("open"));
+            }
+            function closeBottomSheet() {
+                sheetBackdrop.classList.remove("show");
+                sheetPanel.classList.remove("show");
+                sheetPanel.setAttribute("aria-hidden", "true");
+                activeDropdownField = null;
+                closeAllDropdowns();
+            }
+            function openBottomSheet(field) {
+                const def = dropdownDefs[field];
+                if (!def) return;
+                activeDropdownField = field;
+                sheetTitle.textContent = `${def.label} 선택`;
+                sheetList.innerHTML = def.values.map((v) => `<button type="button" class="sheet-item" data-value="${v}">${v}${def.suffix}</button>`).join("");
+                sheetList.querySelectorAll(".sheet-item").forEach((item) => {
+                    item.addEventListener("click", () => {
+                        dropdownState[field] = parseInt(item.dataset.value, 10);
+                        renderDropdown(field);
+                        closeBottomSheet();
+                    });
                 });
+                closeAllDropdowns();
+                const host = document.querySelector(`.dropdown[data-field="${field}"]`);
+                if (host) host.classList.add("open");
+                sheetBackdrop.classList.add("show");
+                sheetPanel.classList.add("show");
+                sheetPanel.setAttribute("aria-hidden", "false");
             }
             function renderDropdown(field) {
                 const def = dropdownDefs[field];
                 const host = document.querySelector(`.dropdown[data-field="${field}"]`);
                 if (!def || !host) return;
                 const value = dropdownState[field];
-                host.innerHTML = `
-                    <button type="button" class="dropdown-btn">${def.label}: ${value}${def.suffix}</button>
-                    <div class="dropdown-list">
-                        ${def.values.map((v) => `<button type="button" class="dropdown-item" data-value="${v}">${v}${def.suffix}</button>`).join("")}
-                    </div>
-                `;
+                host.innerHTML = `<button type="button" class="dropdown-btn">${def.label}: ${value}${def.suffix}</button>`;
                 const btn = host.querySelector(".dropdown-btn");
                 btn.addEventListener("click", () => {
-                    const open = host.classList.contains("open");
-                    closeAllDropdowns(field);
-                    host.classList.toggle("open", !open);
-                });
-                host.querySelectorAll(".dropdown-item").forEach((item) => {
-                    item.addEventListener("click", () => {
-                        dropdownState[field] = parseInt(item.dataset.value, 10);
-                        host.classList.remove("open");
-                        renderDropdown(field);
-                    });
+                    if (activeDropdownField === field && sheetPanel.classList.contains("show")) {
+                        closeBottomSheet();
+                        return;
+                    }
+                    openBottomSheet(field);
                 });
             }
             Object.keys(dropdownDefs).forEach((field) => {
                 dropdownState[field] = dropdownDefs[field].defaultValue;
                 renderDropdown(field);
             });
-            document.addEventListener("click", (e) => {
-                if (!(e.target instanceof Element)) return;
-                if (!e.target.closest(".dropdown")) closeAllDropdowns();
+            sheetBackdrop.addEventListener("click", closeBottomSheet);
+            sheetPanel.addEventListener("touchstart", (e) => {
+                if (!sheetPanel.classList.contains("show")) return;
+                const target = e.target;
+                const listEl = target instanceof Element ? target.closest(".sheet-list") : null;
+                if (listEl && listEl.scrollTop > 0) return;
+                sheetDragging = true;
+                sheetDragStartY = e.touches[0].clientY;
+                sheetDragDeltaY = 0;
+                sheetPanel.classList.add("dragging");
+            }, { passive: true });
+            sheetPanel.addEventListener("touchmove", (e) => {
+                if (!sheetDragging) return;
+                const currentY = e.touches[0].clientY;
+                sheetDragDeltaY = Math.max(0, currentY - sheetDragStartY);
+                if (sheetDragDeltaY > 0) {
+                    e.preventDefault();
+                    sheetPanel.style.transform = `translateY(${sheetDragDeltaY}px)`;
+                }
+            }, { passive: false });
+            sheetPanel.addEventListener("touchend", () => {
+                if (!sheetDragging) return;
+                sheetDragging = false;
+                sheetPanel.classList.remove("dragging");
+                if (sheetDragDeltaY > 90) {
+                    sheetPanel.style.transform = "";
+                    closeBottomSheet();
+                } else {
+                    sheetPanel.style.transform = "";
+                }
+                sheetDragDeltaY = 0;
+            });
+            sheetPanel.addEventListener("touchcancel", () => {
+                sheetDragging = false;
+                sheetDragDeltaY = 0;
+                sheetPanel.classList.remove("dragging");
+                sheetPanel.style.transform = "";
             });
 
             function pad2(n) { return String(n).padStart(2, "0"); }
@@ -421,12 +569,13 @@
 
             function renderCard(data) {
                 const studentNo = buildStudentNumber(1, data.enterClass, data.enterNumber);
+                const currentStudentNo = buildStudentNumber(data.grade, data.currentClass, data.currentNumber);
                 const barcodeValue = buildBarcodeValue(data.enterYear, 1, data.enterClass, data.enterNumber);
                 infoEl.innerHTML =
                     "<strong>" + data.name + "</strong><br>" +
-                    "현재 " + data.grade + "학년<br>" +
+                    "현재 " + data.grade + "학년 " + data.currentClass + "반 " + data.currentNumber + "번<br>" +
                     data.enterYear + "년 입학 / 입학당시 " + data.enterClass + "반 " + data.enterNumber + "번<br>" +
-                    "학번 " + studentNo;
+                    "입학 학번 " + studentNo + " / 현재 학번 " + currentStudentNo;
                 barcodeNumEl.textContent = barcodeValue;
                 JsBarcode(barcodeEl, barcodeValue, {
                     format: "CODE39",
@@ -456,11 +605,13 @@
                 const enterYear = dropdownState.enterYear;
                 const enterClass = dropdownState.enterClass;
                 const enterNumber = dropdownState.enterNumber;
+                const currentClass = dropdownState.currentClass;
+                const currentNumber = dropdownState.currentNumber;
                 if (!name) {
                     alert("이름을 입력해주세요.");
                     return;
                 }
-                const data = { name, grade, enterYear, enterClass, enterNumber };
+                const data = { name, grade, enterYear, enterClass, enterNumber, currentClass, currentNumber };
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
                 renderCard(data);
                 slideShell.classList.add("hidden");
@@ -468,7 +619,16 @@
             }
 
             function resetAll() {
-                if (!confirm("학생증을 삭제하고 다시 등록할까요?")) return;
+                closeBottomSheet();
+                let proceed = true;
+                try {
+                    if (typeof window.confirm === "function") {
+                        proceed = window.confirm("학생증을 삭제하고 다시 등록할까요?");
+                    }
+                } catch (e) {
+                    proceed = true;
+                }
+                if (!proceed) return;
                 localStorage.removeItem(STORAGE_KEY);
                 nameEl.value = "";
                 Object.keys(dropdownDefs).forEach((field) => {
@@ -482,7 +642,10 @@
             }
 
             toFormBtn.addEventListener("click", () => slideShell.classList.add("step-form"));
-            backBtn.addEventListener("click", () => slideShell.classList.remove("step-form"));
+            backBtn.addEventListener("click", () => {
+                closeBottomSheet();
+                slideShell.classList.remove("step-form");
+            });
             saveBtn.addEventListener("click", saveData);
             deleteBtn.addEventListener("click", resetAll);
 
@@ -493,6 +656,41 @@
                 stepCard.classList.remove("hidden");
             } else {
                 deleteBtn.style.display = "none";
+            }
+
+            if (studentCardEl) {
+                let dragging = false;
+                const maxTilt = 6;
+                function resetCard() {
+                    studentCardEl.style.transform = "scale(1) rotateX(0deg) rotateY(0deg)";
+                }
+                studentCardEl.addEventListener("pointerdown", (e) => {
+                    dragging = true;
+                    studentCardEl.setPointerCapture(e.pointerId);
+                    studentCardEl.style.transform = "scale(0.985) rotateX(0deg) rotateY(0deg)";
+                });
+                studentCardEl.addEventListener("pointermove", (e) => {
+                    if (!dragging) return;
+                    const rect = studentCardEl.getBoundingClientRect();
+                    const cx = rect.left + rect.width / 2;
+                    const cy = rect.top + rect.height / 2;
+                    const dx = (e.clientX - cx) / (rect.width / 2);
+                    const dy = (e.clientY - cy) / (rect.height / 2);
+                    const rx = Math.max(-maxTilt * 0.7, Math.min(maxTilt * 0.7, -dy * maxTilt * 0.7));
+                    const ry = Math.max(-maxTilt, Math.min(maxTilt, dx * maxTilt));
+                    studentCardEl.style.transform = `scale(0.985) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
+                });
+                studentCardEl.addEventListener("pointerup", () => {
+                    dragging = false;
+                    resetCard();
+                });
+                studentCardEl.addEventListener("pointercancel", () => {
+                    dragging = false;
+                    resetCard();
+                });
+                studentCardEl.addEventListener("pointerleave", () => {
+                    if (!dragging) resetCard();
+                });
             }
         })();
     </script>
