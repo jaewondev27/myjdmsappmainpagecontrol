@@ -1053,7 +1053,16 @@
                     };
                 } catch (err) {
                     console.error("카메라 접근 실패:", err);
-                    alert("카메라 접근 권한이 필요합니다. 설정에서 카메라 권한을 허용해주세요.");
+                    
+                    // 웹뷰 환경에서 권한 요청
+                    if (typeof AndroidInterface !== 'undefined' && typeof AndroidInterface.requestCameraPermission === 'function') {
+                        AndroidInterface.requestCameraPermission();
+                        // 권한 요청 후 사용자가 승인하면 다시 시도하도록 안내
+                        alert("카메라 권한을 허용해주세요. 허용 후 다시 시도해주세요.");
+                    } else {
+                        alert("카메라 접근 권한이 필요합니다.\n설정에서 카메라 권한을 허용해주세요.");
+                    }
+                    
                     closeCameraModal();
                 }
             }
@@ -1561,17 +1570,12 @@
                 });
                 studentCardEl.addEventListener("pointerup", () => {
                     dragging = false;
-                    // 드래그 거리가 짧으면 (버튼 클릭 정도) 리셋
-                    if (dragDistance < dragThreshold) {
-                        resetCard();
-                    }
-                    // 실제 드래그한 경우는 카드 방향 유지
+                    // 항상 리셋 (손을 떼면 원래대로)
+                    resetCard();
                 });
                 studentCardEl.addEventListener("pointercancel", () => {
                     dragging = false;
-                    if (dragDistance < dragThreshold) {
-                        resetCard();
-                    }
+                    resetCard();
                 });
                 studentCardEl.addEventListener("pointerleave", () => {
                     if (!dragging) {
@@ -1609,18 +1613,12 @@
                 }, { passive: false });
                 studentCardEl.addEventListener("touchend", () => {
                     dragging = false;
-                    // 드래그한 경우와 단순 클릭 구분
-                    if (dragDistance < dragThreshold) {
-                        // 단순 클릭 - 리셋
-                        resetCard();
-                    }
-                    // 드래그한 경우는 카드 상태 유지
+                    // 항상 리셋 (드래그 여부 상관없이 손을 떼면 원래대로)
+                    resetCard();
                 });
                 studentCardEl.addEventListener("touchcancel", () => {
                     dragging = false;
-                    if (dragDistance < dragThreshold) {
-                        resetCard();
-                    }
+                    resetCard();
                 });
             }
         })();
