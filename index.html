@@ -39,6 +39,10 @@ var ICONS = {
 'wifi-off':'<path d="M12 20h.01" /> <path d="M8.5 16.429a5 5 0 0 1 7 0" /> <path d="M5 12.859a10 10 0 0 1 5.17-2.69" /> <path d="M19 12.859a10 10 0 0 0-2.007-1.523" /> <path d="M2 8.82a15 15 0 0 1 4.177-2.643" /> <path d="M22 8.82a15 15 0 0 0-11.288-3.764" /> <path d="m2 2 20 20" />'
 ,
 'x':'<path d="M18 6 6 18" /> <path d="m6 6 12 12" />'
+,
+'newspaper':'<path d="M15 18h-5" /> <path d="M18 14h-8" /> <path d="M16 10H8" /> <path d="M13 6H8" /> <path d="M18 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2Z" />'
+,
+'id-card':'<path d="M16 10h2" /> <path d="M16 14h2" /> <path d="M6.17 15a3 3 0 0 1 5.66 0" /> <circle cx="9" cy="11" r="2" /> <rect x="2" y="5" width="20" height="14" rx="2" />'
 };
 function mountInlineLucideIcons(root) {
   root = root || document;
@@ -626,6 +630,69 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             box-shadow: 0 2px 16px rgba(0,0,0,0.04);
         }
 
+        .notice-banner-wrap {
+            margin-top: -14px;
+            margin-bottom: 12px;
+        }
+
+        .notice-banner-track {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .notice-banner-track::-webkit-scrollbar {
+            display: none;
+        }
+
+        .notice-banner-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            min-height: 82px;
+            padding: 12px 14px;
+            flex: 0 0 100%;
+            scroll-snap-align: start;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        }
+
+        .notice-banner-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .notice-banner-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text-main);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .notice-banner-date {
+            font-size: 11px;
+            color: var(--text-mute);
+            white-space: nowrap;
+        }
+
+        .notice-banner-content {
+            margin: 0;
+            font-size: 13px;
+            color: var(--text-sub);
+            line-height: 1.35;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
         .timetable-card, .lunch-card {
             padding: 0 !important;
         }
@@ -973,7 +1040,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             padding: 18px 20px;
             display: flex;
             align-items: center;
-            gap: 16px;
+            justify-content: space-between;
             border: none;
             width: 100%;
             margin-bottom: 12px;
@@ -993,6 +1060,65 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         .menu-icon {
             width: 24px;
             height: 24px;
+        }
+
+        .menu-btn-left {
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .menu-badge-beta {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.4px;
+            color: #1d4ed8;
+            background: #dbeafe;
+            border-radius: 999px;
+            padding: 3px 8px;
+        }
+
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin: 8px 0 14px;
+        }
+
+        .quick-square-btn {
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text-main);
+            border-radius: 14px;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 500;
+            line-height: 1.1;
+            padding: 8px 6px;
+            cursor: pointer;
+            transition: transform 0.18s ease, background-color 0.2s ease;
+            gap: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .quick-square-btn:active {
+            transform: scale(0.96);
+            background: var(--border);
+        }
+
+        .quick-square-btn i,
+        .quick-square-btn svg.lucide-inline {
+            width: 18px;
+            height: 18px;
+            color: var(--primary);
         }
 
         .slide-panel {
@@ -1790,6 +1916,9 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                             <img id="home-logo-img" alt="logo">
                         </div>
                     </div>
+                    <div id="notice-banner-wrap" class="notice-banner-wrap hidden">
+                        <div id="notice-banner-track" class="notice-banner-track"></div>
+                    </div>
                     <div class="card">
                         <div class="card-title">오늘의 시간표 <i data-lucide="calendar"></i></div>
                         <div class="iframe-container" id="today-timetable-container">
@@ -1866,28 +1995,45 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                             <div class="profile-desc" id="profile-details-display">0학년 0반 0번</div>
                         </div>
                     </div>
-                    
-                    <button class="menu-btn" onclick="window.switchPageTo('timetable')">
-                        <i data-lucide="layout" class="menu-icon" style="color: #3182f6;"></i>
-                        <span>시간표 보기</span>
-                    </button>
-                    <button class="menu-btn" onclick="window.switchPageTo('lunch')">
-                        <i data-lucide="utensils" class="menu-icon" style="color: #f59e0b;"></i>
-                        <span>급식표 보기</span>
-                    </button>
+
+                    <div class="quick-grid">
+                        <button class="quick-square-btn" onclick="window.switchPageTo('timetable')">
+                            <i data-lucide="layout"></i>
+                            <span>시간표 보기</span>
+                        </button>
+                        <button class="quick-square-btn" onclick="window.switchPageTo('lunch')">
+                            <i data-lucide="utensils"></i>
+                            <span>급식표 보기</span>
+                        </button>
+                        <button class="quick-square-btn" onclick="window.openDocPage()">
+                            <i data-lucide="newspaper"></i>
+                            <span>가정통신문</span>
+                        </button>
+                        <button class="quick-square-btn" onclick="window.openStudentCardPage()">
+                            <i data-lucide="id-card"></i>
+                            <span>학생증 BETA</span>
+                        </button>
+                    </div>
+
                     <button class="menu-btn" onclick="window.openSettingsPanel()">
-                        <i data-lucide="settings" class="menu-icon" style="color: #64748b;"></i>
-                        <span>내 정보 설정</span>
+                        <span class="menu-btn-left">
+                            <i data-lucide="settings" class="menu-icon" style="color: #64748b;"></i>
+                            <span>내 정보 설정</span>
+                        </span>
                     </button>
                     <button class="menu-btn" onclick="window.openThemePanel()">
-                        <i data-lucide="moon-star" class="menu-icon" style="color: #64748b;"></i>
-                        <span>테마 설정</span>
+                        <span class="menu-btn-left">
+                            <i data-lucide="moon-star" class="menu-icon" style="color: #64748b;"></i>
+                            <span>테마 설정</span>
+                        </span>
                     </button>
 
                     <div style="margin-top: 32px;">
                         <button class="menu-btn" onclick="window.openAppInfo()">
-                            <i data-lucide="info" class="menu-icon" style="color: #8b95a1;"></i>
-                            <span>앱 정보</span>
+                            <span class="menu-btn-left">
+                                <i data-lucide="info" class="menu-icon" style="color: #8b95a1;"></i>
+                                <span>앱 정보</span>
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -2290,6 +2436,21 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             const floatingTabBar = document.getElementById('floating-tab-bar');
             const floatingTabItems = document.querySelectorAll('.floating-tab-item');
             const REMOTE_CONTROL_BASE = 'https://jaewondev27.github.io/myjdmsappmainpagecontrol';
+            const NOTICE_ITEMS = [
+                {
+                    title: '중간고사 시간표 안내',
+                    content: '중간고사 기간에는 등교 시간이 평소와 다를 수 있으니 학급 공지를 확인해주세요.',
+                    effectiveDate: '2026-05-01',
+                    expireDate: '2026-05-30'
+                },
+                {
+                    title: '체육복 착용 주간',
+                    content: '다음 주는 체육복 착용 주간입니다. 실내화와 개인 물병도 함께 준비해주세요.',
+                    effectiveDate: '2026-05-06',
+                    expireDate: '2026-06-07'
+                }
+            ];
+            let noticeAutoSlideTimer = null;
 
             window.switchPageTo = function(page) { switchPage(page); };
             window.openAppInfo = function() {
@@ -2304,6 +2465,82 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 window.open(`${REMOTE_CONTROL_BASE}/theme`, '_blank');
             };
             window.closeThemePanel = function() {};
+            window.openDocPage = function() {
+                window.open(`${REMOTE_CONTROL_BASE}/doc.html`, '_blank');
+            };
+            window.openStudentCardPage = function() {
+                window.open(`${REMOTE_CONTROL_BASE}/studentcard.html`, '_blank');
+            };
+
+            function getActiveNotices() {
+                try {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    return NOTICE_ITEMS.filter((item) => {
+                        if (!item || !item.effectiveDate) return false;
+                        const start = new Date(item.effectiveDate);
+                        start.setHours(0, 0, 0, 0);
+                        if (Number.isNaN(start.getTime()) || start.getTime() > today.getTime()) return false;
+                        if (!item.expireDate) return true;
+                        const end = new Date(item.expireDate);
+                        end.setHours(23, 59, 59, 999);
+                        if (Number.isNaN(end.getTime())) return true;
+                        return end.getTime() >= today.getTime();
+                    });
+                } catch (e) {
+                    return [];
+                }
+            }
+
+            function escapeHtml(text) {
+                return String(text || '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            function renderNoticeBanners() {
+                try {
+                    const wrap = document.getElementById('notice-banner-wrap');
+                    const track = document.getElementById('notice-banner-track');
+                    if (!wrap || !track) return;
+                    if (noticeAutoSlideTimer) {
+                        clearInterval(noticeAutoSlideTimer);
+                        noticeAutoSlideTimer = null;
+                    }
+                    const activeNotices = getActiveNotices();
+                    if (!activeNotices.length) {
+                        wrap.classList.add('hidden');
+                        track.innerHTML = '';
+                        return;
+                    }
+                    wrap.classList.remove('hidden');
+                    track.innerHTML = activeNotices.map((item) => `
+                        <article class="notice-banner-card" role="button" aria-label="공지사항 ${escapeHtml(item.title)}">
+                            <div class="notice-banner-top">
+                                <div class="notice-banner-title">${escapeHtml(item.title)}</div>
+                                <div class="notice-banner-date">시행일 ${escapeHtml(item.effectiveDate)}</div>
+                            </div>
+                            <p class="notice-banner-content">${escapeHtml(item.content)}</p>
+                        </article>
+                    `).join('');
+
+                    if (activeNotices.length > 1) {
+                        let current = 0;
+                        noticeAutoSlideTimer = setInterval(() => {
+                            current = (current + 1) % activeNotices.length;
+                            const nextLeft = track.clientWidth * current;
+                            if (typeof track.scrollTo === 'function') {
+                                track.scrollTo({ left: nextLeft, behavior: 'smooth' });
+                            } else {
+                                track.scrollLeft = nextLeft;
+                            }
+                        }, 3500);
+                    }
+                } catch (e) {}
+            }
 
             function getPickerOptions(field) {
                 if (field === 'grade') return Array.from({ length: 3 }, (_, i) => i + 1);
@@ -2608,7 +2845,14 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 if (target === 'lunch') loadLunchIframe();
             }
 
-            function startApp() { mainContent.classList.remove('hidden'); updateHeader(); if (!navigator.onLine) showOfflineToast(); loadTodayTimetableIframe(); loadHomeLunchIframe(); }
+            function startApp() {
+                mainContent.classList.remove('hidden');
+                updateHeader();
+                try { renderNoticeBanners(); } catch (e) {}
+                if (!navigator.onLine) showOfflineToast();
+                loadTodayTimetableIframe();
+                loadHomeLunchIframe();
+            }
 
             function updateHeader() {
                 document.getElementById('welcome-text').innerHTML = `<span class="welcome-inline">${userData.grade}학년 ${userData.class}반 ${userData.number}번,</span><br>반가워요!`;
