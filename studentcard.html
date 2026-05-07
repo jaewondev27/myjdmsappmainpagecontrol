@@ -6,6 +6,10 @@
     <meta name="theme-color" content="#f2f4f6">
     <title>디지털 학생증</title>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+    <!-- 카드 인식 라이브러리 -->
+    <script src="https://cdn.jsdelivr.net/npm/tracking@0.7.3/tracking-min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
     <style>
         :root {
             --sat: env(safe-area-inset-top, 0px);
@@ -292,7 +296,7 @@
         
         .card-flipper {
             perspective: 1000px;
-            height: 280px;
+            height: 420px;
             cursor: pointer;
             margin: 0 auto;
         }
@@ -338,66 +342,62 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: linear-gradient(135deg, rgba(49,130,246,0.95), rgba(79,157,255,0.95));
             z-index: 998;
             display: none;
             align-items: center;
             justify-content: center;
+            flex-direction: column;
         }
         .register-complete-modal.open {
             display: flex;
             animation: fadeIn 0.3s ease;
         }
         .register-complete-inner {
-            background: var(--card-bg);
-            border-radius: 28px;
-            padding: 40px 20px;
             text-align: center;
             animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            margin: 0 20px;
         }
         .register-complete-check {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 20px;
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 30px;
             border-radius: 50%;
-            background: #e3f2fd;
+            background: rgba(255,255,255,0.2);
             display: flex;
             align-items: center;
             justify-content: center;
             animation: scaleInCheck 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s both;
         }
-        .register-complete-check::after {
-            content: "✓";
-            font-size: 56px;
-            color: #3182f6;
-            font-weight: 800;
-            line-height: 1;
+        .register-complete-check svg {
+            width: 80px;
+            height: 80px;
+            color: #fff;
+            stroke-width: 2;
         }
         .register-complete-text {
-            font-size: 18px;
+            font-size: 28px;
             font-weight: 800;
-            letter-spacing: -0.3px;
-            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+            margin-bottom: 12px;
+            color: #fff;
         }
         .register-complete-desc {
-            font-size: 14px;
-            color: var(--text-sub);
-            margin-bottom: 32px;
+            font-size: 16px;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 40px;
         }
         .register-complete-btn {
             width: 100%;
-            max-width: 320px;
-            height: 48px;
-            background: #3182f6;
-            color: #fff;
+            max-width: 300px;
+            height: 56px;
+            background: rgba(255,255,255,0.95);
+            color: #3182f6;
             border: none;
             border-radius: 16px;
             font-weight: 800;
-            font-size: 15px;
+            font-size: 16px;
             cursor: pointer;
             transition: transform 0.16s ease;
-            margin: 0 auto;
         }
         .register-complete-btn:active { transform: scale(0.95); }
         
@@ -848,7 +848,8 @@
             <button class="camera-close-btn" id="cameraCancelBtn">✕</button>
         </div>
         <div class="camera-container">
-            <video id="cameraVideo" class="camera-video" playsinline></video>
+            <video id="cameraVideo" class="camera-video" playsinline autoplay></video>
+            <canvas id="cardDetectCanvas" style="display: none;"></canvas>
             <div class="camera-overlay">
                 <div class="scan-frame" id="scanFrame"></div>
                 <div class="camera-guide">
@@ -862,6 +863,9 @@
             <button class="camera-btn camera-btn-primary" id="cameraCaptureBtn">촬영</button>
         </div>
     </div>
+    
+    <!-- 숨겨진 파일 입력 -->
+    <input type="file" id="cameraInput" accept="image/*" capture="camera" style="display: none;">
 
     <!-- 실물 학생증 뷰어 모달 -->
     <div id="physicalCardModal" class="physical-card-modal">
@@ -884,15 +888,15 @@
         </div>
     </div>
 
-    <!-- 등록 완료 모달 -->
-    <div id="registerCompleteModal" class="register-complete-modal">
-        <div class="register-complete-inner">
-            <div class="register-complete-check"></div>
-            <div class="register-complete-text">등록이 완료됐습니다</div>
-            <div class="register-complete-desc">실물 학생증이 저장되었습니다</div>
-            <button class="register-complete-btn" id="registerCompleteBtn">확인</button>
+        <!-- 등록 완료 모달 -->
+        <div id="registerCompleteModal" class="register-complete-modal">
+            <div class="register-complete-inner">
+                <div class="register-complete-check" id="checkIcon"></div>
+                <div class="register-complete-text">등록이 완료됐습니다</div>
+                <div class="register-complete-desc">실물 학생증이 저장되었습니다</div>
+                <button class="register-complete-btn" id="registerCompleteBtn">확인</button>
+            </div>
         </div>
-    </div>
 
     <script>
         (function () {
@@ -1017,6 +1021,37 @@
             }
             
             // 카메라 스캔 함수들
+            // 카드 인식 함수
+            function detectCardEdges(imageData) {
+                const data = imageData.data;
+                let edgePixels = 0;
+                let darkPixels = 0;
+                let totalPixels = data.length / 4;
+                
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+                    const brightness = (r + g + b) / 3;
+                    
+                    // 어두운 테두리 감지
+                    if (brightness < 100) {
+                        darkPixels++;
+                    }
+                    
+                    // 엣지 감지 (밝기 변화)
+                    if (Math.abs(brightness - 128) > 60) {
+                        edgePixels++;
+                    }
+                }
+                
+                // 카드 판정: 어두운 부분과 엣지가 충분할 때
+                const darkRatio = darkPixels / totalPixels;
+                const edgeRatio = edgePixels / totalPixels;
+                
+                return darkRatio > 0.1 && darkRatio < 0.5 && edgeRatio > 0.2;
+            }
+            
             async function openCamera() {
                 cameraModal.classList.add("open");
                 currentScanStep = 0;
@@ -1024,7 +1059,7 @@
                 cameraGuide.textContent = "카드를 프레임에 맞춰주세요";
                 
                 try {
-                    // 웹뷰 환경 확인
+                    // 웹뷰 환경 감지
                     const isWebView = () => {
                         const ua = navigator.userAgent;
                         return /wv|WebView/.test(ua) ||
@@ -1032,37 +1067,46 @@
                                (typeof webkit !== 'undefined');
                     };
                     
-                    const constraints = {
-                        video: {
-                            facingMode: "environment",
-                            width: { ideal: 1280 },
-                            height: { ideal: 720 }
-                        }
-                    };
-                    
-                    // 웹뷰 환경에서는 더 느슨한 제약 조건 사용
                     if (isWebView()) {
-                        constraints.video = { facingMode: "environment" };
+                        // 웹뷰에서는 파일 입력 사용
+                        const cameraInput = document.getElementById("cameraInput");
+                        cameraInput.onchange = (e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                                const reader = new FileReader();
+                                reader.onload = (event) => {
+                                    if (currentScanStep === 0) {
+                                        scannedImages.front = event.target.result;
+                                        currentScanStep = 1;
+                                        cameraTitle.textContent = "뒷면 스캔";
+                                        cameraGuide.textContent = "이제 뒷면을 스캔해주세요";
+                                        cameraInput.click();
+                                    } else {
+                                        scannedImages.back = event.target.result;
+                                        closeCameraModal();
+                                        showRegisterCompleteModal();
+                                    }
+                                };
+                                reader.readAsDataURL(file);
+                            }
+                        };
+                        cameraInput.click();
+                    } else {
+                        // 브라우저에서는 getUserMedia 사용
+                        const constraints = {
+                            video: { facingMode: "environment" }
+                        };
+                        
+                        cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+                        cameraVideo.srcObject = cameraStream;
+                        cameraVideo.onloadedmetadata = () => {
+                            cameraVideo.play();
+                            startCardDetection();
+                        };
                     }
-                    
-                    cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
-                    cameraVideo.srcObject = cameraStream;
-                    cameraVideo.onloadedmetadata = () => {
-                        cameraVideo.play();
-                        startCardDetection();
-                    };
                 } catch (err) {
                     console.error("카메라 접근 실패:", err);
-                    
-                    // 웹뷰 환경에서 권한 요청
-                    if (typeof AndroidInterface !== 'undefined' && typeof AndroidInterface.requestCameraPermission === 'function') {
-                        AndroidInterface.requestCameraPermission();
-                        // 권한 요청 후 사용자가 승인하면 다시 시도하도록 안내
-                        alert("카메라 권한을 허용해주세요. 허용 후 다시 시도해주세요.");
-                    } else {
-                        alert("카메라 접근 권한이 필요합니다.\n설정에서 카메라 권한을 허용해주세요.");
-                    }
-                    
+                    alert("카메라 접근 권한이 필요합니다.\n설정에서 카메라 권한을 허용해주세요.");
                     closeCameraModal();
                 }
             }
@@ -1077,28 +1121,41 @@
             }
             
             let cardDetectionRunning = false;
+            let detectedCount = 0;
+            const detectionThreshold = 3; // 연속 3회 감지 후 촬영
+            
             function startCardDetection() {
                 cardDetectionRunning = true;
+                detectedCount = 0;
                 let frameCount = 0;
                 
                 const detectFrame = () => {
-                    if (!cardDetectionRunning) return;
+                    if (!cardDetectionRunning || !cameraVideo.srcObject) return;
                     frameCount++;
                     
-                    // 매 4 프레임마다 감지 시도
-                    if (frameCount % 4 === 0) {
-                        const canvas = document.createElement("canvas");
+                    // 매 3 프레임마다 감지 시도
+                    if (frameCount % 3 === 0) {
+                        const canvas = document.getElementById("cardDetectCanvas");
                         canvas.width = cameraVideo.videoWidth;
                         canvas.height = cameraVideo.videoHeight;
                         const ctx = canvas.getContext("2d");
-                        ctx.drawImage(cameraVideo, 0, 0);
                         
-                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                        if (isCardDetected(imageData)) {
-                            scanFrame.classList.add("detected");
-                            setTimeout(() => captureCard(), 300);
-                        } else {
-                            scanFrame.classList.remove("detected");
+                        if (cameraVideo.readyState === cameraVideo.HAVE_ENOUGH_DATA) {
+                            ctx.drawImage(cameraVideo, 0, 0);
+                            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                            
+                            if (detectCardEdges(imageData)) {
+                                detectedCount++;
+                                scanFrame.classList.add("detected");
+                                
+                                if (detectedCount >= detectionThreshold) {
+                                    cardDetectionRunning = false;
+                                    setTimeout(() => captureCard(), 200);
+                                }
+                            } else {
+                                detectedCount = 0;
+                                scanFrame.classList.remove("detected");
+                            }
                         }
                     }
                     
@@ -1110,26 +1167,6 @@
                 detectFrame();
             }
             
-            function isCardDetected(imageData) {
-                const data = imageData.data;
-                let edgePixels = 0;
-                let totalPixels = data.length / 4;
-                
-                for (let i = 0; i < data.length; i += 4) {
-                    const r = data[i];
-                    const g = data[i + 1];
-                    const b = data[i + 2];
-                    const gray = (r + g + b) / 3;
-                    
-                    // 엣지 감지 (밝기 차이가 큰 부분)
-                    if (Math.abs(gray - 128) > 50) {
-                        edgePixels++;
-                    }
-                }
-                
-                return edgePixels / totalPixels > 0.15;
-            }
-            
             function captureCard() {
                 const canvas = document.createElement("canvas");
                 canvas.width = cameraVideo.videoWidth;
@@ -1139,7 +1176,7 @@
                 
                 // 카드 영역만 자르기 (대략적인 위치)
                 const croppedCanvas = cropCardImage(canvas);
-                const imageData = croppedCanvas.toDataURL("image/jpeg");
+                const imageData = croppedCanvas.toDataURL("image/jpeg", 0.8);
                 
                 if (currentScanStep === 0) {
                     scannedImages.front = imageData;
@@ -1147,7 +1184,8 @@
                     cameraTitle.textContent = "뒷면 스캔";
                     cameraGuide.textContent = "이제 뒷면을 스캔해주세요";
                     scanFrame.classList.remove("detected");
-                    // 계속 촬영
+                    detectedCount = 0;
+                    startCardDetection(); // 다시 시작
                 } else {
                     scannedImages.back = imageData;
                     cardDetectionRunning = false;
@@ -1160,23 +1198,26 @@
                 const width = canvas.width;
                 const height = canvas.height;
                 
-                // 화면 중앙의 카드 크기 비율에 맞춰 자르기
-                const cardWidth = Math.min(width * 0.8, 320 * (width / 375));
-                const cardHeight = cardWidth * 0.625; // 카드 비율
+                // 화면 중앙의 카드 크기 비율에 맞춰 자르기 (세로 비율)
+                const cardWidth = Math.min(width * 0.7, 280);
+                const cardHeight = cardWidth * 1.6; // 세로 비율 (학생증 비율)
                 const x = (width - cardWidth) / 2;
                 const y = (height - cardHeight) / 2;
                 
                 const croppedCanvas = document.createElement("canvas");
-                croppedCanvas.width = 320;
-                croppedCanvas.height = 200;
+                croppedCanvas.width = 280;
+                croppedCanvas.height = 448;
                 const ctx = croppedCanvas.getContext("2d");
-                ctx.drawImage(canvas, x, y, cardWidth, cardHeight, 0, 0, 320, 200);
+                ctx.drawImage(canvas, x, y, cardWidth, cardHeight, 0, 0, 280, 448);
                 
                 return croppedCanvas;
             }
             
             function showRegisterCompleteModal() {
                 registerCompleteModal.classList.add("open");
+                // Lucide Check 아이콘 추가
+                const checkIcon = document.getElementById("checkIcon");
+                checkIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
             }
             
             function closeRegisterCompleteModal() {
