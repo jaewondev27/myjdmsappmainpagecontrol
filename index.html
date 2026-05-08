@@ -638,10 +638,10 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         .notice-banner-track {
             display: flex;
             gap: 10px;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
+            overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
+            position: relative;
         }
 
         .notice-banner-track::-webkit-scrollbar {
@@ -651,12 +651,12 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         .notice-banner-card {
             background: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 16px;
+            border-radius: 18px;
             min-height: 82px;
-            padding: 12px 14px;
+            padding: 14px 16px;
             flex: 0 0 100%;
-            scroll-snap-align: start;
             box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            transition: transform 0.5s cubic-bezier(0.25, 1, 0.35, 1), opacity 0.5s ease;
         }
 
         .notice-banner-top {
@@ -665,6 +665,24 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             align-items: center;
             gap: 10px;
             margin-bottom: 6px;
+        }
+
+        .notice-banner-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--primary);
+            background: var(--primary-light);
+            border-radius: 6px;
+            padding: 3px 7px;
+            margin-bottom: 4px;
+        }
+
+        .notice-banner-label svg {
+            width: 12px;
+            height: 12px;
         }
 
         .notice-banner-title {
@@ -686,11 +704,32 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             margin: 0;
             font-size: 13px;
             color: var(--text-sub);
-            line-height: 1.35;
+            line-height: 1.4;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
+        }
+
+        .notice-dots {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .notice-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--border);
+            transition: background 0.3s ease, width 0.3s ease, border-radius 0.3s ease;
+        }
+
+        .notice-dot.active {
+            width: 16px;
+            border-radius: 3px;
+            background: var(--primary);
         }
 
         .timetable-card, .lunch-card {
@@ -824,7 +863,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             border-top: 1px solid var(--border);
             padding-bottom: calc(20px + var(--sab-chrome));
             z-index: 1000;
-            border-radius: 20px 20px 0 0;
+            border-radius: 28px 28px 0 0;
             overflow: hidden;
             box-shadow: none;
             transition-property: left, right, bottom, transform, border-radius, padding-top, padding-bottom, max-height, box-shadow, background-color, border-color, border-top-color, backdrop-filter, -webkit-backdrop-filter;
@@ -851,9 +890,8 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         }
 
         .nav-item:active {
-            background-color: #e5e8eb;
             transform: scale(0.85);
-            transition: transform 0.1s ease-out, background-color 0.1s;
+            transition: transform 0.1s ease-out;
         }
 
         body.segment-mode .bottom-nav {
@@ -955,9 +993,8 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         }
 
         .floating-tab-item:active {
-            background-color: rgba(255, 255, 255, 0.15);
             transform: scale(0.85);
-            transition: transform 0.1s ease-out, background-color 0.1s;
+            transition: transform 0.1s ease-out;
         }
 
         .floating-tab-item.active {
@@ -1054,7 +1091,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
         .menu-btn:active {
             transform: scale(0.95);
-            background-color: var(--border);
         }
 
         .menu-icon {
@@ -1111,7 +1147,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
         .quick-square-btn:active {
             transform: scale(0.96);
-            background: var(--border);
         }
 
         .quick-square-btn i,
@@ -1218,7 +1253,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
         .settings-reset-btn:active {
             transform: scale(0.98);
-            background: #e2e8f0;
         }
 
         #picker-sheet {
@@ -1300,7 +1334,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
         .picker-option:active {
             transform: scale(0.99);
-            background: #e9eef5;
         }
 
         #custom-error-modal, #ai-coming-modal {
@@ -1805,6 +1838,37 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         body.dark-mode #offline-toast-close i {
             color: #b4b8bf;
         }
+
+        .ripple-btn {
+            position: relative;
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .ripple-circle {
+            position: absolute;
+            border-radius: 50%;
+            transform: scale(0);
+            background-color: rgba(0, 0, 0, 0.08);
+            pointer-events: none;
+            transition: opacity 0.8s ease-out;
+        }
+        .ripple-circle.animate {
+            animation: ripple-scale 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .ripple-circle.fade-out {
+            opacity: 0 !important;
+        }
+        .dark-theme .ripple-circle {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        @keyframes ripple-scale {
+            to {
+                transform: scale(4);
+            }
+        }
+        .student-card-banner-wrapper:active {
+            transform: scale(0.97);
+        }
     </style>
 </head>
 <body>
@@ -1916,8 +1980,14 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                             <img id="home-logo-img" alt="logo">
                         </div>
                     </div>
-                    <div id="notice-banner-wrap" class="notice-banner-wrap hidden">
-                        <div id="notice-banner-track" class="notice-banner-track"></div>
+                    <div class="notice-banner-wrap hidden">
+                        <div class="notice-banner-track"></div>
+                    </div>
+                    <div class="student-card-banner-wrapper" onclick="window.openStudentCardPage()" style="position: relative; height: 60px; margin-bottom: 12px; cursor: pointer; transition: transform 0.1s ease; overflow: visible;">
+                        <div class="notice-banner-card" style="position: absolute; inset: 0; background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 0 16px; display: flex; align-items: center; box-shadow: 0 2px 12px rgba(0,0,0,0.04); margin: 0; min-height: 0; height: 100%; width: 100%; overflow: hidden;">
+                            <span style="font-size: 16px; font-weight: 800; color: var(--text-main);">모바일 학생증</span>
+                        </div>
+                        <img src="https://cdn-icons-png.flaticon.com/256/6467/6467130.png" style="height: 58px; width: 58px; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); object-fit: contain; pointer-events: none;">
                     </div>
                     <div class="card">
                         <div class="card-title">오늘의 시간표 <i data-lucide="calendar"></i></div>
@@ -1988,12 +2058,21 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 </div>
 
                 <div id="page-more" class="page hidden">
-                    <div class="profile-card">
-                        <img src="https://mblogthumb-phinf.pstatic.net/MjAyMDAyMTBfODAg/MDAxNTgxMzA0MTE3ODMy.ACRLtB9v5NH-I2qjWrwiXLb7TeUiG442cJmcdzVum7cg.eTLpNg_n0rAS5sWOsofRrvBy0qZk_QcWSfUiIagTfd8g.JPEG.lattepain/1581304118739.jpg?type=w800" class="profile-img">
-                        <div class="profile-info">
-                            <div class="profile-name" id="profile-name-display">이름</div>
-                            <div class="profile-desc" id="profile-details-display">0학년 0반 0번</div>
+                    <div class="profile-card" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <img src="https://mblogthumb-phinf.pstatic.net/MjAyMDAyMTBfODAg/MDAxNTgxMzA0MTE3ODMy.ACRLtB9v5NH-I2qjWrwiXLb7TeUiG442cJmcdzVum7cg.eTLpNg_n0rAS5sWOsofRrvBy0qZk_QcWSfUiIagTfd8g.JPEG.lattepain/1581304118739.jpg?type=w800" class="profile-img" style="margin-right: 0;">
+                            <div class="profile-info">
+                                <div class="profile-name" id="profile-name-display">이름</div>
+                                <div class="profile-desc" id="profile-details-display">0학년 0반 0번</div>
+                            </div>
                         </div>
+                        <button class="app-info-btn ripple-btn" onclick="window.openAppInfo()" style="background: none; border: none; padding: 10px; color: var(--text-mute); border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent;">
+                            <i data-lucide="info" style="width: 24px; height: 24px;"></i>
+                        </button>
+                    </div>
+
+                    <div class="notice-banner-wrap hidden" style="margin-bottom: 24px;">
+                        <div class="notice-banner-track"></div>
                     </div>
 
                     <div class="quick-grid">
@@ -2027,15 +2106,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                             <span>테마 설정</span>
                         </span>
                     </button>
-
-                    <div style="margin-top: 32px;">
-                        <button class="menu-btn" onclick="window.openAppInfo()">
-                            <span class="menu-btn-left">
-                                <i data-lucide="info" class="menu-icon" style="color: #8b95a1;"></i>
-                                <span>앱 정보</span>
-                            </span>
-                        </button>
-                    </div>
                 </div>
             </div>
 
@@ -2427,7 +2497,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     showPreloadedBanner();
                 }
             }
-            runSplashSequence();
 
             const btnSave = document.getElementById('btn-save');
             const navItems = document.querySelectorAll('.nav-item');
@@ -2443,6 +2512,12 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     effectiveDate: '2026-05-08',
                     expireDate: '2026-05-09'
                 },
+                {
+                    title: '음악방송',
+                    content: '방송부에 대한 지속적인 공격및 비난으로 무기한 중지됩니다',
+                    effectiveDate: '2027-01-01',
+                    expireDate: '2027-01-01'
+                }
             ];
             let noticeAutoSlideTimer = null;
 
@@ -2474,7 +2549,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                         if (!item || !item.effectiveDate) return false;
                         const start = new Date(item.effectiveDate);
                         start.setHours(0, 0, 0, 0);
-                        if (Number.isNaN(start.getTime()) || start.getTime() > today.getTime()) return false;
+                        if (Number.isNaN(start.getTime())) return false;
                         if (!item.expireDate) return true;
                         const end = new Date(item.expireDate);
                         end.setHours(23, 59, 59, 999);
@@ -2497,40 +2572,115 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
             function renderNoticeBanners() {
                 try {
-                    const wrap = document.getElementById('notice-banner-wrap');
-                    const track = document.getElementById('notice-banner-track');
-                    if (!wrap || !track) return;
+                    const wraps = document.querySelectorAll('.notice-banner-wrap');
+                    if (!wraps.length) return;
+                    
                     if (noticeAutoSlideTimer) {
                         clearInterval(noticeAutoSlideTimer);
                         noticeAutoSlideTimer = null;
                     }
                     const activeNotices = getActiveNotices();
-                    if (!activeNotices.length) {
-                        wrap.classList.add('hidden');
-                        track.innerHTML = '';
-                        return;
-                    }
-                    wrap.classList.remove('hidden');
-                    track.innerHTML = activeNotices.map((item) => `
-                        <article class="notice-banner-card" role="button" aria-label="공지사항 ${escapeHtml(item.title)}">
-                            <div class="notice-banner-top">
-                                <div class="notice-banner-title">${escapeHtml(item.title)}</div>
-                                <div class="notice-banner-date">시행일 ${escapeHtml(item.effectiveDate)}</div>
-                            </div>
-                            <p class="notice-banner-content">${escapeHtml(item.content)}</p>
-                        </article>
-                    `).join('');
+                    
+                    wraps.forEach((wrap) => {
+                        const track = wrap.querySelector('.notice-banner-track');
+                        if (!track) return;
+                        
+                        if (!activeNotices.length) {
+                            wrap.classList.add('hidden');
+                            track.innerHTML = '';
+                            return;
+                        }
+                        wrap.classList.remove('hidden');
+                        track.innerHTML = activeNotices.map((item) => `
+                            <article class="notice-banner-card" role="button" aria-label="공지사항 ${escapeHtml(item.title)}">
+                                <div class="notice-banner-label">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18h-5"/><path d="M18 14h-8"/><path d="M16 10H8"/><path d="M13 6H8"/><path d="M18 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2Z"/></svg>
+                                    학교 공지사항
+                                </div>
+                                <div class="notice-banner-top">
+                                    <div class="notice-banner-title">${escapeHtml(item.title)}</div>
+                                    <div class="notice-banner-date">시행일 ${escapeHtml(item.effectiveDate)}</div>
+                                </div>
+                                <p class="notice-banner-content">${escapeHtml(item.content)}</p>
+                            </article>
+                        `).join('');
+
+                        let dotsHtml = '';
+                        if (activeNotices.length > 1) {
+                            dotsHtml = '<div class="notice-dots">';
+                            activeNotices.forEach((_, i) => {
+                                dotsHtml += `<div class="notice-dot${i === 0 ? ' active' : ''}" data-dot-idx="${i}"></div>`;
+                            });
+                            dotsHtml += '</div>';
+                        }
+                        const existingDots = wrap.querySelector('.notice-dots');
+                        if (existingDots) existingDots.remove();
+                        if (dotsHtml) wrap.insertAdjacentHTML('beforeend', dotsHtml);
+                    });
 
                     if (activeNotices.length > 1) {
                         let current = 0;
+                        
+                        function updateSlide(idx) {
+                            wraps.forEach((wrap) => {
+                                const cards = wrap.querySelectorAll('.notice-banner-card');
+                                const dots = wrap.querySelectorAll('.notice-dot');
+                                cards.forEach((card) => {
+                                    card.style.transform = `translateX(calc(-${idx * 100}% - ${idx * 10}px))`;
+                                });
+                                dots.forEach((dot, i) => {
+                                    dot.classList.toggle('active', i === idx);
+                                });
+                            });
+                        }
+
+                        wraps.forEach((wrap) => {
+                            const track = wrap.querySelector('.notice-banner-track');
+                            if (!track) return;
+                            
+                            let startX = 0;
+                            let currentX = 0;
+                            let isSwiping = false;
+
+                            track.addEventListener('touchstart', (e) => {
+                                startX = e.touches[0].clientX;
+                                isSwiping = true;
+                                if (noticeAutoSlideTimer) {
+                                    clearInterval(noticeAutoSlideTimer);
+                                    noticeAutoSlideTimer = null;
+                                }
+                            }, { passive: true });
+
+                            track.addEventListener('touchmove', (e) => {
+                                if (!isSwiping) return;
+                                currentX = e.touches[0].clientX;
+                            }, { passive: true });
+
+                            track.addEventListener('touchend', () => {
+                                if (!isSwiping) return;
+                                isSwiping = false;
+                                const diff = startX - currentX;
+                                
+                                if (Math.abs(diff) > 30) {
+                                    if (diff > 0) {
+                                        current = (current + 1) % activeNotices.length;
+                                    } else {
+                                        current = (current - 1 + activeNotices.length) % activeNotices.length;
+                                    }
+                                    updateSlide(current);
+                                }
+                                
+                                if (noticeAutoSlideTimer) clearInterval(noticeAutoSlideTimer);
+                                noticeAutoSlideTimer = setInterval(() => {
+                                    current = (current + 1) % activeNotices.length;
+                                    updateSlide(current);
+                                }, 3500);
+                            });
+                        });
+
                         noticeAutoSlideTimer = setInterval(() => {
                             current = (current + 1) % activeNotices.length;
-                            const nextLeft = track.clientWidth * current;
-                            if (typeof track.scrollTo === 'function') {
-                                track.scrollTo({ left: nextLeft, behavior: 'smooth' });
-                            } else {
-                                track.scrollLeft = nextLeft;
-                            }
+                            updateSlide(current);
                         }, 3500);
                     }
                 } catch (e) {}
@@ -2698,13 +2848,9 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
             window.addEventListener('offline', () => {
                 showOfflineToast();
-                document.querySelectorAll('.timetable-iframe').forEach(iframe => iframe.style.display = 'none');
-                document.querySelectorAll('.offline-fallback').forEach(fallback => fallback.style.display = 'flex');
             });
             window.addEventListener('online', () => {
                 closeOfflineToast();
-                document.querySelectorAll('.timetable-iframe').forEach(iframe => iframe.style.display = 'block');
-                document.querySelectorAll('.offline-fallback').forEach(fallback => fallback.style.display = 'none');
                 reloadCurrentPageIframes();
             });
 
@@ -2754,11 +2900,12 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 const shimmer = document.getElementById('refresh-shimmer');
                 overlay.classList.remove('hidden'); overlay.style.opacity = '1';
                 shimmer.style.animation = 'shimmer-sweep 1.2s cubic-bezier(0.4, 0, 0.2, 1) 2 forwards';
+                try { renderNoticeBanners(); } catch (e) {}
                 reloadCurrentPageIframes();
                 setTimeout(() => { overlay.style.opacity = '0'; setTimeout(() => overlay.classList.add('hidden'), 300); }, 2400); 
             }
 
-            function safeLoadIframe(iframeId, url) {
+            function safeLoadIframe(iframeId, url, force = false) {
                 const iframe = document.getElementById(iframeId);
                 if (!iframe) return;
                 iframe.onload = function() {
@@ -2773,15 +2920,19 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                         }
                     } catch (e) {}
                 };
-                if (!navigator.onLine) { iframe.style.display = 'none'; iframe.parentElement.querySelector('.offline-fallback').style.display = 'flex'; }
-                else { iframe.style.display = 'block'; iframe.parentElement.querySelector('.offline-fallback').style.display = 'none'; iframe.src = url; }
+                iframe.style.display = 'block'; 
+                if(iframe.parentElement.querySelector('.offline-fallback')) iframe.parentElement.querySelector('.offline-fallback').style.display = 'none'; 
+                if (force || iframe.getAttribute('data-loaded-url') !== url) {
+                        iframe.src = url; 
+                        iframe.setAttribute('data-loaded-url', url);
+                    }
             }
 
             function reloadCurrentPageIframes() {
                 const page = document.querySelector('.nav-item.active').getAttribute('data-page');
-                if (page === 'home') { loadTodayTimetableIframe(); loadHomeLunchIframe(); }
-                else if (page === 'timetable') loadWeeklyTimetableIframe();
-                else if (page === 'lunch') loadLunchIframe();
+                if (page === 'home') { loadTodayTimetableIframe(true); loadHomeLunchIframe(true); }
+                else if (page === 'timetable') loadWeeklyTimetableIframe(true);
+                else if (page === 'lunch') loadLunchIframe(true);
             }
 
             function transitionFromSetupToApp() {
@@ -2818,10 +2969,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             function switchPage(target) {
                 if (target === 'ai') { window.openAiComingModal(); return; }
                 if (target === 'jbs') {
-                    if (!navigator.onLine) {
-                        document.getElementById('wifi-offline-modal').classList.add('show');
-                        return;
-                    }
                     if (typeof AndroidInterface !== 'undefined' && AndroidInterface.openJbs) {
                         AndroidInterface.openJbs();
                     } else {
@@ -2888,10 +3035,10 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 if (e && e.data && e.data.type === 'myjdms-userData-updated') syncUserDataFromSettingsPage();
             });
 
-            function loadTodayTimetableIframe() { safeLoadIframe('today-timetable-iframe', `https://sigan.onrender.com/todaysigan?grade=${userData.grade}&class=${userData.class}`); }
-            function loadHomeLunchIframe() { safeLoadIframe('home-lunch-iframe', `https://sigan.onrender.com/lunch?grade=${userData.grade}&class=${userData.class}`); }
-            function loadWeeklyTimetableIframe() { safeLoadIframe('weekly-timetable-iframe', `https://sigan.onrender.com/sigan?grade=${userData.grade}&class=${userData.class}`); }
-            function loadLunchIframe() { safeLoadIframe('lunch-iframe', `https://sigan.onrender.com/lunch?grade=${userData.grade}&class=${userData.class}`); }
+            function loadTodayTimetableIframe(force = false) { safeLoadIframe('today-timetable-iframe', `https://sigan.onrender.com/todaysigan?grade=${userData.grade}&class=${userData.class}`, force); }
+            function loadHomeLunchIframe(force = false) { safeLoadIframe('home-lunch-iframe', `https://sigan.onrender.com/lunch?grade=${userData.grade}&class=${userData.class}`, force); }
+            function loadWeeklyTimetableIframe(force = false) { safeLoadIframe('weekly-timetable-iframe', `https://sigan.onrender.com/sigan?grade=${userData.grade}&class=${userData.class}`, force); }
+            function loadLunchIframe(force = false) { safeLoadIframe('lunch-iframe', `https://sigan.onrender.com/lunch?grade=${userData.grade}&class=${userData.class}`, force); }
 
             const APP_VERSION_KEY = 'app_version';
             const DEFAULT_VERSION = '2.0.0.1';
@@ -3006,6 +3153,56 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     UpdateInterface.showUpdatePage(version);
                 }
             };
+
+            let activeRipples = [];
+
+            function createRipple(event, button) {
+                const circle = document.createElement('div');
+                const diameter = Math.max(button.clientWidth, button.clientHeight);
+                const radius = diameter / 2;
+                
+                const rect = button.getBoundingClientRect();
+                const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+                const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+                
+                circle.style.width = circle.style.height = `${diameter}px`;
+                circle.style.left = `${clientX - rect.left - radius}px`;
+                circle.style.top = `${clientY - rect.top - radius}px`;
+                circle.classList.add('ripple-circle', 'animate');
+                
+                button.appendChild(circle);
+                activeRipples.push(circle);
+            }
+
+            function clearRipples() {
+                activeRipples.forEach(circle => {
+                    circle.classList.add('fade-out');
+                    setTimeout(() => { if (circle.parentNode) circle.remove(); }, 800);
+                });
+                activeRipples = [];
+            }
+
+            document.body.addEventListener('mousedown', (e) => {
+                const btn = e.target.closest('button, .nav-item, .floating-tab-item, .notice-banner-card');
+                if (btn) {
+                    if (!btn.classList.contains('ripple-btn')) btn.classList.add('ripple-btn');
+                    createRipple(e, btn);
+                }
+            });
+            document.body.addEventListener('touchstart', (e) => {
+                const btn = e.target.closest('button, .nav-item, .floating-tab-item, .notice-banner-card');
+                if (btn) {
+                    if (!btn.classList.contains('ripple-btn')) btn.classList.add('ripple-btn');
+                    createRipple(e, btn);
+                }
+            }, {passive: true});
+
+            document.body.addEventListener('touchend', clearRipples, {passive: true});
+            document.body.addEventListener('touchcancel', clearRipples, {passive: true});
+            document.body.addEventListener('mouseup', clearRipples);
+            document.body.addEventListener('mouseleave', clearRipples, true);
+
+            runSplashSequence();
         });
     </script>
 </body>
