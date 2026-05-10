@@ -62,8 +62,8 @@
                     // 3버튼 네비게이션(bottom >= 48px) vs 제스처 네비게이션(bottom < 30px) 구분
                     var baseBottom = 0;
                     if (bottom >= 48) {
-                        // 3-button navigation: 약 48-80px. 세이프 에어리어의 절반 이상 사용
-                        baseBottom = Math.round(bottom * 0.55);
+                        // 3-button navigation: 약 48-80px. 세이프 에어리어의 70% 사용
+                        baseBottom = Math.round(bottom * 0.70);
                     } else if (bottom >= 28) {
                         // 중간 크기: 1/4 정도
                         baseBottom = Math.round(bottom * 0.25) + 2;
@@ -544,7 +544,7 @@
         /* 하단 입력 */
         .composer-wrap {
             flex-shrink: 0;
-            padding-bottom: calc(12px + var(--sab));
+            padding-bottom: calc(16px + var(--sab));
             padding-top: 6px;
             background: var(--surface);
         }
