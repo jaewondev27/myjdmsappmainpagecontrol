@@ -108,10 +108,8 @@
     </script>
     <style>
         :root {
-            --safe-area-inset-top: env(safe-area-inset-top, 0px);
-            --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
-            --sat: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
-            --sab: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
+            --sat: env(safe-area-inset-top, 0px);
+            --sab: env(safe-area-inset-bottom, 0px);
             --primary: #3182f6;
             --surface: #ffffff;
             --announce-bg: #f0f2f5;
@@ -325,21 +323,39 @@
             color: var(--text-main);
             line-height: 1.55;
             letter-spacing: -0.02em;
+            margin-bottom: 0;
         }
 
         .msg-bot-body p {
-            margin: 0 0 6px;
+            margin: 0 !important;
         }
 
-        .msg-bot-body p:last-child {
-            margin-bottom: 0;
+        .msg-bot-body br {
+            margin: 0 !important;
+            display: inline;
+        }
+
+        .msg-bot-body p + p {
+            margin-top: 6px !important;
+        }
+
+        .msg-bot-body > *:not(p) {
+            margin-bottom: 6px !important;
+        }
+
+        .msg-bot-body > *:last-child {
+            margin-bottom: 0 !important;
+        }
+
+        .msg-bot-body p:last-of-type {
+            margin-bottom: 0 !important;
         }
 
         .msg-meta {
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-top: 14px;
+            margin-top: 0;
         }
 
         .meta-avatar {
@@ -933,6 +949,8 @@
                         // 표는 파싱 후 래핑해서 버전별 renderer 차이 이슈를 피함
                         html = html.replace(/<table>/g, '<div class="md-table-wrap"><table>');
                         html = html.replace(/<\/table>/g, '</table></div>');
+                        // 마지막 요소의 마진 제거
+                        html = html.replace(/<\/p>$/, '</p>').replace(/<p>([^<]*)<\/p>\n?$/, '<p>$1</p>');
                         if (window.DOMPurify && typeof window.DOMPurify.sanitize === 'function') {
                             return window.DOMPurify.sanitize(html, { USE_PROFILES: { html: true } });
                         }
@@ -940,6 +958,8 @@
                     }
                 } catch (e) {}
                 var esc = escapeHtml(text).replace(/\n/g, '<br>');
+                // 연속된 <br> 제거 (2개 이상 연속)
+                esc = esc.replace(/<br>\s*<br>/g, '<br>');
                 return esc;
             }
 
