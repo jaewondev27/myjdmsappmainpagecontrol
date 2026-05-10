@@ -50,7 +50,7 @@
 
                     // 기본 하단 세이프영역은 기존의 1/4 정도만 사용
                     var baseBottom = Math.round(bottom * 0.25);
-                    if (baseBottom > 0) baseBottom += 4;
+                    if (baseBottom > 0) baseBottom += 6;
                     // 키보드가 올라오면 하단 세이프영역을 없애고, 내려가면 다시 복원
                     var active = document.activeElement;
                     var isEditableFocused = !!(
@@ -59,8 +59,9 @@
                          (active.tagName === 'INPUT' && active.type !== 'checkbox' && active.type !== 'radio' && active.type !== 'button') ||
                          active.isContentEditable)
                     );
-                    var keyboardOpen = vvBot > 120 && isEditableFocused;
+                    var keyboardOpen = isEditableFocused && (vvBot > 70 || (vv && (window.innerHeight - vv.height) > 120));
                     if (keyboardOpen) baseBottom = 0;
+                    document.documentElement.classList.toggle('keyboard-open', !!keyboardOpen);
 
                     var rs = document.documentElement.style;
                     function setInsetVar(name, px) {
@@ -108,6 +109,9 @@
             --border-soft: #e8eaed;
             --icon-gray: #9ca3af;
         }
+        :root.keyboard-open {
+            --sab: 0px !important;
+        }
 
         body.dark-mode {
             --surface: #141414;
@@ -154,6 +158,16 @@
             z-index: 10;
             pointer-events: none;
             background: linear-gradient(180deg, var(--surface) 0%, var(--surface) 52%, transparent 100%);
+        }
+        #top-soft-vignette {
+            position: fixed;
+            top: var(--sat);
+            left: 0;
+            right: 0;
+            height: 14px;
+            z-index: 10;
+            pointer-events: none;
+            background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 78%, transparent) 0%, transparent 100%);
         }
 
         body::after {
@@ -619,6 +633,7 @@
 </head>
 <body>
     <div id="top-status-bar-vignette"></div>
+    <div id="top-soft-vignette" aria-hidden="true"></div>
     <div class="ai-app">
         <button type="button" class="announce-bar" id="announce-toggle" aria-expanded="false" aria-controls="announce-panel">
             <svg class="icon-megaphone" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -1188,6 +1203,16 @@
             }
 
             if (inputEl) {
+                inputEl.addEventListener('focus', function () {
+                    document.documentElement.classList.add('keyboard-open');
+                    if (typeof window.__jdmsApplySafeInsetCssVars === 'function') window.__jdmsApplySafeInsetCssVars();
+                });
+                inputEl.addEventListener('blur', function () {
+                    setTimeout(function () {
+                        document.documentElement.classList.remove('keyboard-open');
+                        if (typeof window.__jdmsApplySafeInsetCssVars === 'function') window.__jdmsApplySafeInsetCssVars();
+                    }, 30);
+                });
                 inputEl.addEventListener('input', function () {
                     syncSendState();
                     inputEl.style.height = 'auto';
@@ -1233,6 +1258,14 @@
                 sendBtn.addEventListener('pointerup', onPressEnd);
                 sendBtn.addEventListener('pointercancel', onPressEnd);
                 sendBtn.addEventListener('pointerleave', onPressEnd);
+                // 일부 모바일 웹뷰에서 pointer 이벤트가 불안정한 경우 대비
+                sendBtn.addEventListener('touchstart', onPressStart, { passive: true });
+                sendBtn.addEventListener('touchend', onPressEnd, { passive: true });
+                sendBtn.addEventListener('touchcancel', onPressEnd, { passive: true });
+                sendBtn.addEventListener('mousedown', onPressStart);
+                sendBtn.addEventListener('mouseup', onPressEnd);
+                sendBtn.addEventListener('mouseleave', onPressEnd);
+                sendBtn.addEventListener('contextmenu', function (e) { e.preventDefault(); });
 
                 sendBtn.addEventListener('click', function (e) {
                     if (longPressTriggered) {
