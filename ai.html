@@ -59,10 +59,18 @@
                     }
                     bottom = Math.min(Math.max(0, bottom), CAP_BOT);
 
-                    // 기본 하단 세이프영역은 기존의 1/4 정도만 사용
-                    var baseBottom = Math.round(bottom * 0.25);
-                    // 3버튼 내비처럼 inset이 큰 환경만 소폭 추가, 제스처 환경은 최소만 추가
-                    if (baseBottom > 0) baseBottom += (bottom >= 28 ? 6 : 2);
+                    // 3버튼 네비게이션(bottom >= 48px) vs 제스처 네비게이션(bottom < 30px) 구분
+                    var baseBottom = 0;
+                    if (bottom >= 48) {
+                        // 3-button navigation: 약 48-80px. 세이프 에어리어의 절반 이상 사용
+                        baseBottom = Math.round(bottom * 0.55);
+                    } else if (bottom >= 28) {
+                        // 중간 크기: 1/4 정도
+                        baseBottom = Math.round(bottom * 0.25) + 2;
+                    } else if (bottom > 0) {
+                        // 작은 여백: 최소값만
+                        baseBottom = 2;
+                    }
                     // 키보드가 올라오면 하단 세이프영역을 없애고, 내려가면 다시 복원
                     var active = document.activeElement;
                     var isEditableFocused = !!(
