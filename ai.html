@@ -48,6 +48,7 @@
 
                     // 기본 하단 세이프영역은 기존의 1/4 정도만 사용
                     var baseBottom = Math.round(bottom * 0.25);
+                    if (baseBottom > 0) baseBottom += 4;
                     // 키보드가 올라오면 하단 세이프영역을 없애고, 내려가면 다시 복원
                     var active = document.activeElement;
                     var isEditableFocused = !!(
@@ -429,7 +430,7 @@
         /* 하단 입력 */
         .composer-wrap {
             flex-shrink: 0;
-            padding-bottom: calc(10px + var(--sab));
+            padding-bottom: calc(12px + var(--sab));
             padding-top: 6px;
             background: var(--surface);
         }
@@ -735,6 +736,7 @@
                 '당신은 중동중학교 My JDMS 앱 안내 AI입니다.',
                 '항상 한국어로 친절하고 간결하게 답합니다.',
                 '한자와 불필요한 영어(콩글리시 포함) 표현은 쓰지 않고 쉬운 한국어만 씁니다.',
+                '일본어 표현은 사용하지 않습니다.',
                 '학교의 공식 입장을 대변하지 않으며, 불확실하면 담당 교사나 학교로 문의하라고 안내합니다.',
                 '중학생이 이해하기 쉬운 말을 씁니다.',
                 '유해·비방·시험 부정행위·개인정보(주민번호 등) 요청은 정중히 거절합니다.'
@@ -816,6 +818,29 @@
                 return messageDayKey(prev) !== dayKey(atTs);
             }
 
+            function escapeHtml(s) {
+                return String(s)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            function renderAiMarkdown(raw) {
+                var text = (raw == null) ? '' : String(raw);
+                var esc = escapeHtml(text);
+                esc = esc.replace(/```([\s\S]*?)```/g, function (_, code) {
+                    return '<pre><code>' + code.replace(/\n/g, '<br>') + '</code></pre>';
+                });
+                esc = esc.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+                esc = esc.replace(/\*\*([^\n*]+)\*\*/g, '<strong>$1</strong>');
+                esc = esc.replace(/\*([^\n*]+)\*/g, '<em>$1</em>');
+                esc = esc.replace(/\[([^\]\n]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+                esc = esc.replace(/\n/g, '<br>');
+                return esc;
+            }
+
             function appendUserDom(text) {
                 var wrap = document.createElement('div');
                 wrap.className = 'msg-user';
@@ -829,7 +854,7 @@
                 wrap.className = 'msg-bot';
                 var body = document.createElement('div');
                 body.className = 'msg-bot-body msg-bot-body-pre';
-                body.textContent = rawText;
+                body.innerHTML = renderAiMarkdown(rawText);
 
                 var meta = document.createElement('div');
                 meta.className = 'msg-meta';
@@ -930,7 +955,7 @@
 
                 function finishTyping() {
                     var atDone = Date.now();
-                    body.textContent = raw;
+                    body.innerHTML = renderAiMarkdown(raw);
                     body.classList.remove('ai-type-caret');
                     mt.textContent = 'JDMS AI · My JDMS, ' + formatMetaTimeAt(atDone);
                     chatMessages.push(makeStoredMessage('assistant', raw, atDone));
@@ -961,7 +986,7 @@
                     }
                     var step = chunkSize();
                     idx = Math.min(n, idx + step);
-                    body.textContent = chars.slice(0, idx).join('');
+                    body.innerHTML = renderAiMarkdown(chars.slice(0, idx).join(''));
                     scrollChatBottom();
                     setTimeout(tick, msPerTick);
                 }
@@ -1005,7 +1030,10 @@
                 var payload = {
                     system_prompt: SYSTEM_PROMPT,
                     messages: aiHistory,
-                    model: 'groq/compound-mini'
+                    model: 'groq/compound-mini',
+                    school: (localStorage.getItem('school_name') || '중동중학교'),
+                    grade: (function () { try { return JSON.parse(localStorage.getItem('userData') || '{}').grade || 2; } catch (e) { return 2; } })(),
+                    class: (function () { try { return JSON.parse(localStorage.getItem('userData') || '{}').class || 8; } catch (e) { return 8; } })()
                 };
                 var res = await fetch(BACKEND_AI_URL, {
                     method: 'POST',
