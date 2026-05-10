@@ -82,35 +82,35 @@
 
             if (isSuccess && encodedData) {
                 try {
-                    // 1. 데이터 해독 (Base64)
+                    // 1. 데이터 해독
                     const decodedData = JSON.parse(atob(encodedData.replace(/-/g, '+').replace(/_/g, '/')));
                     
                     if (decodedData && decodedData.email) {
-                        // 2. localStorage 저장
-                        const existing = JSON.parse(localStorage.getItem('userData') || '{}');
-                        const userData = { ...existing, ...decodedData };
-                        localStorage.setItem('userData', JSON.stringify(userData));
+                        // 2. 현재 브라우저의 localStorage에도 저장 (혹시 모르니)
+                        localStorage.setItem('userData', JSON.stringify(decodedData));
                         
-                        // 3. 메인 창에 신호 전송 (BroadcastChannel)
+                        // 3. 같은 브라우저일 경우를 대비해 BroadcastChannel 전송
                         const authBc = new BroadcastChannel('myjdms_auth');
-                        authBc.postMessage({ type: 'LOGIN_SUCCESS', userData: userData });
+                        authBc.postMessage({ type: 'LOGIN_SUCCESS', userData: decodedData });
 
-                        // 4. 창 닫기 시도
+                        // 4. 성공 메시지 표시 및 창 닫기 시도
+                        document.getElementById('status-msg').innerHTML = `<b>${decodedData.email}</b> 인증에 성공했습니다!<br>메인 앱 화면이 자동으로 업데이트됩니다.`;
+                        
                         setTimeout(() => {
                             window.close();
-                            // 만약 창이 안 닫히면 안내 메시지 변경
+                            // 안 닫힐 경우 대비
                             setTimeout(() => {
-                                document.getElementById('status-msg').innerHTML = "창이 자동으로 닫히지 않으면<br>직접 닫고 메인 앱으로 돌아가주세요.";
+                                document.getElementById('status-msg').innerHTML += "<br><br><span style='color: #888; font-size: 12px;'>이 창을 닫고 메인 앱으로 돌아가셔도 좋습니다.</span>";
                                 document.getElementById('loader').style.display = 'none';
-                            }, 500);
-                        }, 1500);
+                            }, 1000);
+                        }, 2000);
                     }
                 } catch (e) {
                     console.error('Auth error:', e);
-                    showError("인증 정보 해독 중 오류가 발생했습니다.");
+                    showError("인증 정보를 처리하는 중 오류가 발생했습니다.");
                 }
             } else {
-                showError("유효하지 않은 접근입니다.");
+                showError("유효하지 않은 접근이거나 인증에 실패했습니다.");
             }
         }
 

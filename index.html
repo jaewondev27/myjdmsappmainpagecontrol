@@ -2035,7 +2035,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                             <div style="font-weight: 700; margin-bottom: 4px;">📩 메일이 오지 않나요?</div>
                             <div style="font-size: 12px; line-height: 1.6; opacity: 0.9;">
                                 • <b>스팸 메일함</b>을 반드시 확인해주세요.<br>
-                                • 발신자: <code style="background: rgba(0,0,0,0.05); padding: 2px 4px; border-radius: 4px; font-family: monospace;">noreply@myjdms-app.firebaseapp.com</code><br>
+                                • 발신자: <code style="background: rgba(0,0,0,0.05); padding: 2px 4px; border-radius: 4px; font-family: monospace;">corerepublix@gmail.com</code><br>
                                 • 학교 서버 특성상 발송이 1~2분 정도 늦어질 수 있습니다.
                             </div>
                         </div>
@@ -2345,36 +2345,95 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         // --- DIY Auth Configuration ---
         const BACKEND_URL = 'https://sigan.onrender.com';
         let userData = null;
+        let currentDeviceId = null;
+        let pollInterval = null;
+        let bypassDomain = false; // 도메인 우회 플래그
 
-        // Listen for login from login.html (New Tab/Window)
+        // Listen for login from login.html (Same Tab/Window)
         const authBc = new BroadcastChannel('myjdms_auth');
         authBc.onmessage = (ev) => {
             if (ev.data.type === 'LOGIN_SUCCESS') {
-                userData = ev.data.userData;
-                localStorage.setItem('userData', JSON.stringify(userData));
-                
-                // Show success modal
-                showCustomModal({
-                    title: '인증 완료',
-                    message: `${userData.name}님, 환영합니다! 마지막 정보를 입력해 주세요.`,
-                    type: 'success'
-                });
-                
-                // Transition to info step
-                document.getElementById('setup-step-login').classList.add('hidden');
-                document.getElementById('setup-step-info').classList.remove('hidden');
-                document.getElementById('setup-name').value = userData.name || '';
+                completeLoginFlow(ev.data.userData);
             }
         };
+
+        // Poll for login status (Cross-Device/Browser Support)
+        function startLoginPolling(deviceId) {
+            if (pollInterval) clearInterval(pollInterval);
+            pollInterval = setInterval(async () => {
+                try {
+                    const res = await fetch(`${BACKEND_URL}/api/auth/poll?device_id=${deviceId}`);
+                    const data = await res.json();
+                    if (data.status === 'completed') {
+                        clearInterval(pollInterval);
+                        completeLoginFlow(data.userData);
+                    }
+                } catch (e) { console.error('Polling error:', e); }
+            }, 2000);
+        }
+
+        function completeLoginFlow(data) {
+            userData = data;
+            localStorage.setItem('userData', JSON.stringify(userData));
+            
+            showCustomModal({
+                title: '인증 완료',
+                message: `${userData.name}님, 환영합니다! 마지막 정보를 입력해 주세요.`,
+                type: 'success',
+                iconName: 'check-circle'
+            });
+            
+            document.getElementById('setup-step-login').classList.add('hidden');
+            document.getElementById('setup-step-info').classList.remove('hidden');
+            document.getElementById('setup-name').value = userData.name || '';
+            if (pollInterval) clearInterval(pollInterval);
+        }
 
         try {
             const rawUd = localStorage.getItem('userData');
             if (rawUd) userData = JSON.parse(rawUd);
-        } catch (e) {
-            userData = null;
-        }
+        } catch (e) { userData = null; }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // 로그아웃 함수 (새로고침 추가)
+            window.handleLogout = function() {
+                localStorage.removeItem('userData');
+                localStorage.clear();
+                location.reload(); 
+            };
+
+            // 기존 로그아웃 버튼들에 이벤트 연결
+            const logoutBtns = document.querySelectorAll('.logout-btn, #btn-logout');
+            logoutBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.handleLogout();
+                });
+            });
+
+            // 주황색 공지 박스 꾹 누르기 우회 로직 (Notice Box)
+            const noticeBoxes = document.querySelectorAll('.orange-notice-box, [style*="background-color: #fff9f2"]');
+            noticeBoxes.forEach(box => {
+                let pressTimer;
+                const startPress = () => {
+                    pressTimer = window.setTimeout(() => {
+                        bypassDomain = true;
+                        box.style.border = 'none';
+                        box.style.boxShadow = 'none';
+                        box.style.opacity = '0.8';
+                        console.log('Secret: Domain bypass activated');
+                        if (navigator.vibrate) navigator.vibrate(50);
+                    }, 1500);
+                };
+                const endPress = () => clearTimeout(pressTimer);
+                
+                box.addEventListener('mousedown', startPress);
+                box.addEventListener('mouseup', endPress);
+                box.addEventListener('mouseleave', endPress);
+                box.addEventListener('touchstart', startPress);
+                box.addEventListener('touchend', endPress);
+            });
+
             function refreshLayoutSafeArea() {
                 if (window.__jdmsKickSafeInsets) window.__jdmsKickSafeInsets();
                 else if (window.__jdmsApplySafeInsetCssVars) window.__jdmsApplySafeInsetCssVars();
@@ -2696,8 +2755,11 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 confirmBtn.innerText = options.confirmText || '확인';
                 cancelBtn.innerText = options.cancelText || '취소';
                 
+                // Lucide 아이콘 적용
+                const iconName = options.iconName || (options.type === 'error' ? 'alert-circle' : (options.type === 'success' ? 'check-circle' : 'info'));
                 icon.className = 'modal-icon-circle ' + (options.type || 'info');
-                icon.innerText = options.type === 'error' ? '!' : (options.type === 'success' ? '✓' : 'i');
+                icon.innerHTML = `<i data-lucide="${iconName}" style="width: 24px; height: 24px;"></i>`;
+                if (window.lucide) window.lucide.createIcons();
 
                 if (options.showCancel) cancelBtn.classList.remove('hidden');
                 else cancelBtn.classList.add('hidden');
@@ -2706,14 +2768,8 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 requestAnimationFrame(() => modal.classList.add('active'));
 
                 return new Promise((resolve) => {
-                    const onConfirm = () => {
-                        cleanup();
-                        resolve(true);
-                    };
-                    const onCancel = () => {
-                        cleanup();
-                        resolve(false);
-                    };
+                    const onConfirm = () => { cleanup(); resolve(true); };
+                    const onCancel = () => { cleanup(); resolve(false); };
                     const cleanup = () => {
                         confirmBtn.removeEventListener('click', onConfirm);
                         cancelBtn.removeEventListener('click', onCancel);
@@ -2726,10 +2782,10 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             };
 
             window.showErrorModal = function(msg) {
-                return window.showCustomModal({ title: '오류', message: msg, type: 'error' });
+                return window.showCustomModal({ title: '오류', message: msg, type: 'error', iconName: 'x-circle' });
             };
 
-            // Email Link Sign-In Handler (Calling Python Backend)
+            // Email Link Sign-In Handler
             let isCooldown = false;
             window.handleEmailLinkSignIn = function() {
                 if (isCooldown) return;
@@ -2740,12 +2796,15 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     return;
                 }
                 
-                if (!email.endsWith('@joongdong.ms.kr')) {
+                // 우회 모드가 아닐 때만 도메인 체크
+                if (!bypassDomain && !email.endsWith('@joongdong.ms.kr')) {
                     showErrorModal('중동중학교 이메일(@joongdong.ms.kr)만 사용 가능합니다.');
                     return;
                 }
                 
-                // Start Cooldown Timer
+                // 기기 고유 ID 생성
+                currentDeviceId = 'dev_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+                
                 isCooldown = true;
                 const btn = document.getElementById('btn-send-link');
                 const originalText = btn.innerText;
@@ -2763,21 +2822,27 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     }
                 }, 1000);
 
-                // Call Python Backend at sigan.onrender.com
+                // Call Backend
                 fetch(`${BACKEND_URL}/api/auth/send-link`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: email })
+                    body: JSON.stringify({ 
+                        email: email, 
+                        device_id: currentDeviceId,
+                        bypass: bypassDomain
+                    })
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        window.localStorage.setItem('emailForSignIn', email);
                         showCustomModal({ 
                             title: '메일 발송 완료', 
-                            message: '사용자님의 학교 메일로 인증 링크가 전송되었습니다! 메일함을 확인해 주세요.', 
-                            type: 'success' 
+                            message: `corerepublix@gmail.com 발신자로 인증 링크가 전송되었습니다! 메일을 확인해 주세요.`, 
+                            type: 'success',
+                            iconName: 'mail'
                         });
+                        // 폴링 시작 (다른 기기 대응)
+                        startLoginPolling(currentDeviceId);
                     } else {
                         throw new Error(data.error || '발송 실패');
                     }
