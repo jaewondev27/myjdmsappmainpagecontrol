@@ -9,8 +9,6 @@
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
     <!-- 카드 인식 라이브러리 -->
     <script src="https://cdn.jsdelivr.net/npm/tracking@0.7.3/tracking-min.js"></script>
-    <!-- Lucide Icons -->
-    <script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
     <style>
         :root {
             --sat: env(safe-area-inset-top, 0px);
@@ -68,34 +66,56 @@
             position: sticky;
             top: 0;
             z-index: 10;
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
             align-items: center;
+            column-gap: 8px;
             padding: calc(var(--sat) + 12px) 16px 12px;
             border-bottom: 1px solid var(--border);
             background: var(--bg);
         }
 
-        .topbar-left {
-            display: inline-flex;
+        .topbar-lead {
+            display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: flex-start;
         }
 
-        .back-btn {
-            border: 1px solid var(--border);
-            background: var(--card-bg);
+        .topbar-trail {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .topbar-back-btn {
+            border: none;
+            background: transparent;
             color: var(--text-main);
             border-radius: 10px;
-            padding: 7px 10px;
-            font-size: 12px;
-            font-weight: 700;
+            padding: 8px 10px;
+            margin: -4px 0 -4px -10px;
             cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 15px;
+            font-weight: 700;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .topbar-back-btn:active {
+            opacity: 0.65;
         }
 
         .topbar-title {
             font-size: 20px;
             font-weight: 800;
+            margin: 0;
+            text-align: center;
+            justify-self: center;
+            pointer-events: none;
         }
 
         .delete-btn {
@@ -103,13 +123,15 @@
             color: var(--danger);
             background: transparent;
             border-radius: 10px;
-            padding: 8px 10px;
+            padding: 8px 14px;
             font-size: 12px;
             font-weight: 700;
             cursor: pointer;
             display: none;
             align-items: center;
-            gap: 4px;
+            justify-content: center;
+            flex-shrink: 0;
+            box-sizing: border-box;
         }
 
         /* Agreement Overlay */
@@ -179,155 +201,6 @@
         .physical-card-btn:active {
             transform: scale(0.95);
             background: var(--bg);
-        }
-
-        /* NFC 쓰기 모달 */
-        .nfc-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .nfc-modal.show {
-            display: flex;
-        }
-
-        .nfc-content {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 24px;
-            max-width: 300px;
-            text-align: center;
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
-            animation: slideUp 0.3s ease;
-            overflow: hidden;
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(30px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .nfc-icon {
-            width: 100px;
-            height: 100px;
-            margin: 0 auto 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .nfc-icon.writing {
-            animation: none;
-        }
-
-        /* NFC 파동 애니메이션 */
-        .nfc-icon::before,
-        .nfc-icon::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        .nfc-icon::before {
-            background: radial-gradient(circle, rgba(49, 130, 246, 0.5) 0%, rgba(49, 130, 246, 0.2) 50%, rgba(49, 130, 246, 0) 100%);
-            animation: nfc-wave 2s ease-out infinite;
-        }
-
-        .nfc-icon::after {
-            background: radial-gradient(circle, rgba(49, 130, 246, 0.3) 0%, rgba(49, 130, 246, 0.1) 50%, rgba(49, 130, 246, 0) 100%);
-            animation: nfc-wave 2s ease-out infinite 0.6s;
-        }
-
-        #nfc-lucide-icon {
-            position: relative;
-            z-index: 10;
-            width: 50px;
-            height: 50px;
-            color: var(--primary);
-        }
-
-        @keyframes nfc-wave {
-            0% {
-                transform: translate(-50%, -50%) scale(1);
-                opacity: 1;
-            }
-
-            100% {
-                transform: translate(-50%, -50%) scale(1.8);
-                opacity: 0;
-            }
-        }
-
-        .nfc-title {
-            font-size: 18px;
-            font-weight: 800;
-            margin-bottom: 8px;
-            color: var(--text-main);
-        }
-
-        .nfc-text {
-            font-size: 14px;
-            color: var(--text-sub);
-            line-height: 1.5;
-            margin-bottom: 16px;
-        }
-
-        .nfc-close-btn {
-            border: 1px solid var(--border);
-            background: var(--card-bg);
-            color: var(--text-main);
-            border-radius: 10px;
-            padding: 10px 16px;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.16s ease, background-color 0.2s ease;
-        }
-
-        .nfc-close-btn:active {
-            transform: scale(0.95);
-            background: var(--bg);
-        }
-
-        .nfc-status {
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 12px;
-        }
-
-        .nfc-status.success {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .nfc-status.error {
-            background: #fee2e2;
-            color: #991b1b;
         }
 
         /* 카메라 스캔 모달 */
@@ -1182,13 +1055,13 @@
     </div>
 
     <header class="topbar">
-        <div id="topbar-back" class="topbar-left" style="cursor:pointer;">
-            <i data-lucide="chevron-left" style="width:28px; height:28px;"></i>
-            <div class="topbar-title">학생증</div>
+        <div class="topbar-lead">
+            <button type="button" id="top-back-btn" class="topbar-back-btn">뒤로</button>
         </div>
-        <button id="delete-btn" class="delete-btn">
-            <i data-lucide="trash-2" style="width:14px; height:14px;"></i> 삭제
-        </button>
+        <h1 class="topbar-title">학생증</h1>
+        <div class="topbar-trail">
+            <button type="button" id="delete-btn" class="delete-btn">삭제</button>
+        </div>
     </header>
     <main class="container">
         <section id="slide-shell" class="slide-shell">
@@ -1247,16 +1120,13 @@
                     <div class="beta">BETA</div>
                 </div>
                 <div id="student-info" class="sc-main"></div>
-                <div class="barcode-wrap">
+                <div id="barcode-section" class="barcode-wrap">
                     <svg id="barcode"></svg>
                     <div id="barcode-num" class="barcode-num"></div>
                 </div>
-                <div style="display: flex; gap: 8px; margin: 12px 0 0;">
-                    <button id="edit-form-btn" class="btn-secondary"
-                        style="flex: 1; height: 48px; font-size: 15px;">수정</button>
-                    <button id="nfc-write-btn" class="btn-secondary"
-                        style="flex: 1; height: 48px; font-size: 15px; background: var(--primary); color: #fff; border: none;">NFC
-                        켜기</button>
+                <div style="margin: 12px 0 0;">
+                    <button type="button" id="toggle-barcode-btn" class="btn-secondary"
+                        style="width: 100%; height: 48px; font-size: 15px;" aria-pressed="false">바코드 가리기</button>
                 </div>
                 <div class="issue-note" style="margin-top: 12px;">
                     디지털 학생증은 교내 도서관 및 바코드 사용 시설에서 사용할 수 있으며,<br>
@@ -1264,18 +1134,6 @@
                 </div>
             </div>
         </section>
-        <!-- NFC 켜기 모달 -->
-        <div id="nfc-modal" class="nfc-modal">
-            <div class="nfc-content">
-                <div class="nfc-icon writing" id="nfc-icon">
-                    <i id="nfc-lucide-icon"></i>
-                </div>
-                <div class="nfc-title" id="nfc-title">NFC 켜기</div>
-                <div class="nfc-text" id="nfc-text">핸드폰의 NFC를 활성화했습니다<br>인식기에 가져다 대세요</div>
-                <div id="nfc-status" class="nfc-status" style="display: none;"></div>
-                <button class="nfc-close-btn" id="nfc-close-btn">닫기</button>
-            </div>
-        </div>
         <div id="dropdown-sheet-backdrop" class="sheet-backdrop"></div>
         <section id="dropdown-sheet-panel" class="sheet-panel" aria-hidden="true">
             <div class="sheet-handle"></div>
@@ -1309,7 +1167,7 @@
         <div id="registerCompleteModal" class="register-complete-modal">
             <div class="register-complete-inner">
                 <div class="register-complete-check" id="checkIcon"></div>
-                <div class="register-complete-text">등록이 완료됐습니다</div>
+                <div class="register-complete-text">등록이 완료되었습니다</div>
                 <div class="register-complete-desc">디지털 학생증이 저장되었습니다</div>
                 <button class="register-complete-btn" id="registerCompleteBtn">확인</button>
             </div>
@@ -1370,7 +1228,8 @@
                 const slideShell = document.getElementById("slide-shell");
                 const stepCard = document.getElementById("step-card");
                 const toFormBtn = document.getElementById("to-form-btn");
-                const editFormBtn = document.getElementById("edit-form-btn");
+                const toggleBarcodeBtn = document.getElementById("toggle-barcode-btn");
+                const barcodeSection = document.getElementById("barcode-section");
                 const backBtn = document.getElementById("back-btn");
                 const saveBtn = document.getElementById("save-btn");
                 const deleteBtn = document.getElementById("delete-btn");
@@ -1439,6 +1298,9 @@
                         }
                         localStorage.setItem("studentcard_agreed", "true");
                         agreementOverlay.classList.add("hidden");
+                        if (registerStudentCardFromAppUser()) {
+                            showRegisterCompleteModal();
+                        }
                     });
                 }
                 checkAgreement();
@@ -1624,6 +1486,7 @@
                         width: 1.6
                     });
                     deleteBtn.style.display = "flex";
+                    syncBarcodeToggleUI();
                 }
 
                 function loadSaved() {
@@ -1638,171 +1501,11 @@
                     }
                 }
 
-                // NFC 관련 함수
-                const nfcModal = document.getElementById("nfc-modal");
-                const nfcCloseBtn = document.getElementById("nfc-close-btn");
-                const nfcIcon = document.getElementById("nfc-icon");
-                const nfcTitle = document.getElementById("nfc-title");
-                const nfcText = document.getElementById("nfc-text");
-                const nfcStatus = document.getElementById("nfc-status");
-                let nfcWriteAbortController = null;
-                let hapticInterval = null;
-                let isNFCEmitting = false;
-
-                function startHapticFeedback() {
-                    // 이미 실행 중이면 중지
-                    if (hapticInterval) clearInterval(hapticInterval);
-
-                    // 계속 햅틱 피드백 (100ms 간격)
-                    if (navigator.vibrate) {
-                        // 초기 진동
-                        navigator.vibrate(50);
-
-                        // 반복 진동
-                        hapticInterval = setInterval(() => {
-                            navigator.vibrate(50);
-                        }, 150);
-                    }
-                }
-
-                function stopHapticFeedback() {
-                    if (hapticInterval) {
-                        clearInterval(hapticInterval);
-                        hapticInterval = null;
-                    }
-                    // 최종 진동 종료
-                    if (navigator.vibrate) {
-                        navigator.vibrate(0);
-                    }
-                }
-
-                function openNFCModal() {
-                    nfcModal.classList.add("show");
-                    nfcIcon.classList.add("writing");
-                    nfcTitle.textContent = "NFC 켜기";
-                    nfcText.textContent = "NFC를 활성화하고 있습니다...";
-                    nfcStatus.style.display = "none";
-
-                    // Lucide 아이콘 렌더링
-                    const nfcLucideIcon = document.getElementById("nfc-lucide-icon");
-                    if (nfcLucideIcon && window.lucide) {
-                        nfcLucideIcon.innerHTML = '<svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M9 20h6"></path><circle cx="12" cy="20" r=".5" fill="currentColor"></circle></svg>';
-                        window.lucide.createIcons();
-                    }
-
-                    startNFCEmit();
-                }
-
-                function closeNFCModal() {
-                    nfcModal.classList.remove("show");
-                    nfcIcon.classList.remove("writing");
-                    stopHapticFeedback();
-                    isNFCEmitting = false;
-
-                    // Android 인터페이스가 있으면 NFC 정지
-                    if (typeof AndroidInterface !== "undefined" && typeof AndroidInterface.stopNFC === "function") {
-                        try {
-                            AndroidInterface.stopNFC();
-                        } catch (e) { }
-                    }
-                }
-
-                function showNFCStatus(message, type) {
-                    nfcStatus.textContent = message;
-                    nfcStatus.className = `nfc-status ${type}`;
-                    nfcStatus.style.display = "block";
-                }
-
-                async function startNFCEmit() {
-                    // 햅틱 피드백 시작
-                    startHapticFeedback();
-                    isNFCEmitting = true;
-
-                    const saved = loadSaved();
-                    if (!saved) {
-                        showNFCStatus("저장된 학생증 정보가 없습니다.", "error");
-                        stopHapticFeedback();
-                        isNFCEmitting = false;
-                        return;
-                    }
-
-                    try {
-                        // "M입학년도학번" 형식으로 바코드 문자열 생성
-                        const studentNo = `${String(saved.enterYear).slice(-2)}${String(saved.enterClass).padStart(2, '0')}${String(saved.enterNumber).padStart(2, '0')}`;
-                        const nfcString = `M${studentNo}`;
-
-                        // 1. Android WebView 인터페이스 (우선순위 1)
-                        if (typeof AndroidInterface !== "undefined") {
-                            if (typeof AndroidInterface.enableNFC === "function") {
-                                AndroidInterface.enableNFC(nfcString);
-                                nfcTitle.textContent = "NFC 활성화됨";
-                                nfcText.textContent = `학번: ${nfcString}\n\n인식기에 핸드폰을 가져다 대세요`;
-                                showNFCStatus("NFC가 활성화되었습니다.", "success");
-
-                                setTimeout(() => {
-                                    if (isNFCEmitting) closeNFCModal();
-                                }, 30000);
-                                return;
-                            }
-                        }
-
-                        // 2. 실제 Web NFC API (우선순위 2)
-                        if ("NDEFReader" in window) {
-                            nfcWriteAbortController = new AbortController();
-                            const reader = new NDEFReader();
-
-                            try {
-                                // NFC 스캔 시작 - 이것이 실제 NFC 신호 활성화
-                                await reader.scan({ signal: nfcWriteAbortController.signal });
-
-                                reader.onreading = (event) => {
-                                    console.log("NFC 태그 감지됨:", event.serialNumber);
-                                };
-
-                                nfcTitle.textContent = "NFC 활성화됨";
-                                nfcText.textContent = `학번: ${nfcString}\n\n인식기에 핸드폰을 가져다 대세요`;
-                                showNFCStatus("실제 NFC가 활성화되었습니다.", "success");
-                            } catch (nfcError) {
-                                if (nfcError.name !== "NotAllowedError" && nfcError.name !== "InvalidStateError") {
-                                    throw nfcError;
-                                }
-                                // InvalidStateError인 경우 fallback으로 진행
-                                throw new Error("Web NFC가 이 환경에서 작동하지 않습니다.");
-                            }
-                        } else {
-                            throw new Error("이 기기는 NFC를 지원하지 않습니다.");
-                        }
-
-                        // 30초 후 자동 종료
-                        setTimeout(() => {
-                            if (isNFCEmitting) {
-                                closeNFCModal();
-                            }
-                        }, 30000);
-
-                    } catch (error) {
-                        if (error.name === "AbortError") {
-                            return;
-                        }
-
-                        stopHapticFeedback();
-                        isNFCEmitting = false;
-                        nfcIcon.classList.remove("writing");
-                        nfcTitle.textContent = "오류 발생";
-
-                        let errorMessage = error.message || "NFC 활성화에 실패했습니다.";
-
-                        if (error.name === "NotAllowedError") {
-                            errorMessage = "NFC 권한이 없습니다. 설정에서 권한을 확인하세요.";
-                        } else if (error.name === "InvalidStateError") {
-                            errorMessage = "WebView 환경에서는 Android 앱의 네이티브 NFC를 사용하세요.";
-                        } else if (error.name === "NotSupportedError") {
-                            errorMessage = "이 브라우저는 NFC를 지원하지 않습니다.";
-                        }
-
-                        nfcText.textContent = errorMessage;
-                        showNFCStatus(errorMessage, "error");
-                    }
+                function syncBarcodeToggleUI() {
+                    if (!barcodeSection || !toggleBarcodeBtn) return;
+                    barcodeSection.classList.remove("hidden");
+                    toggleBarcodeBtn.textContent = "바코드 가리기";
+                    toggleBarcodeBtn.setAttribute("aria-pressed", "false");
                 }
 
                 function commitRegister(data) {
@@ -1856,47 +1559,17 @@
                 }
 
                 toFormBtn.addEventListener("click", () => {
-                    const user = loadUserData();
-                    if (user && user.email && user.grade) {
-                        // Pre-generate the card data
-                        const emailPrefix = user.email.split('@')[0];
-                        const academicId = emailPrefix.replace(/([0-9]+)m([0-9]+)/i, 'M$1$2').toUpperCase();
-                        const cardData = {
-                            name: user.name || user.displayName || '학생',
-                            grade: user.grade,
-                            currentClass: user.class,
-                            currentNumber: user.number,
-                            academicId: academicId,
-                            email: user.email
-                        };
-
-                        // Show completion modal instead of form
-                        renderCardFromLogin(cardData);
+                    if (registerStudentCardFromAppUser()) {
                         showRegisterCompleteModal();
                     } else {
-                        // No login info, go to manual form
                         slideShell.classList.add("step-form");
                     }
                 });
-                if (editFormBtn) {
-                    editFormBtn.addEventListener("click", () => slideShell.classList.add("step-form"));
-                }
-
-                // NFC 쓰기 버튼 이벤트
-                const nfcWriteBtn = document.getElementById("nfc-write-btn");
-                if (nfcWriteBtn) {
-                    nfcWriteBtn.addEventListener("click", openNFCModal);
-                }
-
-                // NFC 모달 닫기 버튼
-                if (nfcCloseBtn) {
-                    nfcCloseBtn.addEventListener("click", closeNFCModal);
-                }
-
-                // NFC 모달 배경 클릭으로 닫기
-                if (nfcModal) {
-                    nfcModal.addEventListener("click", (e) => {
-                        if (e.target === nfcModal) closeNFCModal();
+                if (toggleBarcodeBtn && barcodeSection) {
+                    toggleBarcodeBtn.addEventListener("click", () => {
+                        const hidden = barcodeSection.classList.toggle("hidden");
+                        toggleBarcodeBtn.textContent = hidden ? "바코드 보기" : "바코드 가리기";
+                        toggleBarcodeBtn.setAttribute("aria-pressed", hidden ? "true" : "false");
                     });
                 }
 
@@ -1934,9 +1607,8 @@
                     });
                 }
 
-                const topbarBack = document.getElementById("topbar-back");
-                if (topbarBack) {
-                    topbarBack.addEventListener("click", () => {
+                if (topBackBtn) {
+                    topBackBtn.addEventListener("click", () => {
                         closeBottomSheet();
                         closeDeleteConfirmModal();
                         closeRegisterConfirmModal();
@@ -1964,27 +1636,23 @@
                     } catch (e) { return null; }
                 }
 
-                function autoGenerateCard() {
+                function registerStudentCardFromAppUser() {
                     const user = loadUserData();
-                    if (user && user.email && user.grade) {
-                        const emailPrefix = user.email.split('@')[0];
-                        const academicId = emailPrefix.replace(/([0-9]+)m([0-9]+)/i, 'M$1$2').toUpperCase();
-
-                        const cardData = {
-                            name: user.name || user.displayName || '학생',
-                            grade: user.grade,
-                            currentClass: user.class,
-                            currentNumber: user.number,
-                            academicId: academicId,
-                            email: user.email
-                        };
-
-                        renderCardFromLogin(cardData);
-                        slideShell.classList.add("hidden");
-                        stepCard.classList.remove("hidden");
-                        return true;
-                    }
-                    return false;
+                    if (!user || !user.email || !user.grade) return false;
+                    const emailPrefix = user.email.split('@')[0];
+                    const academicId = emailPrefix.replace(/([0-9]+)m([0-9]+)/i, 'M$1$2').toUpperCase();
+                    const cardData = {
+                        name: user.name || user.displayName || '학생',
+                        grade: user.grade,
+                        currentClass: user.class,
+                        currentNumber: user.number,
+                        academicId: academicId,
+                        email: user.email
+                    };
+                    renderCardFromLogin(cardData);
+                    slideShell.classList.add("hidden");
+                    stepCard.classList.remove("hidden");
+                    return true;
                 }
 
                 function renderCardFromLogin(data) {
@@ -2007,9 +1675,21 @@
                     });
                     // In login-linked mode, delete might need to be logout or just hidden
                     deleteBtn.style.display = "none";
+                    syncBarcodeToggleUI();
                 }
 
-                if (!autoGenerateCard()) {
+                if (localStorage.getItem("studentcard_agreed")) {
+                    if (!registerStudentCardFromAppUser()) {
+                        const saved = loadSaved();
+                        if (saved) {
+                            renderCard(saved);
+                            slideShell.classList.add("hidden");
+                            stepCard.classList.remove("hidden");
+                        } else {
+                            deleteBtn.style.display = "none";
+                        }
+                    }
+                } else {
                     const saved = loadSaved();
                     if (saved) {
                         renderCard(saved);
