@@ -1976,6 +1976,16 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     <div class="setup-note">입력 후에도 설정에서 자유롭게 수정할 수 있어요.</div>
                 </div>
                 <div class="form-container">
+                    <div id="email-auth-section">
+                        <div class="input-group">
+                            <label>학교 이메일</label>
+                            <input type="email" id="setup-email" placeholder="25m10135@joongdong.ms.kr">
+                        </div>
+                        <button type="button" id="btn-send-link" class="btn-primary" style="margin-bottom: 24px;">
+                            <span>로그인 링크 이메일로 받기</span>
+                        </button>
+                    </div>
+                    <div class="setup-divider">또는 Google로 계속하기</div>
                     <button type="button" id="btn-google-login" class="btn-google">
                         <svg viewBox="0 0 24 24">
                             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -1983,9 +1993,9 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
                             <path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                         </svg>
-                        <span>Google로 계속하기</span>
+                        <span>개인 계정(Gmail)으로 로그인</span>
                     </button>
-                    <div class="setup-divider">또는 직접 입력</div>
+                    <div class="setup-divider">정보 직접 입력</div>
                     <div class="input-group">
                         <label>이름</label>
                         <input type="text" id="setup-name" placeholder="예: 홍길동">
@@ -2635,10 +2645,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     };
                     localStorage.setItem('userData', JSON.stringify(userData));
                     
-                    // Fill name input automatically
                     document.getElementById('setup-name').value = userData.name;
-                    
-                    // Visual feedback
                     const googleBtn = document.getElementById('btn-google-login');
                     if (googleBtn) {
                         googleBtn.style.borderColor = 'var(--primary)';
@@ -2646,12 +2653,78 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     }
                 }).catch((error) => {
                     console.error('Google Login Error:', error);
-                    showErrorModal('구글 로그인에 실패했습니다. 다시 시도해주세요.');
+                    showErrorModal('구글 로그인에 실패했습니다. 개인 계정인지 확인하거나 이메일 링크 로그인을 사용해주세요.');
                 });
             };
 
+            // Email Link Sign-In Handler
+            window.handleEmailLinkSignIn = function() {
+                const email = document.getElementById('setup-email').value.trim();
+                if (!email) {
+                    showErrorModal('이메일 주소를 입력해주세요.');
+                    return;
+                }
+                const actionCodeSettings = {
+                    url: window.location.href, // This URL should be authorized in Firebase
+                    handleCodeInApp: true
+                };
+                auth.sendSignInLinkToEmail(email, actionCodeSettings)
+                    .then(() => {
+                        window.localStorage.setItem('emailForSignIn', email);
+                        alert('로그인 링크가 이메일로 전송되었습니다! 이메일 함을 확인해주세요.');
+                        const btn = document.getElementById('btn-send-link');
+                        if (btn) btn.innerText = '이메일 확인 중...';
+                    })
+                    .catch((error) => {
+                        console.error('Email Link Error:', error);
+                        showErrorModal('이메일 발송 중 오류가 발생했습니다: ' + error.message);
+                    });
+            };
+
+            // Confirm Email Link Sign-In on Page Load
+            function checkEmailLinkSignIn() {
+                if (auth.isSignInWithEmailLink(window.location.href)) {
+                    let email = window.localStorage.getItem('emailForSignIn');
+                    if (!email) {
+                        email = window.prompt('로그인을 완료하기 위해 이메일 주소를 다시 한번 입력해주세요.');
+                    }
+                    if (email) {
+                        auth.signInWithEmailLink(email, window.location.href)
+                            .then((result) => {
+                                window.localStorage.removeItem('emailForSignIn');
+                                const user = result.user;
+                                const existingData = JSON.parse(localStorage.getItem('userData') || '{}');
+                                userData = {
+                                    ...existingData,
+                                    name: existingData.name || user.displayName || email.split('@')[0],
+                                    displayName: user.displayName || email.split('@')[0],
+                                    email: user.email,
+                                    photoURL: user.photoURL,
+                                    uid: user.uid
+                                };
+                                localStorage.setItem('userData', JSON.stringify(userData));
+                                
+                                // Clean the URL
+                                if (window.history && window.history.replaceState) {
+                                    window.history.replaceState({}, document.title, window.location.pathname);
+                                }
+                                
+                                runSplashSequence(); // Re-run to handle logged in state
+                            })
+                            .catch((error) => {
+                                console.error('Sign in with link error:', error);
+                                showErrorModal('로그인 링크 확인에 실패했습니다.');
+                            });
+                    }
+                }
+            }
+            checkEmailLinkSignIn();
+
             const googleLoginBtn = document.getElementById('btn-google-login');
             if (googleLoginBtn) googleLoginBtn.addEventListener('click', window.handleGoogleLogin);
+            
+            const emailLinkBtn = document.getElementById('btn-send-link');
+            if (emailLinkBtn) emailLinkBtn.addEventListener('click', window.handleEmailLinkSignIn);
 
             const btnSave = document.getElementById('btn-save');
             const navItems = document.querySelectorAll('.nav-item');
