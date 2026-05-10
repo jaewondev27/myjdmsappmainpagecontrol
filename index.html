@@ -550,6 +550,51 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             transform: scale(0.98) translateY(1px);
         }
 
+        .btn-google {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            height: 54px;
+            border-radius: 16px;
+            background: #ffffff;
+            color: #3c4043;
+            border: 1px solid #dadce0;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 24px;
+            transition: background-color 0.2s, box-shadow 0.2s, transform 0.12s;
+        }
+
+        .btn-google:active {
+            background-color: #f7f8f8;
+            transform: scale(0.98);
+        }
+
+        .btn-google svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .setup-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            color: #94a3b8;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .setup-divider::before, .setup-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+        }
+
         .select-trigger {
             width: 100%;
             height: 58px;
@@ -1931,6 +1976,16 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     <div class="setup-note">입력 후에도 설정에서 자유롭게 수정할 수 있어요.</div>
                 </div>
                 <div class="form-container">
+                    <button type="button" id="btn-google-login" class="btn-google">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-1 .67-2.28 1.07-3.71 1.07-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                        </svg>
+                        <span>Google로 계속하기</span>
+                    </button>
+                    <div class="setup-divider">또는 직접 입력</div>
                     <div class="input-group">
                         <label>이름</label>
                         <input type="text" id="setup-name" placeholder="예: 홍길동">
@@ -2106,6 +2161,12 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                             <span>테마 설정</span>
                         </span>
                     </button>
+                    <button class="menu-btn" onclick="window.handleLogout()" style="margin-top: 24px; background: rgba(240, 68, 82, 0.05); color: #f04452;">
+                        <span class="menu-btn-left">
+                            <i data-lucide="info" class="menu-icon" style="color: #f04452;"></i>
+                            <span>로그아웃</span>
+                        </span>
+                    </button>
                 </div>
             </div>
 
@@ -2218,7 +2279,27 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             <iframe title="" loading="eager" src="https://jaewondev27.github.io/myjdmsappmainpagecontrol/mysetting"></iframe>
         </div>
     </div>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyAKcosBAIbHPjrSeA_P97kniuiH_ncmHcA",
+          authDomain: "myjdms-app.firebaseapp.com",
+          projectId: "myjdms-app",
+          storageBucket: "myjdms-app.firebasestorage.app",
+          messagingSenderId: "1087899300940",
+          appId: "1:1087899300940:web:55e42de9095a1f45cdb0e9"
+        };
+        
+        // Initialize Firebase
+        if (typeof firebase !== 'undefined') {
+            firebase.initializeApp(firebaseConfig);
+            var auth = firebase.auth();
+            var googleProvider = new firebase.auth.GoogleAuthProvider();
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             function refreshLayoutSafeArea() {
                 if (window.__jdmsKickSafeInsets) window.__jdmsKickSafeInsets();
@@ -2490,13 +2571,87 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             function runSplashSequence() {
                 const splashScreen = document.getElementById('splash-screen');
                 if (splashScreen) splashScreen.classList.add('hidden');
-                if (!userData) {
-                    setupScreen.classList.remove('hidden');
+                
+                // Check Firebase Auth state first
+                if (typeof auth !== 'undefined') {
+                    auth.onAuthStateChanged((user) => {
+                        if (user) {
+                            // User is signed in, merge with local userData
+                            const existingData = JSON.parse(localStorage.getItem('userData') || '{}');
+                            userData = {
+                                ...existingData,
+                                name: existingData.name || user.displayName,
+                                displayName: user.displayName,
+                                email: user.email,
+                                photoURL: user.photoURL,
+                                uid: user.uid
+                            };
+                            localStorage.setItem('userData', JSON.stringify(userData));
+                            
+                            // If they have full info, start app
+                            if (userData.grade && userData.class) {
+                                setupScreen.classList.add('hidden');
+                                startApp();
+                                showPreloadedBanner();
+                            } else {
+                                // Still need school info
+                                setupScreen.classList.remove('hidden');
+                                document.getElementById('setup-name').value = userData.name || '';
+                            }
+                        } else {
+                            // Not signed in to Firebase
+                            if (!userData || (!userData.grade && !userData.class)) {
+                                setupScreen.classList.remove('hidden');
+                            } else {
+                                startApp();
+                                showPreloadedBanner();
+                            }
+                        }
+                    });
                 } else {
-                    startApp();
-                    showPreloadedBanner();
+                    // Fallback if Firebase fails
+                    if (!userData) {
+                        setupScreen.classList.remove('hidden');
+                    } else {
+                        startApp();
+                        showPreloadedBanner();
+                    }
                 }
             }
+
+            // Google Login Handler
+            window.handleGoogleLogin = function() {
+                if (typeof auth === 'undefined') return;
+                auth.signInWithPopup(googleProvider).then((result) => {
+                    const user = result.user;
+                    const existingData = JSON.parse(localStorage.getItem('userData') || '{}');
+                    userData = {
+                        ...existingData,
+                        name: existingData.name || user.displayName,
+                        displayName: user.displayName,
+                        email: user.email,
+                        photoURL: user.photoURL,
+                        uid: user.uid
+                    };
+                    localStorage.setItem('userData', JSON.stringify(userData));
+                    
+                    // Fill name input automatically
+                    document.getElementById('setup-name').value = userData.name;
+                    
+                    // Visual feedback
+                    const googleBtn = document.getElementById('btn-google-login');
+                    if (googleBtn) {
+                        googleBtn.style.borderColor = 'var(--primary)';
+                        googleBtn.querySelector('span').innerText = 'Google 연결됨';
+                    }
+                }).catch((error) => {
+                    console.error('Google Login Error:', error);
+                    showErrorModal('구글 로그인에 실패했습니다. 다시 시도해주세요.');
+                });
+            };
+
+            const googleLoginBtn = document.getElementById('btn-google-login');
+            if (googleLoginBtn) googleLoginBtn.addEventListener('click', window.handleGoogleLogin);
 
             const btnSave = document.getElementById('btn-save');
             const navItems = document.querySelectorAll('.nav-item');
@@ -2996,13 +3151,40 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             }
 
             function updateHeader() {
-                document.getElementById('welcome-text').innerHTML = `<span class="welcome-inline">${userData.grade}학년 ${userData.class}반 ${userData.number}번,</span><br>반가워요!`;
+                if (userData.displayName) {
+                    document.getElementById('welcome-text').innerHTML = `<span class="welcome-inline">${userData.displayName}님,</span><br>반가워요!`;
+                } else {
+                    document.getElementById('welcome-text').innerHTML = `<span class="welcome-inline">${userData.grade}학년 ${userData.class}반 ${userData.number}번,</span><br>반가워요!`;
+                }
+                
                 document.getElementById('today-date').innerText = new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' });
+                
                 if (document.getElementById('profile-name-display')) {
-                    document.getElementById('profile-name-display').innerText = userData.name;
-                    document.getElementById('profile-details-display').innerText = `${userData.grade}학년 ${userData.class}반 ${userData.number}번`;
+                    document.getElementById('profile-name-display').innerText = userData.displayName || userData.name;
+                    
+                    if (userData.email) {
+                        document.getElementById('profile-details-display').innerText = userData.email;
+                    } else {
+                        document.getElementById('profile-details-display').innerText = `${userData.grade}학년 ${userData.class}반 ${userData.number}번`;
+                    }
+                    
+                    if (userData.photoURL) {
+                        const pImg = document.querySelector('.profile-img');
+                        if (pImg) pImg.src = userData.photoURL;
+                    }
                 }
             }
+
+            window.handleLogout = function() {
+                if (!confirm('로그아웃 하시겠습니까?')) return;
+                if (typeof auth !== 'undefined') {
+                    auth.signOut().then(() => {
+                        resetAppSettings();
+                    });
+                } else {
+                    resetAppSettings();
+                }
+            };
 
             function syncUserDataFromSettingsPage() {
                 try {
