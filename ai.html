@@ -10,13 +10,24 @@
     <script>
         (function () {
             'use strict';
+            function __jdmsSyncNativeSafeAreaVars() {
+                try {
+                    var rs = document.documentElement.style;
+                    if (typeof AndroidInterface !== 'undefined' && AndroidInterface.getInsetTopPx) {
+                        var nt = +AndroidInterface.getInsetTopPx();
+                        var nb = +AndroidInterface.getInsetBottomPx();
+                        if (!isNaN(nt) && nt >= 0) rs.setProperty('--safe-area-inset-top', Math.round(nt) + 'px');
+                        if (!isNaN(nb) && nb >= 0) rs.setProperty('--safe-area-inset-bottom', Math.round(nb) + 'px');
+                    }
+                } catch (e) {}
+            }
             function __jdmsApplySafeInsetCssVars() {
                 try {
                     var CAP_TOP = 38;
                     var CAP_BOT = 80;
                     var probe = document.createElement('div');
                     probe.setAttribute('aria-hidden', 'true');
-                    probe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;visibility:hidden;overflow:hidden;z-index:0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0);padding-left:0;padding-right:0;';
+                    probe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;visibility:hidden;overflow:hidden;z-index:0;box-sizing:border-box;padding-top:var(--safe-area-inset-top, env(safe-area-inset-top,0));padding-bottom:var(--safe-area-inset-bottom, env(safe-area-inset-bottom,0));padding-left:0;padding-right:0;';
                     document.documentElement.appendChild(probe);
                     var cs = getComputedStyle(probe);
                     var topEnv = parseFloat(cs.paddingTop) || 0;
@@ -50,7 +61,8 @@
 
                     // 기본 하단 세이프영역은 기존의 1/4 정도만 사용
                     var baseBottom = Math.round(bottom * 0.25);
-                    if (baseBottom > 0) baseBottom += 6;
+                    // 3버튼 내비처럼 inset이 큰 환경만 소폭 추가, 제스처 환경은 최소만 추가
+                    if (baseBottom > 0) baseBottom += (bottom >= 28 ? 6 : 2);
                     // 키보드가 올라오면 하단 세이프영역을 없애고, 내려가면 다시 복원
                     var active = document.activeElement;
                     var isEditableFocused = !!(
@@ -61,7 +73,6 @@
                     );
                     var keyboardOpen = isEditableFocused && (vvBot > 70 || (vv && (window.innerHeight - vv.height) > 120));
                     if (keyboardOpen) baseBottom = 0;
-                    document.documentElement.classList.toggle('keyboard-open', !!keyboardOpen);
 
                     var rs = document.documentElement.style;
                     function setInsetVar(name, px) {
@@ -73,6 +84,7 @@
                 } catch (e) {}
             }
             function __jdmsKickSafeInsets() {
+                __jdmsSyncNativeSafeAreaVars();
                 __jdmsApplySafeInsetCssVars();
                 if (typeof requestAnimationFrame === 'function') {
                     requestAnimationFrame(function () { __jdmsApplySafeInsetCssVars(); });
@@ -96,8 +108,10 @@
     </script>
     <style>
         :root {
-            --sat: env(safe-area-inset-top, 0px);
-            --sab: env(safe-area-inset-bottom, 0px);
+            --safe-area-inset-top: env(safe-area-inset-top, 0px);
+            --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+            --sat: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+            --sab: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
             --primary: #3182f6;
             --surface: #ffffff;
             --announce-bg: #f0f2f5;
@@ -109,10 +123,6 @@
             --border-soft: #e8eaed;
             --icon-gray: #9ca3af;
         }
-        :root.keyboard-open {
-            --sab: 0px !important;
-        }
-
         body.dark-mode {
             --surface: #141414;
             --announce-bg: #252525;
@@ -1204,12 +1214,10 @@
 
             if (inputEl) {
                 inputEl.addEventListener('focus', function () {
-                    document.documentElement.classList.add('keyboard-open');
                     if (typeof window.__jdmsApplySafeInsetCssVars === 'function') window.__jdmsApplySafeInsetCssVars();
                 });
                 inputEl.addEventListener('blur', function () {
                     setTimeout(function () {
-                        document.documentElement.classList.remove('keyboard-open');
                         if (typeof window.__jdmsApplySafeInsetCssVars === 'function') window.__jdmsApplySafeInsetCssVars();
                     }, 30);
                 });
