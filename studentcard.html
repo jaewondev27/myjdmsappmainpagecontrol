@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -24,6 +25,7 @@
             --border: #e5e8eb;
             --danger: #dc2626;
         }
+
         body.dark-mode {
             --bg: #141414;
             --card-bg: #1d1d1d;
@@ -34,7 +36,12 @@
             --border: #303030;
             --danger: #f87171;
         }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         button:focus,
         button:focus-visible,
         input:focus,
@@ -42,7 +49,12 @@
             outline: none;
             box-shadow: none;
         }
-        html, body { height: 100%; }
+
+        html,
+        body {
+            height: 100%;
+        }
+
         body {
             margin: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif;
@@ -51,6 +63,7 @@
             overflow: hidden;
             user-select: none;
         }
+
         .topbar {
             position: sticky;
             top: 0;
@@ -62,11 +75,13 @@
             border-bottom: 1px solid var(--border);
             background: var(--bg);
         }
+
         .topbar-left {
             display: inline-flex;
             align-items: center;
             gap: 8px;
         }
+
         .back-btn {
             border: 1px solid var(--border);
             background: var(--card-bg);
@@ -77,7 +92,12 @@
             font-weight: 700;
             cursor: pointer;
         }
-        .topbar-title { font-size: 20px; font-weight: 800; }
+
+        .topbar-title {
+            font-size: 20px;
+            font-weight: 800;
+        }
+
         .delete-btn {
             border: 1px solid var(--danger);
             color: var(--danger);
@@ -88,19 +108,60 @@
             font-weight: 700;
             cursor: pointer;
             display: none;
+            align-items: center;
+            gap: 4px;
         }
-        .container { height: calc(100dvh - var(--topbar-h)); }
+
+        /* Agreement Overlay */
+        .agreement-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            padding: calc(var(--sat) + 40px) 24px calc(40px + var(--sab));
+        }
+        .agreement-content { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .agreement-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; padding: 24px; margin-bottom: 24px; }
+        .agreement-title { font-size: 20px; font-weight: 800; margin-bottom: 16px; }
+        .agreement-text { font-size: 15px; line-height: 1.6; color: var(--text-sub); word-break: keep-all; }
+        .agreement-checkbox-wrap { display: flex; align-items: center; gap: 12px; margin-top: 24px; cursor: pointer; }
+        .agreement-checkbox { width: 24px; height: 24px; border: 2px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .agreement-checkbox.active { background: var(--primary); border-color: var(--primary); }
+        .agreement-checkbox svg { width: 16px; height: 16px; color: white; display: none; }
+        .agreement-checkbox.active svg { display: block; }
+
+        .container {
+            height: calc(100dvh - var(--topbar-h));
+        }
+
         .card {
             background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: 24px;
             padding: 16px;
-            box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
         }
-        .warn-title { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
-        .warn-text { margin-top: 8px; color: var(--text-sub); line-height: 1.55; font-size: 14px; }
-        .next-wrap { margin-top: auto; padding: 0 16px calc(16px + var(--sab)); }
-        
+
+        .warn-title {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+
+        .warn-text {
+            margin-top: 8px;
+            color: var(--text-sub);
+            line-height: 1.55;
+            font-size: 14px;
+        }
+
+        .next-wrap {
+            margin-top: auto;
+            padding: 0 16px calc(16px + var(--sab));
+        }
+
         /* 실물 학생증 버튼 */
         .physical-card-btn {
             border: 1px solid var(--border);
@@ -114,8 +175,12 @@
             transition: transform 0.16s ease, background-color 0.2s ease;
             width: auto;
         }
-        .physical-card-btn:active { transform: scale(0.95); background: var(--bg); }
-        
+
+        .physical-card-btn:active {
+            transform: scale(0.95);
+            background: var(--bg);
+        }
+
         /* NFC 쓰기 모달 */
         .nfc-modal {
             position: fixed;
@@ -123,7 +188,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 999;
             display: none;
             flex-direction: column;
@@ -131,21 +196,34 @@
             justify-content: center;
             animation: fadeIn 0.3s ease;
         }
-        .nfc-modal.show { display: flex; }
+
+        .nfc-modal.show {
+            display: flex;
+        }
+
         .nfc-content {
             background: var(--card-bg);
             border-radius: 20px;
             padding: 24px;
             max-width: 300px;
             text-align: center;
-            box-shadow: 0 16px 40px rgba(0,0,0,0.2);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
             animation: slideUp 0.3s ease;
             overflow: hidden;
         }
+
         @keyframes slideUp {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
+
         .nfc-icon {
             width: 100px;
             height: 100px;
@@ -155,10 +233,11 @@
             justify-content: center;
             position: relative;
         }
+
         .nfc-icon.writing {
             animation: none;
         }
-        
+
         /* NFC 파동 애니메이션 */
         .nfc-icon::before,
         .nfc-icon::after {
@@ -171,17 +250,17 @@
             left: 50%;
             transform: translate(-50%, -50%);
         }
-        
+
         .nfc-icon::before {
             background: radial-gradient(circle, rgba(49, 130, 246, 0.5) 0%, rgba(49, 130, 246, 0.2) 50%, rgba(49, 130, 246, 0) 100%);
             animation: nfc-wave 2s ease-out infinite;
         }
-        
+
         .nfc-icon::after {
             background: radial-gradient(circle, rgba(49, 130, 246, 0.3) 0%, rgba(49, 130, 246, 0.1) 50%, rgba(49, 130, 246, 0) 100%);
             animation: nfc-wave 2s ease-out infinite 0.6s;
         }
-        
+
         #nfc-lucide-icon {
             position: relative;
             z-index: 10;
@@ -189,29 +268,33 @@
             height: 50px;
             color: var(--primary);
         }
-        
+
         @keyframes nfc-wave {
             0% {
                 transform: translate(-50%, -50%) scale(1);
                 opacity: 1;
             }
+
             100% {
                 transform: translate(-50%, -50%) scale(1.8);
                 opacity: 0;
             }
         }
+
         .nfc-title {
             font-size: 18px;
             font-weight: 800;
             margin-bottom: 8px;
             color: var(--text-main);
         }
+
         .nfc-text {
             font-size: 14px;
             color: var(--text-sub);
             line-height: 1.5;
             margin-bottom: 16px;
         }
+
         .nfc-close-btn {
             border: 1px solid var(--border);
             background: var(--card-bg);
@@ -223,7 +306,12 @@
             cursor: pointer;
             transition: transform 0.16s ease, background-color 0.2s ease;
         }
-        .nfc-close-btn:active { transform: scale(0.95); background: var(--bg); }
+
+        .nfc-close-btn:active {
+            transform: scale(0.95);
+            background: var(--bg);
+        }
+
         .nfc-status {
             padding: 8px 12px;
             border-radius: 8px;
@@ -231,15 +319,17 @@
             font-weight: 600;
             margin-bottom: 12px;
         }
+
         .nfc-status.success {
             background: #dcfce7;
             color: #166534;
         }
+
         .nfc-status.error {
             background: #fee2e2;
             color: #991b1b;
         }
-        
+
         /* 카메라 스캔 모달 */
         .camera-modal {
             position: fixed;
@@ -253,18 +343,23 @@
             flex-direction: column;
             animation: fadeIn 0.3s ease;
         }
-        .camera-modal.open { display: flex; }
-        
+
+        .camera-modal.open {
+            display: flex;
+        }
+
         .camera-container {
             flex: 1;
             position: relative;
             overflow: hidden;
         }
+
         .camera-video {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
+
         .camera-overlay {
             position: absolute;
             top: 0;
@@ -277,20 +372,23 @@
             flex-direction: column;
             pointer-events: none;
         }
+
         .scan-frame {
             position: relative;
             width: 320px;
             height: 200px;
-            border: 3px solid rgba(255,255,255,0.3);
+            border: 3px solid rgba(255, 255, 255, 0.3);
             border-radius: 20px;
             background: transparent;
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.3);
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3);
             transition: border-color 0.3s ease;
         }
+
         .scan-frame.detected {
             border-color: #3182f6;
-            box-shadow: inset 0 0 30px rgba(49,130,246,0.3), 0 0 20px rgba(49,130,246,0.5);
+            box-shadow: inset 0 0 30px rgba(49, 130, 246, 0.3), 0 0 20px rgba(49, 130, 246, 0.5);
         }
+
         .camera-guide {
             color: #fff;
             text-align: center;
@@ -298,24 +396,26 @@
             font-size: 14px;
             line-height: 1.5;
         }
+
         .camera-guide strong {
             display: block;
             font-size: 16px;
             margin-bottom: 8px;
             font-weight: 700;
         }
-        
+
         .camera-header {
             padding: calc(12px + var(--sat)) 16px 12px;
-            background: rgba(0,0,0,0.4);
+            background: rgba(0, 0, 0, 0.4);
             color: #fff;
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 10;
         }
+
         .camera-close-btn {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             border: none;
             border-radius: 10px;
             width: 36px;
@@ -329,21 +429,26 @@
             font-weight: 700;
             transition: background-color 0.2s ease;
         }
-        .camera-close-btn:active { background: rgba(255,255,255,0.3); }
+
+        .camera-close-btn:active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
         .camera-title {
             flex: 1;
             text-align: center;
             font-weight: 700;
             font-size: 16px;
         }
-        
+
         .camera-footer {
             padding: 16px calc(16px + var(--sab));
-            background: rgba(0,0,0,0.4);
+            background: rgba(0, 0, 0, 0.4);
             display: flex;
             gap: 8px;
             z-index: 10;
         }
+
         .camera-btn {
             flex: 1;
             height: 48px;
@@ -354,17 +459,22 @@
             cursor: pointer;
             transition: transform 0.16s ease;
         }
-        .camera-btn:active { transform: scale(0.95); }
+
+        .camera-btn:active {
+            transform: scale(0.95);
+        }
+
         .camera-btn-primary {
             background: #3182f6;
             color: #fff;
         }
+
         .camera-btn-secondary {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             color: #fff;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        
+
         /* 실물 학생증 뷰어 모달 */
         .physical-card-modal {
             position: fixed;
@@ -372,15 +482,17 @@
             left: 0;
             right: 0;
             top: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 999;
             display: none;
             align-items: flex-end;
             animation: fadeIn 0.3s ease;
         }
+
         .physical-card-modal.open {
             display: flex;
         }
+
         .physical-card-content {
             width: 100%;
             background: var(--card-bg);
@@ -390,17 +502,20 @@
             overflow-y: auto;
             animation: slideUp 0.4s cubic-bezier(0.22, 0.9, 0.22, 1);
         }
+
         .physical-card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
+
         .physical-card-header-title {
             font-size: 18px;
             font-weight: 800;
             letter-spacing: -0.3px;
         }
+
         .physical-card-close-btn {
             background: transparent;
             border: 1px solid var(--border);
@@ -416,14 +531,18 @@
             font-weight: 700;
             transition: background-color 0.2s ease;
         }
-        .physical-card-close-btn:active { background: var(--bg); }
-        
+
+        .physical-card-close-btn:active {
+            background: var(--bg);
+        }
+
         .card-flipper {
             perspective: 1000px;
             height: 420px;
             cursor: pointer;
             margin: 0 auto;
         }
+
         .card-flip-inner {
             position: relative;
             width: 100%;
@@ -431,9 +550,11 @@
             transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             transform-style: preserve-3d;
         }
+
         .card-flip-inner.flipped {
             transform: rotateY(180deg);
         }
+
         .card-flip-front,
         .card-flip-back {
             position: absolute;
@@ -443,22 +564,24 @@
             border-radius: 20px;
             overflow: hidden;
         }
+
         .card-flip-back {
             transform: rotateY(180deg);
         }
+
         .card-flip-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        
+
         .card-flip-hint {
             text-align: center;
             color: var(--text-mute);
             font-size: 13px;
             margin-top: 12px;
         }
-        
+
         /* 등록 완료 모달 */
         .register-complete-modal {
             position: fixed;
@@ -466,38 +589,43 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, rgba(49,130,246,0.95), rgba(79,157,255,0.95));
+            background: linear-gradient(135deg, rgba(49, 130, 246, 0.95), rgba(79, 157, 255, 0.95));
             z-index: 998;
             display: none;
             align-items: center;
             justify-content: center;
             flex-direction: column;
         }
+
         .register-complete-modal.open {
             display: flex;
             animation: fadeIn 0.3s ease;
         }
+
         .register-complete-inner {
             text-align: center;
             animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+
         .register-complete-check {
             width: 140px;
             height: 140px;
             margin: 0 auto 30px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
             animation: scaleInCheck 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s both;
         }
+
         .register-complete-check svg {
             width: 80px;
             height: 80px;
             color: #fff;
             stroke-width: 2;
         }
+
         .register-complete-text {
             font-size: 28px;
             font-weight: 800;
@@ -505,16 +633,18 @@
             margin-bottom: 12px;
             color: #fff;
         }
+
         .register-complete-desc {
             font-size: 16px;
-            color: rgba(255,255,255,0.9);
+            color: rgba(255, 255, 255, 0.9);
             margin-bottom: 40px;
         }
+
         .register-complete-btn {
             width: 100%;
             max-width: 300px;
             height: 56px;
-            background: rgba(255,255,255,0.95);
+            background: rgba(255, 255, 255, 0.95);
             color: #3182f6;
             border: none;
             border-radius: 16px;
@@ -523,12 +653,55 @@
             cursor: pointer;
             transition: transform 0.16s ease;
         }
-        .register-complete-btn:active { transform: scale(0.95); }
-        
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        @keyframes popIn { from { opacity: 0; transform: scale(0.7); } to { opacity: 1; transform: scale(1); } }
-        @keyframes scaleInCheck { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
+
+        .register-complete-btn:active {
+            transform: scale(0.95);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.7);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes scaleInCheck {
+            from {
+                opacity: 0;
+                transform: scale(0);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
         .btn-primary {
             border: none;
             background: var(--primary);
@@ -541,7 +714,11 @@
             cursor: pointer;
             transition: transform 0.34s cubic-bezier(0.18, 0.9, 0.22, 1.35);
         }
-        .btn-primary:active { transform: scale(0.965); }
+
+        .btn-primary:active {
+            transform: scale(0.965);
+        }
+
         .btn-secondary {
             border: 1px solid var(--border);
             background: var(--card-bg);
@@ -554,20 +731,30 @@
             cursor: pointer;
             transition: transform 0.34s cubic-bezier(0.18, 0.9, 0.22, 1.35), background-color 0.2s ease;
         }
-        .btn-secondary:active { transform: scale(0.965); background: var(--bg); }
+
+        .btn-secondary:active {
+            transform: scale(0.965);
+            background: var(--bg);
+        }
+
         .slide-shell {
             height: 100%;
             width: 100%;
             overflow: hidden;
             position: relative;
         }
+
         .slide-track {
             display: flex;
             width: 200%;
             height: 100%;
             transition: transform 0.42s cubic-bezier(0.22, 0.9, 0.22, 1);
         }
-        .slide-shell.step-form .slide-track { transform: translateX(-50%); }
+
+        .slide-shell.step-form .slide-track {
+            transform: translateX(-50%);
+        }
+
         .slide-page {
             width: 50%;
             height: 100%;
@@ -576,6 +763,7 @@
             flex-direction: column;
             overflow-y: auto;
         }
+
         .full-screen-card {
             border-radius: 0;
             border: none;
@@ -587,8 +775,17 @@
             padding: 20px 16px 0;
             animation: fadeInUp 0.35s ease;
         }
-        .form { display: grid; gap: 10px; margin-top: 12px; }
-        .form-animate { animation: fadeInUp 0.35s ease; }
+
+        .form {
+            display: grid;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .form-animate {
+            animation: fadeInUp 0.35s ease;
+        }
+
         .input {
             width: 100%;
             border: 1px solid var(--border);
@@ -600,9 +797,22 @@
             transition: border-color 0.2s ease, transform 0.16s ease;
             user-select: text;
         }
-        .input:focus { border-color: var(--primary); transform: translateY(-1px); }
-        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .dropdown { position: relative; }
+
+        .input:focus {
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
         .dropdown-btn {
             width: 100%;
             border: 1px solid var(--border);
@@ -617,7 +827,12 @@
             cursor: pointer;
             transition: border-color 0.2s ease, transform 0.16s ease;
         }
-        .dropdown.open .dropdown-btn { border-color: var(--primary); transform: translateY(-1px); }
+
+        .dropdown.open .dropdown-btn {
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+
         .dropdown-item {
             width: 100%;
             text-align: left;
@@ -628,13 +843,18 @@
             font-size: 14px;
             cursor: pointer;
         }
-        .dropdown-item:active { background: var(--border); }
+
+        .dropdown-item:active {
+            background: var(--border);
+        }
+
         .button-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
             margin-top: 4px;
         }
+
         .guide-list {
             margin-top: 14px;
             padding-left: 18px;
@@ -642,25 +862,33 @@
             font-size: 14px;
             line-height: 1.6;
         }
-        .guide-list li { margin-bottom: 8px; }
+
+        .guide-list li {
+            margin-bottom: 8px;
+        }
+
         .form-guide {
             margin-top: 4px;
             padding: 11px 12px;
             border-radius: 12px;
             border: 1px dashed var(--border);
-            background: rgba(49,130,246,0.06);
+            background: rgba(49, 130, 246, 0.06);
             color: var(--text-sub);
             font-size: 12px;
             line-height: 1.5;
         }
-        body.dark-mode .form-guide { background: rgba(79,157,255,0.12); }
+
+        body.dark-mode .form-guide {
+            background: rgba(79, 157, 255, 0.12);
+        }
+
         .student-card {
             width: min(320px, 100%);
             min-height: 540px;
             margin: 4px auto 0;
             border-radius: 28px;
             border: 1px solid var(--border);
-            background: linear-gradient(170deg, rgba(49,130,246,0.2), rgba(49,130,246,0.06));
+            background: linear-gradient(170deg, rgba(49, 130, 246, 0.2), rgba(49, 130, 246, 0.06));
             padding: 18px 16px;
             display: flex;
             flex-direction: column;
@@ -672,41 +900,67 @@
             -ms-user-select: none;
             box-shadow: 0 16px 26px rgba(15, 23, 42, 0.22), 0 4px 8px rgba(15, 23, 42, 0.18);
         }
+
         .student-card::before {
             content: "";
             position: absolute;
             inset: auto 10px -9px 10px;
             height: 16px;
             border-radius: 0 0 22px 22px;
-            background: linear-gradient(180deg, rgba(148,163,184,0.6), rgba(100,116,139,0.82));
+            background: linear-gradient(180deg, rgba(148, 163, 184, 0.6), rgba(100, 116, 139, 0.82));
             transform: translateZ(-1px);
             filter: blur(0.2px);
             z-index: -1;
         }
+
         body.dark-mode .student-card::before {
-            background: linear-gradient(180deg, rgba(71,85,105,0.82), rgba(30,41,59,0.95));
+            background: linear-gradient(180deg, rgba(71, 85, 105, 0.82), rgba(30, 41, 59, 0.95));
         }
+
         .student-card::after {
             content: "";
             position: absolute;
             inset: -1px;
             border-radius: 28px;
-            border: 1px solid rgba(255,255,255,0.34);
+            border: 1px solid rgba(255, 255, 255, 0.34);
             pointer-events: none;
             mix-blend-mode: soft-light;
         }
+
         .student-card * {
             user-select: none;
             -webkit-user-select: none;
             -ms-user-select: none;
         }
+
         body.dark-mode .student-card {
-            background: linear-gradient(170deg, rgba(79,157,255,0.28), rgba(79,157,255,0.08));
+            background: linear-gradient(170deg, rgba(79, 157, 255, 0.28), rgba(79, 157, 255, 0.08));
         }
-        .sc-head { display: flex; justify-content: space-between; align-items: center; }
-        .sc-title { font-weight: 800; font-size: 17px; }
-        .beta { font-size: 11px; font-weight: 800; color: var(--primary); }
-        .sc-main { margin-top: 14px; line-height: 1.6; font-size: 14px; color: var(--text-main); }
+
+        .sc-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sc-title {
+            font-weight: 800;
+            font-size: 17px;
+        }
+
+        .beta {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .sc-main {
+            margin-top: 14px;
+            line-height: 1.6;
+            font-size: 14px;
+            color: var(--text-main);
+        }
+
         .barcode-wrap {
             margin-top: 12px;
             background: #fff;
@@ -715,23 +969,41 @@
             overflow: hidden;
             text-align: center;
         }
+
         #barcode {
             display: block;
             margin: 0 auto;
             max-width: 100%;
         }
-        .barcode-num { text-align: center; margin-top: 8px; font-weight: 700; font-size: 13px; color: #111827; letter-spacing: 0.3px; }
-        .hidden { display: none !important; }
+
+        .barcode-num {
+            text-align: center;
+            margin-top: 8px;
+            font-weight: 700;
+            font-size: 13px;
+            color: #111827;
+            letter-spacing: 0.3px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
         .sheet-backdrop {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.34);
+            background: rgba(0, 0, 0, 0.34);
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.25s ease;
             z-index: 80;
         }
-        .sheet-backdrop.show { opacity: 1; pointer-events: auto; }
+
+        .sheet-backdrop.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
         .sheet-panel {
             position: fixed;
             left: 0;
@@ -751,8 +1023,15 @@
             flex-direction: column;
             gap: 8px;
         }
-        .sheet-panel.show { transform: translateY(0); }
-        .sheet-panel.dragging { transition: none !important; }
+
+        .sheet-panel.show {
+            transform: translateY(0);
+        }
+
+        .sheet-panel.dragging {
+            transition: none !important;
+        }
+
         .sheet-handle {
             width: 42px;
             height: 4px;
@@ -760,19 +1039,25 @@
             background: var(--border);
             margin: 2px auto 6px;
         }
+
         .sheet-title {
             font-size: 15px;
             font-weight: 800;
             color: var(--text-main);
             margin: 0 2px 2px;
         }
+
         .sheet-list {
             overflow: auto;
             display: grid;
             gap: 6px;
             scrollbar-width: none;
         }
-        .sheet-list::-webkit-scrollbar { display: none; }
+
+        .sheet-list::-webkit-scrollbar {
+            display: none;
+        }
+
         .sheet-item {
             width: 100%;
             text-align: left;
@@ -784,14 +1069,16 @@
             font-size: 14px;
             cursor: pointer;
         }
+
         .sheet-item:active {
             transform: scale(0.99);
             background: var(--bg);
         }
+
         .confirm-modal {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.42);
+            background: rgba(0, 0, 0, 0.42);
             display: none;
             align-items: center;
             justify-content: center;
@@ -799,35 +1086,41 @@
             padding: 20px;
             animation: fadeIn 0.3s ease;
         }
-        .confirm-modal.show { 
+
+        .confirm-modal.show {
             display: flex;
         }
+
         .confirm-card {
             width: min(360px, 100%);
             background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: 18px;
             padding: 16px;
-            box-shadow: 0 14px 34px rgba(0,0,0,0.18);
+            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
             animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+
         .confirm-title {
             font-size: 17px;
             font-weight: 800;
             color: var(--text-main);
         }
+
         .confirm-text {
             margin-top: 8px;
             color: var(--text-sub);
             font-size: 14px;
             line-height: 1.5;
         }
+
         .confirm-actions {
             margin-top: 14px;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
         }
+
         .confirm-btn {
             border: 1px solid var(--border);
             background: var(--card-bg);
@@ -838,11 +1131,13 @@
             font-weight: 700;
             cursor: pointer;
         }
+
         .confirm-btn.danger {
             border-color: #ef4444;
             background: #ef4444;
             color: #fff;
         }
+
         .issue-note {
             margin-top: auto;
             padding: 10px 12px;
@@ -852,19 +1147,48 @@
             font-size: 12px;
             line-height: 1.5;
         }
+
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
+
 <body>
+    <div id="agreement-overlay" class="agreement-overlay hidden">
+        <div class="agreement-content">
+            <div class="agreement-box">
+                <div class="agreement-title">이용 약관 동의</div>
+                <div class="agreement-text">
+                    학생증은 미리 제공중인 개발중인 기능이며 바코드 사용시설 에서만 사용가능하며 신원확인용도로는 사용할 수 없고 디지털 학생증 오남용시 생기는 불이익은 책임지지 않습니다.
+                </div>
+                <div id="agreement-trigger" class="agreement-checkbox-wrap">
+                    <div id="agreement-cb" class="agreement-checkbox">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                    </div>
+                    <div class="agreement-label" style="font-weight:700;">이 약관에 동의합니다</div>
+                </div>
+            </div>
+            <button id="agreement-proceed-btn" class="btn-primary">계속</button>
+        </div>
+    </div>
+
     <header class="topbar">
-        <div class="topbar-left">
-            <button id="top-back-btn" class="back-btn">뒤로가기</button>
+        <div id="topbar-back" class="topbar-left" style="cursor:pointer;">
+            <i data-lucide="chevron-left" style="width:28px; height:28px;"></i>
             <div class="topbar-title">학생증</div>
         </div>
-        <button id="delete-btn" class="delete-btn">학생증 삭제</button>
+        <button id="delete-btn" class="delete-btn">
+            <i data-lucide="trash-2" style="width:14px; height:14px;"></i> 삭제
+        </button>
     </header>
     <main class="container">
         <section id="slide-shell" class="slide-shell">
@@ -928,8 +1252,11 @@
                     <div id="barcode-num" class="barcode-num"></div>
                 </div>
                 <div style="display: flex; gap: 8px; margin: 12px 0 0;">
-                    <button id="edit-form-btn" class="btn-secondary" style="flex: 1; height: 48px; font-size: 15px;">수정</button>
-                    <button id="nfc-write-btn" class="btn-secondary" style="flex: 1; height: 48px; font-size: 15px; background: var(--primary); color: #fff; border: none;">NFC 켜기</button>
+                    <button id="edit-form-btn" class="btn-secondary"
+                        style="flex: 1; height: 48px; font-size: 15px;">수정</button>
+                    <button id="nfc-write-btn" class="btn-secondary"
+                        style="flex: 1; height: 48px; font-size: 15px; background: var(--primary); color: #fff; border: none;">NFC
+                        켜기</button>
                 </div>
                 <div class="issue-note" style="margin-top: 12px;">
                     디지털 학생증은 교내 도서관 및 바코드 사용 시설에서 사용할 수 있으며,<br>
@@ -937,844 +1264,877 @@
                 </div>
             </div>
         </section>
-    <!-- NFC 켜기 모달 -->
-    <div id="nfc-modal" class="nfc-modal">
-        <div class="nfc-content">
-            <div class="nfc-icon writing" id="nfc-icon">
-                <i id="nfc-lucide-icon"></i>
-            </div>
-            <div class="nfc-title" id="nfc-title">NFC 켜기</div>
-            <div class="nfc-text" id="nfc-text">핸드폰의 NFC를 활성화했습니다<br>인식기에 가져다 대세요</div>
-            <div id="nfc-status" class="nfc-status" style="display: none;"></div>
-            <button class="nfc-close-btn" id="nfc-close-btn">닫기</button>
-        </div>
-    </div>
-    <div id="dropdown-sheet-backdrop" class="sheet-backdrop"></div>
-    <section id="dropdown-sheet-panel" class="sheet-panel" aria-hidden="true">
-        <div class="sheet-handle"></div>
-        <h3 id="dropdown-sheet-title" class="sheet-title"></h3>
-        <div id="dropdown-sheet-list" class="sheet-list"></div>
-    </section>
-    <div id="delete-confirm-modal" class="confirm-modal">
-        <div class="confirm-card">
-            <div class="confirm-title">학생증 삭제</div>
-            <div class="confirm-text">정말 삭제할까요? 삭제하면 입력한 학생증 정보가 모두 초기화됩니다.</div>
-            <div class="confirm-actions">
-                <button id="delete-cancel-btn" class="confirm-btn">취소</button>
-                <button id="delete-ok-btn" class="confirm-btn danger">삭제</button>
+        <!-- NFC 켜기 모달 -->
+        <div id="nfc-modal" class="nfc-modal">
+            <div class="nfc-content">
+                <div class="nfc-icon writing" id="nfc-icon">
+                    <i id="nfc-lucide-icon"></i>
+                </div>
+                <div class="nfc-title" id="nfc-title">NFC 켜기</div>
+                <div class="nfc-text" id="nfc-text">핸드폰의 NFC를 활성화했습니다<br>인식기에 가져다 대세요</div>
+                <div id="nfc-status" class="nfc-status" style="display: none;"></div>
+                <button class="nfc-close-btn" id="nfc-close-btn">닫기</button>
             </div>
         </div>
-    </div>
-    <div id="register-confirm-modal" class="confirm-modal">
-        <div class="confirm-card">
-            <div class="confirm-title">학생증 등록</div>
-            <div id="register-confirm-text" class="confirm-text">이 정보로 등록하시겠습니까?</div>
-            <div class="confirm-actions">
-                <button id="register-cancel-btn" class="confirm-btn">취소</button>
-                <button id="register-ok-btn" class="confirm-btn danger">등록</button>
+        <div id="dropdown-sheet-backdrop" class="sheet-backdrop"></div>
+        <section id="dropdown-sheet-panel" class="sheet-panel" aria-hidden="true">
+            <div class="sheet-handle"></div>
+            <h3 id="dropdown-sheet-title" class="sheet-title"></h3>
+            <div id="dropdown-sheet-list" class="sheet-list"></div>
+        </section>
+        <div id="delete-confirm-modal" class="confirm-modal">
+            <div class="confirm-card">
+                <div class="confirm-title">학생증 삭제</div>
+                <div class="confirm-text">정말 삭제할까요? 삭제하면 입력한 학생증 정보가 모두 초기화됩니다.</div>
+                <div class="confirm-actions">
+                    <button id="delete-cancel-btn" class="confirm-btn">취소</button>
+                    <button id="delete-ok-btn" class="confirm-btn danger">삭제</button>
+                </div>
             </div>
         </div>
-    </div>
-    </div>
-
-    <!-- 카메라 스캔 모달 -->
-    <!-- 등록 완료 모달 -->
-    <div id="registerCompleteModal" class="register-complete-modal">
-        <div class="register-complete-inner">
-            <div class="register-complete-check" id="checkIcon"></div>
-            <div class="register-complete-text">등록이 완료됐습니다</div>
-            <div class="register-complete-desc">디지털 학생증이 저장되었습니다</div>
-            <button class="register-complete-btn" id="registerCompleteBtn">확인</button>
+        <div id="register-confirm-modal" class="confirm-modal">
+            <div class="confirm-card">
+                <div class="confirm-title">학생증 등록</div>
+                <div id="register-confirm-text" class="confirm-text">이 정보로 등록하시겠습니까?</div>
+                <div class="confirm-actions">
+                    <button id="register-cancel-btn" class="confirm-btn">취소</button>
+                    <button id="register-ok-btn" class="confirm-btn danger">등록</button>
+                </div>
+            </div>
         </div>
-    </div>
+        </div>
 
-    <script>
-        (function () {
-            const STORAGE_KEY = "myjdms_student_card_v1";
-            const THEME_MODE_KEY = "theme_mode";
-            const BC_KEY = "myjdms_theme_sync_v1";
-            let themeMode = localStorage.getItem(THEME_MODE_KEY) || "auto";
-            const darkQuery = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
-            const topbarEl = document.querySelector(".topbar");
+        <!-- 카메라 스캔 모달 -->
+        <!-- 등록 완료 모달 -->
+        <div id="registerCompleteModal" class="register-complete-modal">
+            <div class="register-complete-inner">
+                <div class="register-complete-check" id="checkIcon"></div>
+                <div class="register-complete-text">등록이 완료됐습니다</div>
+                <div class="register-complete-desc">디지털 학생증이 저장되었습니다</div>
+                <button class="register-complete-btn" id="registerCompleteBtn">확인</button>
+            </div>
+        </div>
 
-            function applySafeArea() {
-                try {
-                    const root = document.documentElement.style;
-                    const top = (typeof AndroidInterface !== "undefined" && AndroidInterface.getInsetTopPx) ? (+AndroidInterface.getInsetTopPx() || 0) : 0;
-                    const bottom = (typeof AndroidInterface !== "undefined" && AndroidInterface.getInsetBottomPx) ? (+AndroidInterface.getInsetBottomPx() || 0) : 0;
-                    if (top > 0) root.setProperty("--sat", Math.min(top, 38) + "px");
-                    if (bottom > 0) root.setProperty("--sab", Math.min(bottom, 80) + "px");
-                } catch (e) {}
-            }
-            function applyLayoutVars() {
-                try {
-                    if (!topbarEl) return;
-                    const h = Math.max(56, Math.round(topbarEl.getBoundingClientRect().height));
-                    document.documentElement.style.setProperty("--topbar-h", h + "px");
-                } catch (e) {}
-            }
-            function applyTheme(mode) {
-                const shouldDark = mode === "dark" || (mode === "auto" && darkQuery && darkQuery.matches);
-                document.body.classList.toggle("dark-mode", !!shouldDark);
-                const meta = document.querySelector('meta[name="theme-color"]');
-                if (meta) meta.setAttribute("content", shouldDark ? "#141414" : "#f2f4f6");
-            }
-            function setTheme(mode) {
-                if (mode !== "light" && mode !== "dark" && mode !== "auto") return;
-                themeMode = mode;
-                localStorage.setItem(THEME_MODE_KEY, mode);
-                applyTheme(mode);
-            }
-            try {
-                const bc = new BroadcastChannel(BC_KEY);
-                bc.onmessage = (ev) => { if (ev && ev.data && ev.data.mode) setTheme(ev.data.mode); };
-            } catch (e) {}
-            window.addEventListener("storage", (e) => {
-                if (e.key === THEME_MODE_KEY && e.newValue) setTheme(e.newValue);
-            });
-            if (darkQuery && darkQuery.addEventListener) darkQuery.addEventListener("change", () => applyTheme(themeMode));
-            applyTheme(themeMode);
+        <script>
+            (function () {
+                const STORAGE_KEY = "myjdms_student_card_v1";
+                const THEME_MODE_KEY = "theme_mode";
+                const BC_KEY = "myjdms_theme_sync_v1";
+                let themeMode = localStorage.getItem(THEME_MODE_KEY) || "auto";
+                const darkQuery = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+                const topbarEl = document.querySelector(".topbar");
 
-            applySafeArea();
-            applyLayoutVars();
-            window.addEventListener("resize", applyLayoutVars);
-            window.addEventListener("orientationchange", () => setTimeout(applyLayoutVars, 120));
-
-            const slideShell = document.getElementById("slide-shell");
-            const stepCard = document.getElementById("step-card");
-            const toFormBtn = document.getElementById("to-form-btn");
-            const editFormBtn = document.getElementById("edit-form-btn");
-            const backBtn = document.getElementById("back-btn");
-            const saveBtn = document.getElementById("save-btn");
-            const deleteBtn = document.getElementById("delete-btn");
-            const infoEl = document.getElementById("student-info");
-            const barcodeEl = document.getElementById("barcode");
-            const barcodeNumEl = document.getElementById("barcode-num");
-            const studentCardEl = document.querySelector(".student-card");
-            const sheetBackdrop = document.getElementById("dropdown-sheet-backdrop");
-            const sheetPanel = document.getElementById("dropdown-sheet-panel");
-            const sheetTitle = document.getElementById("dropdown-sheet-title");
-            const sheetList = document.getElementById("dropdown-sheet-list");
-            const deleteConfirmModal = document.getElementById("delete-confirm-modal");
-            const deleteCancelBtn = document.getElementById("delete-cancel-btn");
-            const deleteOkBtn = document.getElementById("delete-ok-btn");
-            const registerConfirmModal = document.getElementById("register-confirm-modal");
-            const registerConfirmText = document.getElementById("register-confirm-text");
-            const registerCancelBtn = document.getElementById("register-cancel-btn");
-            const registerOkBtn = document.getElementById("register-ok-btn");
-            const topBackBtn = document.getElementById("top-back-btn");
-            
-            // 등록 완료 모달
-            const registerCompleteModal = document.getElementById("registerCompleteModal");
-            const registerCompleteBtn = document.getElementById("registerCompleteBtn");
-            
-            let activeDropdownField = null;
-            let sheetDragging = false;
-            let sheetDragStartY = 0;
-            let sheetDragDeltaY = 0;
-            let pendingRegisterData = null;
-
-            const nameEl = document.getElementById("name");
-            const dropdownState = {};
-            const yearNow = new Date().getFullYear();
-            const dropdownDefs = {
-                grade: { label: "현재 학년", values: [1, 2, 3], suffix: "학년", defaultValue: 1 },
-                enterYear: { label: "입학년도", values: Array.from({ length: 12 }, (_, i) => yearNow - 10 + i), suffix: "년", defaultValue: yearNow },
-                enterClass: { label: "입학당시 반", values: Array.from({ length: 20 }, (_, i) => i + 1), suffix: "반", defaultValue: 1 },
-                enterNumber: { label: "입학당시 번호", values: Array.from({ length: 40 }, (_, i) => i + 1), suffix: "번", defaultValue: 1 },
-                currentClass: { label: "현재 반", values: Array.from({ length: 20 }, (_, i) => i + 1), suffix: "반", defaultValue: 1 },
-                currentNumber: { label: "현재 번호", values: Array.from({ length: 40 }, (_, i) => i + 1), suffix: "번", defaultValue: 1 }
-            };
-
-            function closeAllDropdowns() {
-                document.querySelectorAll(".dropdown").forEach((el) => el.classList.remove("open"));
-            }
-            
-            // 카메라 스캔 함수들
-            // 카드 인식 함수
-            function detectCardEdges(imageData) {
-                const data = imageData.data;
-                let edgePixels = 0;
-                let darkPixels = 0;
-                let totalPixels = data.length / 4;
-                
-                for (let i = 0; i < data.length; i += 4) {
-                    const r = data[i];
-                    const g = data[i + 1];
-                    const b = data[i + 2];
-                    const brightness = (r + g + b) / 3;
-                    
-                    // 어두운 테두리 감지
-                    if (brightness < 100) {
-                        darkPixels++;
-                    }
-                    
-                    // 엣지 감지 (밝기 변화)
-                    if (Math.abs(brightness - 128) > 60) {
-                        edgePixels++;
-                    }
-                }
-                
-                // 카드 판정: 어두운 부분과 엣지가 충분할 때
-                const darkRatio = darkPixels / totalPixels;
-                const edgeRatio = edgePixels / totalPixels;
-                
-                return darkRatio > 0.1 && darkRatio < 0.5 && edgeRatio > 0.2;
-            }
-            
-            function showRegisterCompleteModal() {
-                registerCompleteModal.classList.add("open");
-                // Lucide Check 아이콘 추가
-                const checkIcon = document.getElementById("checkIcon");
-                checkIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-            }
-            
-            function closeRegisterCompleteModal() {
-                registerCompleteModal.classList.remove("open");
-            }
-            
-            function closeAllDropdowns() {
-                document.querySelectorAll(".dropdown").forEach((el) => el.classList.remove("open"));
-            }
-            function closeBottomSheet() {
-                sheetBackdrop.classList.remove("show");
-                sheetPanel.classList.remove("show");
-                sheetPanel.setAttribute("aria-hidden", "true");
-                activeDropdownField = null;
-                closeAllDropdowns();
-            }
-            function openDeleteConfirmModal() {
-                if (!deleteConfirmModal) return;
-                deleteConfirmModal.classList.add("show");
-            }
-            function closeDeleteConfirmModal() {
-                if (!deleteConfirmModal) return;
-                deleteConfirmModal.classList.remove("show");
-            }
-            function openRegisterConfirmModal(data) {
-                if (!registerConfirmModal || !registerConfirmText) return;
-                registerConfirmText.innerHTML =
-                    "이 정보로 등록하시겠습니까?<br>" +
-                    `${data.name} / ${data.grade}학년 / 현재 ${data.currentClass}반 ${data.currentNumber}번`;
-                registerConfirmModal.classList.add("show");
-            }
-            function closeRegisterConfirmModal() {
-                if (!registerConfirmModal) return;
-                registerConfirmModal.classList.remove("show");
-            }
-            function openBottomSheet(field) {
-                const def = dropdownDefs[field];
-                if (!def) return;
-                activeDropdownField = field;
-                sheetTitle.textContent = `${def.label} 선택`;
-                sheetList.innerHTML = def.values.map((v) => `<button type="button" class="sheet-item" data-value="${v}">${v}${def.suffix}</button>`).join("");
-                sheetList.querySelectorAll(".sheet-item").forEach((item) => {
-                    item.addEventListener("click", () => {
-                        dropdownState[field] = parseInt(item.dataset.value, 10);
-                        renderDropdown(field);
-                        closeBottomSheet();
-                    });
-                });
-                closeAllDropdowns();
-                const host = document.querySelector(`.dropdown[data-field="${field}"]`);
-                if (host) host.classList.add("open");
-                sheetBackdrop.classList.add("show");
-                sheetPanel.classList.add("show");
-                sheetPanel.setAttribute("aria-hidden", "false");
-            }
-            function renderDropdown(field) {
-                const def = dropdownDefs[field];
-                const host = document.querySelector(`.dropdown[data-field="${field}"]`);
-                if (!def || !host) return;
-                const value = dropdownState[field];
-                host.innerHTML = `<button type="button" class="dropdown-btn">${def.label}: ${value}${def.suffix}</button>`;
-                const btn = host.querySelector(".dropdown-btn");
-                btn.addEventListener("click", () => {
-                    if (activeDropdownField === field && sheetPanel.classList.contains("show")) {
-                        closeBottomSheet();
-                        return;
-                    }
-                    openBottomSheet(field);
-                });
-            }
-            Object.keys(dropdownDefs).forEach((field) => {
-                dropdownState[field] = dropdownDefs[field].defaultValue;
-                renderDropdown(field);
-            });
-            sheetBackdrop.addEventListener("click", closeBottomSheet);
-            sheetPanel.addEventListener("touchstart", (e) => {
-                if (!sheetPanel.classList.contains("show")) return;
-                const target = e.target;
-                const listEl = target instanceof Element ? target.closest(".sheet-list") : null;
-                if (listEl && listEl.scrollTop > 0) return;
-                sheetDragging = true;
-                sheetDragStartY = e.touches[0].clientY;
-                sheetDragDeltaY = 0;
-                sheetPanel.classList.add("dragging");
-            }, { passive: true });
-            sheetPanel.addEventListener("touchmove", (e) => {
-                if (!sheetDragging) return;
-                const currentY = e.touches[0].clientY;
-                sheetDragDeltaY = Math.max(0, currentY - sheetDragStartY);
-                if (sheetDragDeltaY > 0) {
-                    e.preventDefault();
-                    sheetPanel.style.transform = `translateY(${sheetDragDeltaY}px)`;
-                }
-            }, { passive: false });
-            sheetPanel.addEventListener("touchend", () => {
-                if (!sheetDragging) return;
-                sheetDragging = false;
-                sheetPanel.classList.remove("dragging");
-                if (sheetDragDeltaY > 90) {
-                    sheetPanel.style.transform = "";
-                    closeBottomSheet();
-                } else {
-                    sheetPanel.style.transform = "";
-                }
-                sheetDragDeltaY = 0;
-            });
-            sheetPanel.addEventListener("touchcancel", () => {
-                sheetDragging = false;
-                sheetDragDeltaY = 0;
-                sheetPanel.classList.remove("dragging");
-                sheetPanel.style.transform = "";
-            });
-
-            function pad2(n) { return String(n).padStart(2, "0"); }
-            function buildStudentNumber(grade, cls, num) {
-                return String(grade) + String(cls).padStart(2, "0") + pad2(num);
-            }
-            function buildBarcodeValue(enterYear, grade, cls, num) {
-                const yy = String(enterYear).slice(-2);
-                return "M" + yy + buildStudentNumber(grade, cls, num);
-            }
-
-            function renderCard(data) {
-                const studentNo = buildStudentNumber(1, data.enterClass, data.enterNumber);
-                const currentStudentNo = buildStudentNumber(data.grade, data.currentClass, data.currentNumber);
-                const barcodeValue = buildBarcodeValue(data.enterYear, 1, data.enterClass, data.enterNumber);
-                infoEl.innerHTML =
-                    "<strong>" + data.name + "</strong><br>" +
-                    "현재 " + data.grade + "학년 " + data.currentClass + "반 " + data.currentNumber + "번<br>" +
-                    data.enterYear + "년 입학 / 입학당시 " + data.enterClass + "반 " + data.enterNumber + "번<br>" +
-                    "입학 학번 " + studentNo + " / 현재 학번 " + currentStudentNo;
-                barcodeNumEl.textContent = barcodeValue;
-                JsBarcode(barcodeEl, barcodeValue, {
-                    format: "CODE39",
-                    displayValue: false,
-                    margin: 0,
-                    height: 76,
-                    width: 1.6
-                });
-                deleteBtn.style.display = "inline-block";
-            }
-
-            function loadSaved() {
-                try {
-                    const raw = localStorage.getItem(STORAGE_KEY);
-                    if (!raw) return null;
-                    const data = JSON.parse(raw);
-                    if (!data || !data.name) return null;
-                    return data;
-                } catch (e) {
-                    return null;
-                }
-            }
-
-            // NFC 관련 함수
-            const nfcModal = document.getElementById("nfc-modal");
-            const nfcCloseBtn = document.getElementById("nfc-close-btn");
-            const nfcIcon = document.getElementById("nfc-icon");
-            const nfcTitle = document.getElementById("nfc-title");
-            const nfcText = document.getElementById("nfc-text");
-            const nfcStatus = document.getElementById("nfc-status");
-            let nfcWriteAbortController = null;
-            let hapticInterval = null;
-            let isNFCEmitting = false;
-
-            function startHapticFeedback() {
-                // 이미 실행 중이면 중지
-                if (hapticInterval) clearInterval(hapticInterval);
-                
-                // 계속 햅틱 피드백 (100ms 간격)
-                if (navigator.vibrate) {
-                    // 초기 진동
-                    navigator.vibrate(50);
-                    
-                    // 반복 진동
-                    hapticInterval = setInterval(() => {
-                        navigator.vibrate(50);
-                    }, 150);
-                }
-            }
-
-            function stopHapticFeedback() {
-                if (hapticInterval) {
-                    clearInterval(hapticInterval);
-                    hapticInterval = null;
-                }
-                // 최종 진동 종료
-                if (navigator.vibrate) {
-                    navigator.vibrate(0);
-                }
-            }
-
-            function openNFCModal() {
-                nfcModal.classList.add("show");
-                nfcIcon.classList.add("writing");
-                nfcTitle.textContent = "NFC 켜기";
-                nfcText.textContent = "NFC를 활성화하고 있습니다...";
-                nfcStatus.style.display = "none";
-                
-                // Lucide 아이콘 렌더링
-                const nfcLucideIcon = document.getElementById("nfc-lucide-icon");
-                if (nfcLucideIcon && window.lucide) {
-                    nfcLucideIcon.innerHTML = '<svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M9 20h6"></path><circle cx="12" cy="20" r=".5" fill="currentColor"></circle></svg>';
-                    window.lucide.createIcons();
-                }
-                
-                startNFCEmit();
-            }
-
-            function closeNFCModal() {
-                nfcModal.classList.remove("show");
-                nfcIcon.classList.remove("writing");
-                stopHapticFeedback();
-                isNFCEmitting = false;
-                
-                // Android 인터페이스가 있으면 NFC 정지
-                if (typeof AndroidInterface !== "undefined" && typeof AndroidInterface.stopNFC === "function") {
+                function applySafeArea() {
                     try {
-                        AndroidInterface.stopNFC();
-                    } catch (e) {}
+                        const root = document.documentElement.style;
+                        const top = (typeof AndroidInterface !== "undefined" && AndroidInterface.getInsetTopPx) ? (+AndroidInterface.getInsetTopPx() || 0) : 0;
+                        const bottom = (typeof AndroidInterface !== "undefined" && AndroidInterface.getInsetBottomPx) ? (+AndroidInterface.getInsetBottomPx() || 0) : 0;
+                        if (top > 0) root.setProperty("--sat", Math.min(top, 38) + "px");
+                        if (bottom > 0) root.setProperty("--sab", Math.min(bottom, 80) + "px");
+                    } catch (e) { }
                 }
-            }
-
-            function showNFCStatus(message, type) {
-                nfcStatus.textContent = message;
-                nfcStatus.className = `nfc-status ${type}`;
-                nfcStatus.style.display = "block";
-            }
-
-            async function startNFCEmit() {
-                // 햅틱 피드백 시작
-                startHapticFeedback();
-                isNFCEmitting = true;
-
-                const saved = loadSaved();
-                if (!saved) {
-                    showNFCStatus("저장된 학생증 정보가 없습니다.", "error");
-                    stopHapticFeedback();
-                    isNFCEmitting = false;
-                    return;
+                function applyLayoutVars() {
+                    try {
+                        if (!topbarEl) return;
+                        const h = Math.max(56, Math.round(topbarEl.getBoundingClientRect().height));
+                        document.documentElement.style.setProperty("--topbar-h", h + "px");
+                    } catch (e) { }
                 }
-
+                function applyTheme(mode) {
+                    const shouldDark = mode === "dark" || (mode === "auto" && darkQuery && darkQuery.matches);
+                    document.body.classList.toggle("dark-mode", !!shouldDark);
+                    const meta = document.querySelector('meta[name="theme-color"]');
+                    if (meta) meta.setAttribute("content", shouldDark ? "#141414" : "#f2f4f6");
+                }
+                function setTheme(mode) {
+                    if (mode !== "light" && mode !== "dark" && mode !== "auto") return;
+                    themeMode = mode;
+                    localStorage.setItem(THEME_MODE_KEY, mode);
+                    applyTheme(mode);
+                }
                 try {
-                    // "M입학년도학번" 형식으로 바코드 문자열 생성
-                    const studentNo = `${String(saved.enterYear).slice(-2)}${String(saved.enterClass).padStart(2, '0')}${String(saved.enterNumber).padStart(2, '0')}`;
-                    const nfcString = `M${studentNo}`;
+                    const bc = new BroadcastChannel(BC_KEY);
+                    bc.onmessage = (ev) => { if (ev && ev.data && ev.data.mode) setTheme(ev.data.mode); };
+                } catch (e) { }
+                window.addEventListener("storage", (e) => {
+                    if (e.key === THEME_MODE_KEY && e.newValue) setTheme(e.newValue);
+                });
+                if (darkQuery && darkQuery.addEventListener) darkQuery.addEventListener("change", () => applyTheme(themeMode));
+                applyTheme(themeMode);
 
-                    // 1. Android WebView 인터페이스 (우선순위 1)
-                    if (typeof AndroidInterface !== "undefined") {
-                        if (typeof AndroidInterface.enableNFC === "function") {
-                            AndroidInterface.enableNFC(nfcString);
-                            nfcTitle.textContent = "NFC 활성화됨";
-                            nfcText.textContent = `학번: ${nfcString}\n\n인식기에 핸드폰을 가져다 대세요`;
-                            showNFCStatus("NFC가 활성화되었습니다.", "success");
-                            
-                            setTimeout(() => {
-                                if (isNFCEmitting) closeNFCModal();
-                            }, 30000);
+                applySafeArea();
+                applyLayoutVars();
+                window.addEventListener("resize", applyLayoutVars);
+                window.addEventListener("orientationchange", () => setTimeout(applyLayoutVars, 120));
+
+                const slideShell = document.getElementById("slide-shell");
+                const stepCard = document.getElementById("step-card");
+                const toFormBtn = document.getElementById("to-form-btn");
+                const editFormBtn = document.getElementById("edit-form-btn");
+                const backBtn = document.getElementById("back-btn");
+                const saveBtn = document.getElementById("save-btn");
+                const deleteBtn = document.getElementById("delete-btn");
+                const infoEl = document.getElementById("student-info");
+                const barcodeEl = document.getElementById("barcode");
+                const barcodeNumEl = document.getElementById("barcode-num");
+                const studentCardEl = document.querySelector(".student-card");
+                const sheetBackdrop = document.getElementById("dropdown-sheet-backdrop");
+                const sheetPanel = document.getElementById("dropdown-sheet-panel");
+                const sheetTitle = document.getElementById("dropdown-sheet-title");
+                const sheetList = document.getElementById("dropdown-sheet-list");
+                const deleteConfirmModal = document.getElementById("delete-confirm-modal");
+                const deleteCancelBtn = document.getElementById("delete-cancel-btn");
+                const deleteOkBtn = document.getElementById("delete-ok-btn");
+                const registerConfirmModal = document.getElementById("register-confirm-modal");
+                const registerConfirmText = document.getElementById("register-confirm-text");
+                const registerCancelBtn = document.getElementById("register-cancel-btn");
+                const registerOkBtn = document.getElementById("register-ok-btn");
+                const topBackBtn = document.getElementById("top-back-btn");
+
+                // 등록 완료 모달
+                const registerCompleteModal = document.getElementById("registerCompleteModal");
+                const registerCompleteBtn = document.getElementById("registerCompleteBtn");
+
+                let activeDropdownField = null;
+                let sheetDragging = false;
+                let sheetDragStartY = 0;
+                let sheetDragDeltaY = 0;
+                let pendingRegisterData = null;
+
+                const nameEl = document.getElementById("name");
+                const dropdownState = {};
+                const yearNow = new Date().getFullYear();
+                const dropdownDefs = {
+                    grade: { label: "현재 학년", values: [1, 2, 3], suffix: "학년", defaultValue: 1 },
+                    enterYear: { label: "입학년도", values: Array.from({ length: 12 }, (_, i) => yearNow - 10 + i), suffix: "년", defaultValue: yearNow },
+                    enterClass: { label: "입학당시 반", values: Array.from({ length: 20 }, (_, i) => i + 1), suffix: "반", defaultValue: 1 },
+                    enterNumber: { label: "입학당시 번호", values: Array.from({ length: 40 }, (_, i) => i + 1), suffix: "번", defaultValue: 1 },
+                    currentClass: { label: "현재 반", values: Array.from({ length: 20 }, (_, i) => i + 1), suffix: "반", defaultValue: 1 },
+                    currentNumber: { label: "현재 번호", values: Array.from({ length: 40 }, (_, i) => i + 1), suffix: "번", defaultValue: 1 }
+                };
+
+                // Agreement logic
+                let isAgreed = false;
+                const agreementOverlay = document.getElementById("agreement-overlay");
+                const agreementCb = document.getElementById("agreement-cb");
+                const agreementTrigger = document.getElementById("agreement-trigger");
+                const agreementProceedBtn = document.getElementById("agreement-proceed-btn");
+
+                function checkAgreement() {
+                    if (!localStorage.getItem("studentcard_agreed")) {
+                        agreementOverlay.classList.remove("hidden");
+                    }
+                }
+                if (agreementTrigger) {
+                    agreementTrigger.addEventListener("click", () => {
+                        isAgreed = !isAgreed;
+                        agreementCb.classList.toggle("active", isAgreed);
+                    });
+                }
+                if (agreementProceedBtn) {
+                    agreementProceedBtn.addEventListener("click", () => {
+                        if (!isAgreed) {
+                            alert("약관에 동의해주세요.");
                             return;
                         }
-                    }
-
-                    // 2. 실제 Web NFC API (우선순위 2)
-                    if ("NDEFReader" in window) {
-                        nfcWriteAbortController = new AbortController();
-                        const reader = new NDEFReader();
-
-                        try {
-                            // NFC 스캔 시작 - 이것이 실제 NFC 신호 활성화
-                            await reader.scan({ signal: nfcWriteAbortController.signal });
-                            
-                            reader.onreading = (event) => {
-                                console.log("NFC 태그 감지됨:", event.serialNumber);
-                            };
-
-                            nfcTitle.textContent = "NFC 활성화됨";
-                            nfcText.textContent = `학번: ${nfcString}\n\n인식기에 핸드폰을 가져다 대세요`;
-                            showNFCStatus("실제 NFC가 활성화되었습니다.", "success");
-                        } catch (nfcError) {
-                            if (nfcError.name !== "NotAllowedError" && nfcError.name !== "InvalidStateError") {
-                                throw nfcError;
-                            }
-                            // InvalidStateError인 경우 fallback으로 진행
-                            throw new Error("Web NFC가 이 환경에서 작동하지 않습니다.");
-                        }
-                    } else {
-                        throw new Error("이 기기는 NFC를 지원하지 않습니다.");
-                    }
-
-                    // 30초 후 자동 종료
-                    setTimeout(() => {
-                        if (isNFCEmitting) {
-                            closeNFCModal();
-                        }
-                    }, 30000);
-
-                } catch (error) {
-                    if (error.name === "AbortError") {
-                        return;
-                    }
-                    
-                    stopHapticFeedback();
-                    isNFCEmitting = false;
-                    nfcIcon.classList.remove("writing");
-                    nfcTitle.textContent = "오류 발생";
-                    
-                    let errorMessage = error.message || "NFC 활성화에 실패했습니다.";
-                    
-                    if (error.name === "NotAllowedError") {
-                        errorMessage = "NFC 권한이 없습니다. 설정에서 권한을 확인하세요.";
-                    } else if (error.name === "InvalidStateError") {
-                        errorMessage = "WebView 환경에서는 Android 앱의 네이티브 NFC를 사용하세요.";
-                    } else if (error.name === "NotSupportedError") {
-                        errorMessage = "이 브라우저는 NFC를 지원하지 않습니다.";
-                    }
-                    
-                    nfcText.textContent = errorMessage;
-                    showNFCStatus(errorMessage, "error");
+                        localStorage.setItem("studentcard_agreed", "true");
+                        agreementOverlay.classList.add("hidden");
+                    });
                 }
-            }
+                checkAgreement();
 
-            function commitRegister(data) {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                renderCard(data);
-                closeRegisterConfirmModal();
-                showRegisterCompleteModal();
-                pendingRegisterData = null;
-            }
-            function saveData() {
-                const name = nameEl.value.trim();
-                const grade = dropdownState.grade;
-                const enterYear = dropdownState.enterYear;
-                const enterClass = dropdownState.enterClass;
-                const enterNumber = dropdownState.enterNumber;
-                const currentClass = dropdownState.currentClass;
-                const currentNumber = dropdownState.currentNumber;
-                if (!name) {
-                    alert("이름을 입력해주세요.");
-                    return;
+                function closeAllDropdowns() {
+                    document.querySelectorAll(".dropdown").forEach((el) => el.classList.remove("open"));
                 }
-                const data = { name, grade, enterYear, enterClass, enterNumber, currentClass, currentNumber };
-                pendingRegisterData = data;
-                openRegisterConfirmModal(data);
-            }
 
-            function resetAll() {
-                closeBottomSheet();
-                closeRegisterConfirmModal();
-                localStorage.removeItem(STORAGE_KEY);
-                nameEl.value = "";
+                // 카메라 스캔 함수들
+                // 카드 인식 함수
+                function detectCardEdges(imageData) {
+                    const data = imageData.data;
+                    let edgePixels = 0;
+                    let darkPixels = 0;
+                    let totalPixels = data.length / 4;
+
+                    for (let i = 0; i < data.length; i += 4) {
+                        const r = data[i];
+                        const g = data[i + 1];
+                        const b = data[i + 2];
+                        const brightness = (r + g + b) / 3;
+
+                        // 어두운 테두리 감지
+                        if (brightness < 100) {
+                            darkPixels++;
+                        }
+
+                        // 엣지 감지 (밝기 변화)
+                        if (Math.abs(brightness - 128) > 60) {
+                            edgePixels++;
+                        }
+                    }
+
+                    // 카드 판정: 어두운 부분과 엣지가 충분할 때
+                    const darkRatio = darkPixels / totalPixels;
+                    const edgeRatio = edgePixels / totalPixels;
+
+                    return darkRatio > 0.1 && darkRatio < 0.5 && edgeRatio > 0.2;
+                }
+
+                function showRegisterCompleteModal() {
+                    registerCompleteModal.classList.add("open");
+                    // Lucide Check 아이콘 추가
+                    const checkIcon = document.getElementById("checkIcon");
+                    checkIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                }
+
+                function closeRegisterCompleteModal() {
+                    registerCompleteModal.classList.remove("open");
+                }
+
+                function closeAllDropdowns() {
+                    document.querySelectorAll(".dropdown").forEach((el) => el.classList.remove("open"));
+                }
+                function closeBottomSheet() {
+                    sheetBackdrop.classList.remove("show");
+                    sheetPanel.classList.remove("show");
+                    sheetPanel.setAttribute("aria-hidden", "true");
+                    activeDropdownField = null;
+                    closeAllDropdowns();
+                }
+                function openDeleteConfirmModal() {
+                    if (!deleteConfirmModal) return;
+                    deleteConfirmModal.classList.add("show");
+                }
+                function closeDeleteConfirmModal() {
+                    if (!deleteConfirmModal) return;
+                    deleteConfirmModal.classList.remove("show");
+                }
+                function openRegisterConfirmModal(data) {
+                    if (!registerConfirmModal || !registerConfirmText) return;
+                    registerConfirmText.innerHTML =
+                        "이 정보로 등록하시겠습니까?<br>" +
+                        `${data.name} / ${data.grade}학년 / 현재 ${data.currentClass}반 ${data.currentNumber}번`;
+                    registerConfirmModal.classList.add("show");
+                }
+                function closeRegisterConfirmModal() {
+                    if (!registerConfirmModal) return;
+                    registerConfirmModal.classList.remove("show");
+                }
+                function openBottomSheet(field) {
+                    const def = dropdownDefs[field];
+                    if (!def) return;
+                    activeDropdownField = field;
+                    sheetTitle.textContent = `${def.label} 선택`;
+                    sheetList.innerHTML = def.values.map((v) => `<button type="button" class="sheet-item" data-value="${v}">${v}${def.suffix}</button>`).join("");
+                    sheetList.querySelectorAll(".sheet-item").forEach((item) => {
+                        item.addEventListener("click", () => {
+                            dropdownState[field] = parseInt(item.dataset.value, 10);
+                            renderDropdown(field);
+                            closeBottomSheet();
+                        });
+                    });
+                    closeAllDropdowns();
+                    const host = document.querySelector(`.dropdown[data-field="${field}"]`);
+                    if (host) host.classList.add("open");
+                    sheetBackdrop.classList.add("show");
+                    sheetPanel.classList.add("show");
+                    sheetPanel.setAttribute("aria-hidden", "false");
+                }
+                function renderDropdown(field) {
+                    const def = dropdownDefs[field];
+                    const host = document.querySelector(`.dropdown[data-field="${field}"]`);
+                    if (!def || !host) return;
+                    const value = dropdownState[field];
+                    host.innerHTML = `<button type="button" class="dropdown-btn">${def.label}: ${value}${def.suffix}</button>`;
+                    const btn = host.querySelector(".dropdown-btn");
+                    btn.addEventListener("click", () => {
+                        if (activeDropdownField === field && sheetPanel.classList.contains("show")) {
+                            closeBottomSheet();
+                            return;
+                        }
+                        openBottomSheet(field);
+                    });
+                }
                 Object.keys(dropdownDefs).forEach((field) => {
                     dropdownState[field] = dropdownDefs[field].defaultValue;
                     renderDropdown(field);
                 });
-                deleteBtn.style.display = "none";
-                stepCard.classList.add("hidden");
-                slideShell.classList.remove("hidden");
-                slideShell.classList.remove("step-form");
-                setTimeout(() => {
-                    window.location.reload();
-                }, 60);
-            }
-
-            if (registerCompleteBtn) {
-                registerCompleteBtn.addEventListener("click", () => {
-                    closeRegisterCompleteModal();
-                    slideShell.classList.add("hidden");
-                    stepCard.classList.remove("hidden");
-                });
-            }
-
-            toFormBtn.addEventListener("click", () => {
-                const user = loadUserData();
-                if (user && user.email && user.grade) {
-                    // Pre-generate the card data
-                    const emailPrefix = user.email.split('@')[0];
-                    const academicId = emailPrefix.replace(/([0-9]+)m([0-9]+)/i, 'M$1$2').toUpperCase();
-                    const cardData = {
-                        name: user.name || user.displayName || '학생',
-                        grade: user.grade,
-                        currentClass: user.class,
-                        currentNumber: user.number,
-                        academicId: academicId,
-                        email: user.email
-                    };
-                    
-                    // Show completion modal instead of form
-                    renderCardFromLogin(cardData);
-                    showRegisterCompleteModal();
-                } else {
-                    // No login info, go to manual form
-                    slideShell.classList.add("step-form");
-                }
-            });
-            if (editFormBtn) {
-                editFormBtn.addEventListener("click", () => slideShell.classList.add("step-form"));
-            }
-            
-            // NFC 쓰기 버튼 이벤트
-            const nfcWriteBtn = document.getElementById("nfc-write-btn");
-            if (nfcWriteBtn) {
-                nfcWriteBtn.addEventListener("click", openNFCModal);
-            }
-            
-            // NFC 모달 닫기 버튼
-            if (nfcCloseBtn) {
-                nfcCloseBtn.addEventListener("click", closeNFCModal);
-            }
-            
-            // NFC 모달 배경 클릭으로 닫기
-            if (nfcModal) {
-                nfcModal.addEventListener("click", (e) => {
-                    if (e.target === nfcModal) closeNFCModal();
-                });
-            }
-            
-            backBtn.addEventListener("click", () => {
-                closeBottomSheet();
-                slideShell.classList.remove("step-form");
-            });
-            saveBtn.addEventListener("click", saveData);
-            deleteBtn.addEventListener("click", openDeleteConfirmModal);
-            if (deleteCancelBtn) deleteCancelBtn.addEventListener("click", closeDeleteConfirmModal);
-            if (deleteOkBtn) deleteOkBtn.addEventListener("click", () => {
-                closeDeleteConfirmModal();
-                resetAll();
-            });
-            if (deleteConfirmModal) {
-                deleteConfirmModal.addEventListener("click", (e) => {
-                    if (e.target === deleteConfirmModal) closeDeleteConfirmModal();
-                });
-            }
-            if (registerCancelBtn) registerCancelBtn.addEventListener("click", () => {
-                pendingRegisterData = null;
-                closeRegisterConfirmModal();
-            });
-            if (registerOkBtn) registerOkBtn.addEventListener("click", () => {
-                if (!pendingRegisterData) return;
-                closeRegisterConfirmModal();
-                commitRegister(pendingRegisterData);
-            });
-            if (registerConfirmModal) {
-                registerConfirmModal.addEventListener("click", (e) => {
-                    if (e.target === registerConfirmModal) {
-                        pendingRegisterData = null;
-                        closeRegisterConfirmModal();
-                    }
-                });
-            }
-            if (topBackBtn) {
-                topBackBtn.addEventListener("click", () => {
-                    closeBottomSheet();
-                    closeDeleteConfirmModal();
-                    closeRegisterConfirmModal();
-                    try {
-                        if (typeof AndroidInterface !== "undefined") {
-                            if (typeof AndroidInterface.closeCurrentWebView === "function") { AndroidInterface.closeCurrentWebView(); return; }
-                            if (typeof AndroidInterface.closeWebView === "function") { AndroidInterface.closeWebView(); return; }
-                            if (typeof AndroidInterface.goBack === "function") { AndroidInterface.goBack(); return; }
-                            if (typeof AndroidInterface.finish === "function") { AndroidInterface.finish(); return; }
-                            if (typeof AndroidInterface.closeApp === "function") { AndroidInterface.closeApp(); return; }
-                        }
-                    } catch (e) {}
-                    try { history.back(); } catch (e) {}
-                    setTimeout(() => {
-                        try { window.close(); } catch (e) {}
-                    }, 120);
-                });
-            }
-
-            function loadUserData() {
-                try {
-                    const raw = localStorage.getItem('userData');
-                    if (!raw) return null;
-                    return JSON.parse(raw);
-                } catch (e) { return null; }
-            }
-
-            function autoGenerateCard() {
-                const user = loadUserData();
-                if (user && user.email && user.grade) {
-                    const emailPrefix = user.email.split('@')[0];
-                    const academicId = emailPrefix.replace(/([0-9]+)m([0-9]+)/i, 'M$1$2').toUpperCase();
-                    
-                    const cardData = {
-                        name: user.name || user.displayName || '학생',
-                        grade: user.grade,
-                        currentClass: user.class,
-                        currentNumber: user.number,
-                        academicId: academicId,
-                        email: user.email
-                    };
-
-                    renderCardFromLogin(cardData);
-                    slideShell.classList.add("hidden");
-                    stepCard.classList.remove("hidden");
-                    return true;
-                }
-                return false;
-            }
-
-            function renderCardFromLogin(data) {
-                const currentStudentNo = buildStudentNumber(data.grade, data.currentClass, data.currentNumber);
-                const barcodeValue = data.academicId;
-                
-                infoEl.innerHTML =
-                    "<strong>" + data.name + "</strong><br>" +
-                    "현재 " + data.grade + "학년 " + data.currentClass + "반 " + data.currentNumber + "번<br>" +
-                    "학교 메일: " + data.email + "<br>" +
-                    "현재 학번 " + currentStudentNo;
-                
-                barcodeNumEl.textContent = barcodeValue;
-                JsBarcode(barcodeEl, barcodeValue, {
-                    format: "CODE39",
-                    displayValue: false,
-                    margin: 0,
-                    height: 76,
-                    width: 1.6
-                });
-                // In login-linked mode, delete might need to be logout or just hidden
-                deleteBtn.style.display = "none"; 
-            }
-
-            if (!autoGenerateCard()) {
-                const saved = loadSaved();
-                if (saved) {
-                    renderCard(saved);
-                    slideShell.classList.add("hidden");
-                    stepCard.classList.remove("hidden");
-                } else {
-                    deleteBtn.style.display = "none";
-                }
-            }
-
-            if (studentCardEl) {
-                let dragging = false;
-                let dragDistance = 0;
-                const maxTilt = 20;
-                const dragThreshold = 10; // 드래그로 인정하는 최소 거리
-                
-                function isButtonClick(target) {
-                    // 클릭된 요소가 버튼이거나 버튼 내부인지 확인
-                    return target instanceof Element && (
-                        target.tagName === 'BUTTON' ||
-                        target.closest('button') !== null
-                    );
-                }
-                
-                function pressCard() {
-                    studentCardEl.style.transform = "scale(0.97) rotateX(0deg) rotateY(0deg) rotateZ(0deg)";
-                    studentCardEl.style.boxShadow = "0 24px 38px rgba(15,23,42,0.26), 0 10px 16px rgba(15,23,42,0.2)";
-                }
-                function updateCardByPoint(clientX, clientY) {
-                    const rect = studentCardEl.getBoundingClientRect();
-                    const cx = rect.left + rect.width / 2;
-                    const cy = rect.top + rect.height / 2;
-                    const dx = (clientX - cx) / (rect.width / 2);
-                    const dy = (clientY - cy) / (rect.height / 2);
-                    const rx = Math.max(-maxTilt * 0.7, Math.min(maxTilt * 0.7, -dy * maxTilt * 0.7));
-                    const ry = Math.max(-maxTilt, Math.min(maxTilt, dx * maxTilt));
-                    const rz = Math.max(-7, Math.min(7, dx * 7));
-                    studentCardEl.style.transform = `scale(0.97) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg)`;
-                    const dynamicShadowX = (dx * 14).toFixed(1);
-                    const dynamicShadowY = (24 + Math.abs(dy) * 8).toFixed(1);
-                    studentCardEl.style.boxShadow = `${dynamicShadowX}px ${dynamicShadowY}px 38px rgba(15,23,42,0.28), 0 12px 18px rgba(15,23,42,0.22)`;
-                }
-                function resetCard() {
-                    studentCardEl.style.transform = "scale(1) rotateX(0deg) rotateY(0deg) rotateZ(0deg)";
-                    studentCardEl.style.boxShadow = "0 16px 26px rgba(15, 23, 42, 0.22), 0 4px 8px rgba(15, 23, 42, 0.18)";
-                }
-                
-                let pointerStartX = 0;
-                let pointerStartY = 0;
-                
-                studentCardEl.addEventListener("pointerdown", (e) => {
-                    if (isButtonClick(e.target)) return;
-                    dragging = true;
-                    dragDistance = 0;
-                    pointerStartX = e.clientX;
-                    pointerStartY = e.clientY;
-                    studentCardEl.setPointerCapture(e.pointerId);
-                    pressCard();
-                });
-                studentCardEl.addEventListener("pointermove", (e) => {
-                    if (!dragging) return;
-                    const deltaX = Math.abs(e.clientX - pointerStartX);
-                    const deltaY = Math.abs(e.clientY - pointerStartY);
-                    dragDistance = Math.max(deltaX, deltaY);
-                    
-                    // 드래그 거리가 일정 이상일 때만 카드 움직임
-                    if (dragDistance > dragThreshold) {
-                        updateCardByPoint(e.clientX, e.clientY);
-                    }
-                });
-                studentCardEl.addEventListener("pointerup", () => {
-                    dragging = false;
-                    // 항상 리셋 (손을 떼면 원래대로)
-                    resetCard();
-                });
-                studentCardEl.addEventListener("pointercancel", () => {
-                    dragging = false;
-                    resetCard();
-                });
-                studentCardEl.addEventListener("pointerleave", () => {
-                    if (!dragging) {
-                        // 드래그 중이 아니면 리셋 안함
-                    }
-                });
-                
-                let touchStartX = 0;
-                let touchStartY = 0;
-                
-                studentCardEl.addEventListener("touchstart", (e) => {
-                    if (isButtonClick(e.target)) return;
-                    dragging = true;
-                    dragDistance = 0;
-                    const t = e.touches[0];
-                    if (!t) return;
-                    touchStartX = t.clientX;
-                    touchStartY = t.clientY;
-                    pressCard();
+                sheetBackdrop.addEventListener("click", closeBottomSheet);
+                sheetPanel.addEventListener("touchstart", (e) => {
+                    if (!sheetPanel.classList.contains("show")) return;
+                    const target = e.target;
+                    const listEl = target instanceof Element ? target.closest(".sheet-list") : null;
+                    if (listEl && listEl.scrollTop > 0) return;
+                    sheetDragging = true;
+                    sheetDragStartY = e.touches[0].clientY;
+                    sheetDragDeltaY = 0;
+                    sheetPanel.classList.add("dragging");
                 }, { passive: true });
-                studentCardEl.addEventListener("touchmove", (e) => {
-                    if (!dragging) return;
-                    const t = e.touches[0];
-                    if (!t) return;
-                    
-                    const deltaX = Math.abs(t.clientX - touchStartX);
-                    const deltaY = Math.abs(t.clientY - touchStartY);
-                    dragDistance = Math.max(deltaX, deltaY);
-                    
-                    // 드래그 거리가 일정 이상일 때만 카드 움직임
-                    if (dragDistance > dragThreshold) {
+                sheetPanel.addEventListener("touchmove", (e) => {
+                    if (!sheetDragging) return;
+                    const currentY = e.touches[0].clientY;
+                    sheetDragDeltaY = Math.max(0, currentY - sheetDragStartY);
+                    if (sheetDragDeltaY > 0) {
                         e.preventDefault();
-                        updateCardByPoint(t.clientX, t.clientY);
+                        sheetPanel.style.transform = `translateY(${sheetDragDeltaY}px)`;
                     }
                 }, { passive: false });
-                studentCardEl.addEventListener("touchend", () => {
-                    dragging = false;
-                    // 항상 리셋 (드래그 여부 상관없이 손을 떼면 원래대로)
-                    resetCard();
+                sheetPanel.addEventListener("touchend", () => {
+                    if (!sheetDragging) return;
+                    sheetDragging = false;
+                    sheetPanel.classList.remove("dragging");
+                    if (sheetDragDeltaY > 90) {
+                        sheetPanel.style.transform = "";
+                        closeBottomSheet();
+                    } else {
+                        sheetPanel.style.transform = "";
+                    }
+                    sheetDragDeltaY = 0;
                 });
-                studentCardEl.addEventListener("touchcancel", () => {
-                    dragging = false;
-                    resetCard();
+                sheetPanel.addEventListener("touchcancel", () => {
+                    sheetDragging = false;
+                    sheetDragDeltaY = 0;
+                    sheetPanel.classList.remove("dragging");
+                    sheetPanel.style.transform = "";
                 });
-            }
-        })();
-    </script>
+
+                function pad2(n) { return String(n).padStart(2, "0"); }
+                function buildStudentNumber(grade, cls, num) {
+                    return String(grade) + String(cls).padStart(2, "0") + pad2(num);
+                }
+                function buildBarcodeValue(enterYear, grade, cls, num) {
+                    const yy = String(enterYear).slice(-2);
+                    return "M" + yy + buildStudentNumber(grade, cls, num);
+                }
+
+                function renderCard(data) {
+                    const studentNo = buildStudentNumber(1, data.enterClass, data.enterNumber);
+                    const currentStudentNo = buildStudentNumber(data.grade, data.currentClass, data.currentNumber);
+                    const barcodeValue = buildBarcodeValue(data.enterYear, 1, data.enterClass, data.enterNumber);
+                    infoEl.innerHTML =
+                        "<strong>" + data.name + "</strong><br>" +
+                        "현재 " + data.grade + "학년 " + data.currentClass + "반 " + data.currentNumber + "번<br>" +
+                        data.enterYear + "년 입학 / 입학당시 " + data.enterClass + "반 " + data.enterNumber + "번<br>" +
+                        "입학 학번 " + studentNo + " / 현재 학번 " + currentStudentNo;
+                    barcodeNumEl.textContent = barcodeValue;
+                    JsBarcode(barcodeEl, barcodeValue, {
+                        format: "CODE39",
+                        displayValue: false,
+                        margin: 0,
+                        height: 76,
+                        width: 1.6
+                    });
+                    deleteBtn.style.display = "flex";
+                }
+
+                function loadSaved() {
+                    try {
+                        const raw = localStorage.getItem(STORAGE_KEY);
+                        if (!raw) return null;
+                        const data = JSON.parse(raw);
+                        if (!data || !data.name) return null;
+                        return data;
+                    } catch (e) {
+                        return null;
+                    }
+                }
+
+                // NFC 관련 함수
+                const nfcModal = document.getElementById("nfc-modal");
+                const nfcCloseBtn = document.getElementById("nfc-close-btn");
+                const nfcIcon = document.getElementById("nfc-icon");
+                const nfcTitle = document.getElementById("nfc-title");
+                const nfcText = document.getElementById("nfc-text");
+                const nfcStatus = document.getElementById("nfc-status");
+                let nfcWriteAbortController = null;
+                let hapticInterval = null;
+                let isNFCEmitting = false;
+
+                function startHapticFeedback() {
+                    // 이미 실행 중이면 중지
+                    if (hapticInterval) clearInterval(hapticInterval);
+
+                    // 계속 햅틱 피드백 (100ms 간격)
+                    if (navigator.vibrate) {
+                        // 초기 진동
+                        navigator.vibrate(50);
+
+                        // 반복 진동
+                        hapticInterval = setInterval(() => {
+                            navigator.vibrate(50);
+                        }, 150);
+                    }
+                }
+
+                function stopHapticFeedback() {
+                    if (hapticInterval) {
+                        clearInterval(hapticInterval);
+                        hapticInterval = null;
+                    }
+                    // 최종 진동 종료
+                    if (navigator.vibrate) {
+                        navigator.vibrate(0);
+                    }
+                }
+
+                function openNFCModal() {
+                    nfcModal.classList.add("show");
+                    nfcIcon.classList.add("writing");
+                    nfcTitle.textContent = "NFC 켜기";
+                    nfcText.textContent = "NFC를 활성화하고 있습니다...";
+                    nfcStatus.style.display = "none";
+
+                    // Lucide 아이콘 렌더링
+                    const nfcLucideIcon = document.getElementById("nfc-lucide-icon");
+                    if (nfcLucideIcon && window.lucide) {
+                        nfcLucideIcon.innerHTML = '<svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M9 20h6"></path><circle cx="12" cy="20" r=".5" fill="currentColor"></circle></svg>';
+                        window.lucide.createIcons();
+                    }
+
+                    startNFCEmit();
+                }
+
+                function closeNFCModal() {
+                    nfcModal.classList.remove("show");
+                    nfcIcon.classList.remove("writing");
+                    stopHapticFeedback();
+                    isNFCEmitting = false;
+
+                    // Android 인터페이스가 있으면 NFC 정지
+                    if (typeof AndroidInterface !== "undefined" && typeof AndroidInterface.stopNFC === "function") {
+                        try {
+                            AndroidInterface.stopNFC();
+                        } catch (e) { }
+                    }
+                }
+
+                function showNFCStatus(message, type) {
+                    nfcStatus.textContent = message;
+                    nfcStatus.className = `nfc-status ${type}`;
+                    nfcStatus.style.display = "block";
+                }
+
+                async function startNFCEmit() {
+                    // 햅틱 피드백 시작
+                    startHapticFeedback();
+                    isNFCEmitting = true;
+
+                    const saved = loadSaved();
+                    if (!saved) {
+                        showNFCStatus("저장된 학생증 정보가 없습니다.", "error");
+                        stopHapticFeedback();
+                        isNFCEmitting = false;
+                        return;
+                    }
+
+                    try {
+                        // "M입학년도학번" 형식으로 바코드 문자열 생성
+                        const studentNo = `${String(saved.enterYear).slice(-2)}${String(saved.enterClass).padStart(2, '0')}${String(saved.enterNumber).padStart(2, '0')}`;
+                        const nfcString = `M${studentNo}`;
+
+                        // 1. Android WebView 인터페이스 (우선순위 1)
+                        if (typeof AndroidInterface !== "undefined") {
+                            if (typeof AndroidInterface.enableNFC === "function") {
+                                AndroidInterface.enableNFC(nfcString);
+                                nfcTitle.textContent = "NFC 활성화됨";
+                                nfcText.textContent = `학번: ${nfcString}\n\n인식기에 핸드폰을 가져다 대세요`;
+                                showNFCStatus("NFC가 활성화되었습니다.", "success");
+
+                                setTimeout(() => {
+                                    if (isNFCEmitting) closeNFCModal();
+                                }, 30000);
+                                return;
+                            }
+                        }
+
+                        // 2. 실제 Web NFC API (우선순위 2)
+                        if ("NDEFReader" in window) {
+                            nfcWriteAbortController = new AbortController();
+                            const reader = new NDEFReader();
+
+                            try {
+                                // NFC 스캔 시작 - 이것이 실제 NFC 신호 활성화
+                                await reader.scan({ signal: nfcWriteAbortController.signal });
+
+                                reader.onreading = (event) => {
+                                    console.log("NFC 태그 감지됨:", event.serialNumber);
+                                };
+
+                                nfcTitle.textContent = "NFC 활성화됨";
+                                nfcText.textContent = `학번: ${nfcString}\n\n인식기에 핸드폰을 가져다 대세요`;
+                                showNFCStatus("실제 NFC가 활성화되었습니다.", "success");
+                            } catch (nfcError) {
+                                if (nfcError.name !== "NotAllowedError" && nfcError.name !== "InvalidStateError") {
+                                    throw nfcError;
+                                }
+                                // InvalidStateError인 경우 fallback으로 진행
+                                throw new Error("Web NFC가 이 환경에서 작동하지 않습니다.");
+                            }
+                        } else {
+                            throw new Error("이 기기는 NFC를 지원하지 않습니다.");
+                        }
+
+                        // 30초 후 자동 종료
+                        setTimeout(() => {
+                            if (isNFCEmitting) {
+                                closeNFCModal();
+                            }
+                        }, 30000);
+
+                    } catch (error) {
+                        if (error.name === "AbortError") {
+                            return;
+                        }
+
+                        stopHapticFeedback();
+                        isNFCEmitting = false;
+                        nfcIcon.classList.remove("writing");
+                        nfcTitle.textContent = "오류 발생";
+
+                        let errorMessage = error.message || "NFC 활성화에 실패했습니다.";
+
+                        if (error.name === "NotAllowedError") {
+                            errorMessage = "NFC 권한이 없습니다. 설정에서 권한을 확인하세요.";
+                        } else if (error.name === "InvalidStateError") {
+                            errorMessage = "WebView 환경에서는 Android 앱의 네이티브 NFC를 사용하세요.";
+                        } else if (error.name === "NotSupportedError") {
+                            errorMessage = "이 브라우저는 NFC를 지원하지 않습니다.";
+                        }
+
+                        nfcText.textContent = errorMessage;
+                        showNFCStatus(errorMessage, "error");
+                    }
+                }
+
+                function commitRegister(data) {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                    renderCard(data);
+                    closeRegisterConfirmModal();
+                    showRegisterCompleteModal();
+                    pendingRegisterData = null;
+                }
+                function saveData() {
+                    const name = nameEl.value.trim();
+                    const grade = dropdownState.grade;
+                    const enterYear = dropdownState.enterYear;
+                    const enterClass = dropdownState.enterClass;
+                    const enterNumber = dropdownState.enterNumber;
+                    const currentClass = dropdownState.currentClass;
+                    const currentNumber = dropdownState.currentNumber;
+                    if (!name) {
+                        alert("이름을 입력해주세요.");
+                        return;
+                    }
+                    const data = { name, grade, enterYear, enterClass, enterNumber, currentClass, currentNumber };
+                    pendingRegisterData = data;
+                    openRegisterConfirmModal(data);
+                }
+
+                function resetAll() {
+                    closeBottomSheet();
+                    closeRegisterConfirmModal();
+                    localStorage.removeItem(STORAGE_KEY);
+                    nameEl.value = "";
+                    Object.keys(dropdownDefs).forEach((field) => {
+                        dropdownState[field] = dropdownDefs[field].defaultValue;
+                        renderDropdown(field);
+                    });
+                    deleteBtn.style.display = "none";
+                    stepCard.classList.add("hidden");
+                    slideShell.classList.remove("hidden");
+                    slideShell.classList.remove("step-form");
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 60);
+                }
+
+                if (registerCompleteBtn) {
+                    registerCompleteBtn.addEventListener("click", () => {
+                        closeRegisterCompleteModal();
+                        slideShell.classList.add("hidden");
+                        stepCard.classList.remove("hidden");
+                    });
+                }
+
+                toFormBtn.addEventListener("click", () => {
+                    const user = loadUserData();
+                    if (user && user.email && user.grade) {
+                        // Pre-generate the card data
+                        const emailPrefix = user.email.split('@')[0];
+                        const academicId = emailPrefix.replace(/([0-9]+)m([0-9]+)/i, 'M$1$2').toUpperCase();
+                        const cardData = {
+                            name: user.name || user.displayName || '학생',
+                            grade: user.grade,
+                            currentClass: user.class,
+                            currentNumber: user.number,
+                            academicId: academicId,
+                            email: user.email
+                        };
+
+                        // Show completion modal instead of form
+                        renderCardFromLogin(cardData);
+                        showRegisterCompleteModal();
+                    } else {
+                        // No login info, go to manual form
+                        slideShell.classList.add("step-form");
+                    }
+                });
+                if (editFormBtn) {
+                    editFormBtn.addEventListener("click", () => slideShell.classList.add("step-form"));
+                }
+
+                // NFC 쓰기 버튼 이벤트
+                const nfcWriteBtn = document.getElementById("nfc-write-btn");
+                if (nfcWriteBtn) {
+                    nfcWriteBtn.addEventListener("click", openNFCModal);
+                }
+
+                // NFC 모달 닫기 버튼
+                if (nfcCloseBtn) {
+                    nfcCloseBtn.addEventListener("click", closeNFCModal);
+                }
+
+                // NFC 모달 배경 클릭으로 닫기
+                if (nfcModal) {
+                    nfcModal.addEventListener("click", (e) => {
+                        if (e.target === nfcModal) closeNFCModal();
+                    });
+                }
+
+                backBtn.addEventListener("click", () => {
+                    closeBottomSheet();
+                    slideShell.classList.remove("step-form");
+                });
+                saveBtn.addEventListener("click", saveData);
+                deleteBtn.addEventListener("click", openDeleteConfirmModal);
+                if (deleteCancelBtn) deleteCancelBtn.addEventListener("click", closeDeleteConfirmModal);
+                if (deleteOkBtn) deleteOkBtn.addEventListener("click", () => {
+                    closeDeleteConfirmModal();
+                    resetAll();
+                });
+                if (deleteConfirmModal) {
+                    deleteConfirmModal.addEventListener("click", (e) => {
+                        if (e.target === deleteConfirmModal) closeDeleteConfirmModal();
+                    });
+                }
+                if (registerCancelBtn) registerCancelBtn.addEventListener("click", () => {
+                    pendingRegisterData = null;
+                    closeRegisterConfirmModal();
+                });
+                if (registerOkBtn) registerOkBtn.addEventListener("click", () => {
+                    if (!pendingRegisterData) return;
+                    closeRegisterConfirmModal();
+                    commitRegister(pendingRegisterData);
+                });
+                if (registerConfirmModal) {
+                    registerConfirmModal.addEventListener("click", (e) => {
+                        if (e.target === registerConfirmModal) {
+                            pendingRegisterData = null;
+                            closeRegisterConfirmModal();
+                        }
+                    });
+                }
+
+                const topbarBack = document.getElementById("topbar-back");
+                if (topbarBack) {
+                    topbarBack.addEventListener("click", () => {
+                        closeBottomSheet();
+                        closeDeleteConfirmModal();
+                        closeRegisterConfirmModal();
+                        try {
+                            if (typeof AndroidInterface !== "undefined") {
+                                if (typeof AndroidInterface.closeCurrentWebView === "function") { AndroidInterface.closeCurrentWebView(); return; }
+                                if (typeof AndroidInterface.closeWebView === "function") { AndroidInterface.closeWebView(); return; }
+                                if (typeof AndroidInterface.goBack === "function") { AndroidInterface.goBack(); return; }
+                                if (typeof AndroidInterface.finish === "function") { AndroidInterface.finish(); return; }
+                                if (typeof AndroidInterface.closeApp === "function") { AndroidInterface.closeApp(); return; }
+                            }
+                        } catch (e) { }
+                        try { history.back(); } catch (e) { }
+                        setTimeout(() => {
+                            try { window.location.href = 'index.html'; } catch (e) { }
+                        }, 120);
+                    });
+                }
+
+                function loadUserData() {
+                    try {
+                        const raw = localStorage.getItem('userData');
+                        if (!raw) return null;
+                        return JSON.parse(raw);
+                    } catch (e) { return null; }
+                }
+
+                function autoGenerateCard() {
+                    const user = loadUserData();
+                    if (user && user.email && user.grade) {
+                        const emailPrefix = user.email.split('@')[0];
+                        const academicId = emailPrefix.replace(/([0-9]+)m([0-9]+)/i, 'M$1$2').toUpperCase();
+
+                        const cardData = {
+                            name: user.name || user.displayName || '학생',
+                            grade: user.grade,
+                            currentClass: user.class,
+                            currentNumber: user.number,
+                            academicId: academicId,
+                            email: user.email
+                        };
+
+                        renderCardFromLogin(cardData);
+                        slideShell.classList.add("hidden");
+                        stepCard.classList.remove("hidden");
+                        return true;
+                    }
+                    return false;
+                }
+
+                function renderCardFromLogin(data) {
+                    const currentStudentNo = buildStudentNumber(data.grade, data.currentClass, data.currentNumber);
+                    const barcodeValue = data.academicId;
+
+                    infoEl.innerHTML =
+                        "<strong>" + data.name + "</strong><br>" +
+                        "현재 " + data.grade + "학년 " + data.currentClass + "반 " + data.currentNumber + "번<br>" +
+                        "학교 메일: " + data.email + "<br>" +
+                        "현재 학번 " + currentStudentNo;
+
+                    barcodeNumEl.textContent = barcodeValue;
+                    JsBarcode(barcodeEl, barcodeValue, {
+                        format: "CODE39",
+                        displayValue: false,
+                        margin: 0,
+                        height: 76,
+                        width: 1.6
+                    });
+                    // In login-linked mode, delete might need to be logout or just hidden
+                    deleteBtn.style.display = "none";
+                }
+
+                if (!autoGenerateCard()) {
+                    const saved = loadSaved();
+                    if (saved) {
+                        renderCard(saved);
+                        slideShell.classList.add("hidden");
+                        stepCard.classList.remove("hidden");
+                    } else {
+                        deleteBtn.style.display = "none";
+                    }
+                }
+
+                if (studentCardEl) {
+                    let dragging = false;
+                    let dragDistance = 0;
+                    const maxTilt = 20;
+                    const dragThreshold = 10; // 드래그로 인정하는 최소 거리
+
+                    function isButtonClick(target) {
+                        // 클릭된 요소가 버튼이거나 버튼 내부인지 확인
+                        return target instanceof Element && (
+                            target.tagName === 'BUTTON' ||
+                            target.closest('button') !== null
+                        );
+                    }
+
+                    function pressCard() {
+                        studentCardEl.style.transform = "scale(0.97) rotateX(0deg) rotateY(0deg) rotateZ(0deg)";
+                        studentCardEl.style.boxShadow = "0 24px 38px rgba(15,23,42,0.26), 0 10px 16px rgba(15,23,42,0.2)";
+                    }
+                    function updateCardByPoint(clientX, clientY) {
+                        const rect = studentCardEl.getBoundingClientRect();
+                        const cx = rect.left + rect.width / 2;
+                        const cy = rect.top + rect.height / 2;
+                        const dx = (clientX - cx) / (rect.width / 2);
+                        const dy = (clientY - cy) / (rect.height / 2);
+                        const rx = Math.max(-maxTilt * 0.7, Math.min(maxTilt * 0.7, -dy * maxTilt * 0.7));
+                        const ry = Math.max(-maxTilt, Math.min(maxTilt, dx * maxTilt));
+                        const rz = Math.max(-7, Math.min(7, dx * 7));
+                        studentCardEl.style.transform = `scale(0.97) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg)`;
+                        const dynamicShadowX = (dx * 14).toFixed(1);
+                        const dynamicShadowY = (24 + Math.abs(dy) * 8).toFixed(1);
+                        studentCardEl.style.boxShadow = `${dynamicShadowX}px ${dynamicShadowY}px 38px rgba(15,23,42,0.28), 0 12px 18px rgba(15,23,42,0.22)`;
+                    }
+                    function resetCard() {
+                        studentCardEl.style.transform = "scale(1) rotateX(0deg) rotateY(0deg) rotateZ(0deg)";
+                        studentCardEl.style.boxShadow = "0 16px 26px rgba(15, 23, 42, 0.22), 0 4px 8px rgba(15, 23, 42, 0.18)";
+                    }
+
+                    let pointerStartX = 0;
+                    let pointerStartY = 0;
+
+                    studentCardEl.addEventListener("pointerdown", (e) => {
+                        if (isButtonClick(e.target)) return;
+                        dragging = true;
+                        dragDistance = 0;
+                        pointerStartX = e.clientX;
+                        pointerStartY = e.clientY;
+                        studentCardEl.setPointerCapture(e.pointerId);
+                        pressCard();
+                    });
+                    studentCardEl.addEventListener("pointermove", (e) => {
+                        if (!dragging) return;
+                        const deltaX = Math.abs(e.clientX - pointerStartX);
+                        const deltaY = Math.abs(e.clientY - pointerStartY);
+                        dragDistance = Math.max(deltaX, deltaY);
+
+                        // 드래그 거리가 일정 이상일 때만 카드 움직임
+                        if (dragDistance > dragThreshold) {
+                            updateCardByPoint(e.clientX, e.clientY);
+                        }
+                    });
+                    studentCardEl.addEventListener("pointerup", () => {
+                        dragging = false;
+                        // 항상 리셋 (손을 떼면 원래대로)
+                        resetCard();
+                    });
+                    studentCardEl.addEventListener("pointercancel", () => {
+                        dragging = false;
+                        resetCard();
+                    });
+                    studentCardEl.addEventListener("pointerleave", () => {
+                        if (!dragging) {
+                            // 드래그 중이 아니면 리셋 안함
+                        }
+                    });
+
+                    let touchStartX = 0;
+                    let touchStartY = 0;
+
+                    studentCardEl.addEventListener("touchstart", (e) => {
+                        if (isButtonClick(e.target)) return;
+                        dragging = true;
+                        dragDistance = 0;
+                        const t = e.touches[0];
+                        if (!t) return;
+                        touchStartX = t.clientX;
+                        touchStartY = t.clientY;
+                        pressCard();
+                    }, { passive: true });
+                    studentCardEl.addEventListener("touchmove", (e) => {
+                        if (!dragging) return;
+                        const t = e.touches[0];
+                        if (!t) return;
+
+                        const deltaX = Math.abs(t.clientX - touchStartX);
+                        const deltaY = Math.abs(t.clientY - touchStartY);
+                        dragDistance = Math.max(deltaX, deltaY);
+
+                        // 드래그 거리가 일정 이상일 때만 카드 움직임
+                        if (dragDistance > dragThreshold) {
+                            e.preventDefault();
+                            updateCardByPoint(t.clientX, t.clientY);
+                        }
+                    }, { passive: false });
+                    studentCardEl.addEventListener("touchend", () => {
+                        dragging = false;
+                        // 항상 리셋 (드래그 여부 상관없이 손을 떼면 원래대로)
+                        resetCard();
+                    });
+                    studentCardEl.addEventListener("touchcancel", () => {
+                        dragging = false;
+                        resetCard();
+                    });
+                }
+            })();
+        </script>
 </body>
+
 </html>

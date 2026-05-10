@@ -1382,6 +1382,86 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             transform: scale(0.99);
         }
 
+        .auth-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.98);
+            z-index: 5000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        body.dark-mode .auth-overlay {
+            background: rgba(20, 20, 20, 0.98);
+        }
+        .auth-overlay-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 400px;
+        }
+        .auth-gif-container {
+            width: 280px;
+            height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: -20px; /* Text overlap */
+        }
+        .auth-loader-gif {
+            width: 160%; /* Reduced from 220% */
+            height: 160%;
+            object-fit: contain;
+        }
+        .auth-status-text {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 32px;
+            z-index: 10;
+        }
+        .auth-overlay-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+        .auth-overlay-btn {
+            height: 56px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.12s ease;
+        }
+        .auth-overlay-btn.primary {
+            background: var(--primary);
+            color: #ffffff;
+        }
+        .auth-overlay-btn.secondary {
+            background: var(--border);
+            color: var(--text-sub);
+        }
+        .auth-overlay-btn:active {
+            transform: scale(0.97);
+        }
+        .hero-check-icon {
+            width: 80px;
+            height: 80px;
+            color: #22c55e;
+            margin-bottom: 24px;
+        }
+        .auth-check-icon {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
         #custom-error-modal, #ai-coming-modal {
             position: fixed;
             inset: 0;
@@ -2335,6 +2415,27 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             </div>
         </div>
 
+        <div id="auth-overlay" class="auth-overlay hidden">
+            <div class="auth-overlay-content">
+                <div id="auth-gif-container" class="auth-gif-container">
+                    <img src="https://studio.pixelixe.com/mobile/loader.gif" alt="loading" class="auth-loader-gif">
+                </div>
+                <div id="auth-status-text" class="auth-status-text">이메일을 전송하는중</div>
+                <div id="auth-check-icon" class="auth-check-icon hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="hero-check-icon">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                </div>
+                <div id="auth-overlay-footer" class="auth-overlay-footer hidden">
+                    <button id="btn-auth-next" class="auth-overlay-btn primary">다음</button>
+                    <button id="btn-auth-cancel" class="auth-overlay-btn secondary">취소</button>
+                </div>
+                <div id="auth-success-footer" class="auth-overlay-footer hidden">
+                    <button id="btn-auth-close" class="auth-overlay-btn primary">닫기</button>
+                </div>
+            </div>
+        </div>
+
         <div id="myjdms-remote-preload" aria-hidden="true" style="position:fixed;left:-120px;top:0;width:2px;height:2px;opacity:0.02;pointer-events:none;overflow:hidden;z-index:-5;border:0;">
             <iframe title="" loading="eager" src="https://jaewondev27.github.io/myjdmsappmainpagecontrol/inform"></iframe>
             <iframe title="" loading="eager" src="https://jaewondev27.github.io/myjdmsappmainpagecontrol/theme"></iframe>
@@ -2353,6 +2454,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         const authBc = new BroadcastChannel('myjdms_auth');
         authBc.onmessage = (ev) => {
             if (ev.data.type === 'LOGIN_SUCCESS') {
+                if (pollInterval) clearInterval(pollInterval);
                 completeLoginFlow(ev.data.userData);
             }
         };
@@ -2372,20 +2474,58 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             }, 2000);
         }
 
+        function showAuthOverlay(state) {
+            const overlay = document.getElementById('auth-overlay');
+            const gifContainer = document.getElementById('auth-gif-container');
+            const statusText = document.getElementById('auth-status-text');
+            const checkIcon = document.getElementById('auth-check-icon');
+            const footerNormal = document.getElementById('auth-overlay-footer');
+            const footerSuccess = document.getElementById('auth-success-footer');
+
+            if (!overlay) return;
+            overlay.classList.remove('hidden');
+            
+            // Reset defaults
+            gifContainer.classList.remove('hidden');
+            checkIcon.classList.add('hidden');
+            footerNormal.classList.add('hidden');
+            footerSuccess.classList.add('hidden');
+
+            if (state === 'sending') {
+                statusText.innerText = '이메일을 전송하는중';
+            } else if (state === 'sent') {
+                statusText.innerText = '전송이 완료되었습니다. 이메일을 확인하세요';
+                footerNormal.classList.remove('hidden');
+            } else if (state === 'polling') {
+                statusText.innerText = '인증을 확인하는중';
+            } else if (state === 'success') {
+                gifContainer.classList.add('hidden');
+                checkIcon.classList.remove('hidden');
+                statusText.innerText = '인증이 완료되었습니다!';
+                footerSuccess.classList.remove('hidden');
+            }
+        }
+
+        function hideAuthOverlay() {
+            const overlay = document.getElementById('auth-overlay');
+            if (overlay) overlay.classList.add('hidden');
+        }
+
         function completeLoginFlow(data) {
             userData = data;
             localStorage.setItem('userData', JSON.stringify(userData));
             
-            showCustomModal({
-                title: '인증 완료',
-                message: `${userData.name}님, 환영합니다! 마지막 정보를 입력해 주세요.`,
-                type: 'success',
-                iconName: 'check-circle'
-            });
+            // Show success in overlay instead of modal
+            showAuthOverlay('success');
             
-            document.getElementById('setup-step-login').classList.add('hidden');
-            document.getElementById('setup-step-info').classList.remove('hidden');
-            document.getElementById('setup-name').value = userData.name || '';
+            const stepLogin = document.getElementById('setup-step-login');
+            const stepInfo = document.getElementById('setup-step-info');
+            const setupName = document.getElementById('setup-name');
+            
+            if (stepLogin) stepLogin.classList.add('hidden');
+            if (stepInfo) stepInfo.classList.remove('hidden');
+            if (setupName) setupName.value = userData.name || '';
+            
             if (pollInterval) clearInterval(pollInterval);
         }
 
@@ -2468,12 +2608,12 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 } catch (e) {}
             }
             const nativeThemeMode = getNativeThemeMode();
-            let themeMode = 'auto';
+            let themeMode = 'light';
             try {
-                themeMode = nativeThemeMode || localStorage.getItem(THEME_MODE_KEY) || 'auto';
+                themeMode = nativeThemeMode || localStorage.getItem(THEME_MODE_KEY) || 'light';
                 localStorage.setItem(THEME_MODE_KEY, themeMode);
             } catch (e) {
-                themeMode = nativeThemeMode || 'auto';
+                themeMode = nativeThemeMode || 'light';
             }
             const darkQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
@@ -2732,15 +2872,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 }
             }
 
-            // Listen for login from custom verify page
-            const authBc = new BroadcastChannel('myjdms_auth');
-            authBc.onmessage = (ev) => {
-                if (ev.data.type === 'LOGIN_SUCCESS') {
-                    userData = ev.data.userData;
-                    localStorage.setItem('userData', JSON.stringify(userData));
-                    runSplashSequence();
-                }
-            };
+
 
             window.showCustomModal = function(options) {
                 const modal = document.getElementById('custom-modal');
@@ -2785,44 +2917,37 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 return window.showCustomModal({ title: '오류', message: msg, type: 'error', iconName: 'x-circle' });
             };
 
+
+
             // Email Link Sign-In Handler
             let isCooldown = false;
             window.handleEmailLinkSignIn = function() {
                 if (isCooldown) return;
 
-                const email = document.getElementById('setup-email').value.trim();
+                const emailInput = document.getElementById('setup-email');
+                const email = emailInput.value.trim();
                 if (!email) {
-                    showErrorModal('이메일 주소를 입력해주세요.');
+                    showCustomModal({
+                        title: '이메일 입력',
+                        message: '이메일 주소를 입력해주세요.',
+                        type: 'info'
+                    });
                     return;
                 }
                 
-                // 우회 모드가 아닐 때만 도메인 체크
                 if (!bypassDomain && !email.endsWith('@joongdong.ms.kr')) {
-                    showErrorModal('중동중학교 이메일(@joongdong.ms.kr)만 사용 가능합니다.');
+                    showCustomModal({
+                        title: '학교 계정 필요',
+                        message: '중동중학교 이메일(@joongdong.ms.kr)로 로그인해 주세요. 외부 계정은 보안 정책상 사용이 제한됩니다.',
+                        type: 'info'
+                    });
                     return;
                 }
                 
-                // 기기 고유 ID 생성
                 currentDeviceId = 'dev_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
                 
-                isCooldown = true;
-                const btn = document.getElementById('btn-send-link');
-                const originalText = btn.innerText;
-                let timeLeft = 30;
+                showAuthOverlay('sending');
 
-                const timer = setInterval(() => {
-                    btn.disabled = true;
-                    btn.innerText = `재전송 가능까지 ${timeLeft}초`;
-                    timeLeft--;
-                    if (timeLeft < 0) {
-                        clearInterval(timer);
-                        btn.disabled = false;
-                        btn.innerText = originalText;
-                        isCooldown = false;
-                    }
-                }, 1000);
-
-                // Call Backend
                 fetch(`${BACKEND_URL}/api/auth/send-link`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2835,22 +2960,45 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showCustomModal({ 
-                            title: '메일 발송 완료', 
-                            message: `corerepublix@gmail.com 발신자로 인증 링크가 전송되었습니다! 메일을 확인해 주세요.`, 
-                            type: 'success',
-                            iconName: 'mail'
-                        });
-                        // 폴링 시작 (다른 기기 대응)
-                        startLoginPolling(currentDeviceId);
+                        showAuthOverlay('sent');
+                        // Cooldown handling
+                        isCooldown = true;
+                        const btn = document.getElementById('btn-send-link');
+                        const originalText = btn.innerText;
+                        let timeLeft = 30;
+                        const timer = setInterval(() => {
+                            btn.disabled = true;
+                            btn.innerText = `재전송 가능까지 ${timeLeft}초`;
+                            timeLeft--;
+                            if (timeLeft < 0) {
+                                clearInterval(timer);
+                                btn.disabled = false;
+                                btn.innerText = originalText;
+                                isCooldown = false;
+                            }
+                        }, 1000);
                     } else {
                         throw new Error(data.error || '발송 실패');
                     }
                 })
                 .catch((error) => {
                     console.error('Backend Auth Error:', error);
+                    hideAuthOverlay();
                     showErrorModal('이메일 발송 오류: ' + error.message);
                 });
+            };
+
+            // Auth Overlay Button Listeners
+            document.getElementById('btn-auth-next').onclick = () => {
+                showAuthOverlay('polling');
+                startLoginPolling(currentDeviceId);
+            };
+            document.getElementById('btn-auth-cancel').onclick = () => {
+                if (pollInterval) clearInterval(pollInterval);
+                hideAuthOverlay();
+            };
+            document.getElementById('btn-auth-close').onclick = () => {
+                hideAuthOverlay();
             };
 
             const emailLinkBtn = document.getElementById('btn-send-link');
