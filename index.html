@@ -1972,50 +1972,63 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             <div class="setup-shell">
                 <div class="setup-header">
                     <div class="setup-logo-wrap"><img src="https://joongdong.sen.ms.kr/dggb/module/file/selectImageView.do?atchFileId=1555655&fileSn=0" alt="Logo" class="setup-logo"></div>
-                    <h1>반가워요!</h1>
-                    <p>내 정보를 입력하면 오늘 일정과 급식이 바로 준비돼요.</p>
-                    <div class="setup-note">입력 후에도 설정에서 자유롭게 수정할 수 있어요.</div>
+                    <h1 id="setup-title">반가워요!</h1>
+                    <p id="setup-desc">학교 이메일로 인증 후 정보를 설정해주세요.</p>
                 </div>
+                
                 <div class="form-container">
-                    <div id="email-auth-section">
+                    <!-- Step 1: Login -->
+                    <div id="setup-step-login">
                         <div class="input-group">
-                            <label>학교 이메일</label>
+                            <label>학교 이메일 인증</label>
                             <input type="email" id="setup-email" placeholder="25m10135@joongdong.ms.kr">
                         </div>
-                        <button type="button" id="btn-send-link" class="btn-primary" style="margin-bottom: 24px;">
-                            <span>로그인 링크 이메일로 받기</span>
+                        <button type="button" id="btn-send-link" class="btn-primary" style="margin-bottom: 16px;">
+                            <span>인증 링크 받기</span>
                         </button>
+                        <div class="setup-note" style="background: rgba(255, 152, 0, 0.08); color: #e67e22; border: 1px solid rgba(230, 126, 34, 0.2); margin-top: 10px; text-align: left;">
+                            <div style="font-weight: 700; margin-bottom: 4px;">📩 메일이 오지 않나요?</div>
+                            <div style="font-size: 12px; line-height: 1.6; opacity: 0.9;">
+                                • <b>스팸 메일함</b>을 반드시 확인해주세요.<br>
+                                • 발신자: <code style="background: rgba(0,0,0,0.05); padding: 2px 4px; border-radius: 4px; font-family: monospace;">noreply@myjdms-app.firebaseapp.com</code><br>
+                                • 학교 서버 특성상 발송이 1~2분 정도 늦어질 수 있습니다.
+                            </div>
+                        </div>
                     </div>
-                    <div class="setup-divider">정보 직접 입력</div>
-                    <div class="input-group">
-                        <label>이름</label>
-                        <input type="text" id="setup-name" placeholder="예: 홍길동">
+
+                    <!-- Step 2: Info (Hidden by default) -->
+                    <div id="setup-step-info" class="hidden">
+                        <div class="setup-note" id="welcome-msg-logged-in" style="margin-bottom: 24px;">인증이 완료되었습니다! 학교 정보를 설정해 주세요.</div>
+                        <div class="input-group">
+                            <label>이름 (자동 설정됨)</label>
+                            <input type="text" id="setup-name" readonly style="background: #f1f5f9; color: #94a3b8;">
+                        </div>
+                        <div class="input-group">
+                            <label>학년</label>
+                            <button type="button" id="setup-grade-trigger" class="select-trigger placeholder" onclick="window.openPicker('setup','grade')">
+                                <span id="setup-grade-display">학년 선택</span>
+                                <i data-lucide="chevrons-up-down" style="width:18px; height:18px; color:#94a3b8;"></i>
+                            </button>
+                            <input type="hidden" id="setup-grade">
+                        </div>
+                        <div class="input-group">
+                            <label>반</label>
+                            <button type="button" id="setup-class-trigger" class="select-trigger placeholder" onclick="window.openPicker('setup','class')">
+                                <span id="setup-class-display">반 선택</span>
+                                <i data-lucide="chevrons-up-down" style="width:18px; height:18px; color:#94a3b8;"></i>
+                            </button>
+                            <input type="hidden" id="setup-class">
+                        </div>
+                        <div class="input-group">
+                            <label>번호</label>
+                            <button type="button" id="setup-number-trigger" class="select-trigger placeholder" onclick="window.openPicker('setup','number')">
+                                <span id="setup-number-display">번호 선택</span>
+                                <i data-lucide="chevrons-up-down" style="width:18px; height:18px; color:#94a3b8;"></i>
+                            </button>
+                            <input type="hidden" id="setup-number">
+                        </div>
+                        <button type="button" id="btn-save" class="btn-primary" style="margin-top: 12px;">내 학교 시작하기</button>
                     </div>
-                    <div class="input-group">
-                        <label>학년</label>
-                        <button type="button" id="setup-grade-trigger" class="select-trigger placeholder" onclick="window.openPicker('setup','grade')">
-                            <span id="setup-grade-display">학년 선택</span>
-                            <i data-lucide="chevrons-up-down" style="width:18px; height:18px; color:#94a3b8;"></i>
-                        </button>
-                        <input type="hidden" id="setup-grade">
-                    </div>
-                    <div class="input-group">
-                        <label>반</label>
-                        <button type="button" id="setup-class-trigger" class="select-trigger placeholder" onclick="window.openPicker('setup','class')">
-                            <span id="setup-class-display">반 선택</span>
-                            <i data-lucide="chevrons-up-down" style="width:18px; height:18px; color:#94a3b8;"></i>
-                        </button>
-                        <input type="hidden" id="setup-class">
-                    </div>
-                    <div class="input-group">
-                        <label>번호</label>
-                        <button type="button" id="setup-number-trigger" class="select-trigger placeholder" onclick="window.openPicker('setup','number')">
-                            <span id="setup-number-display">번호 선택</span>
-                            <i data-lucide="chevrons-up-down" style="width:18px; height:18px; color:#94a3b8;"></i>
-                        </button>
-                        <input type="hidden" id="setup-number">
-                    </div>
-                    <button id="btn-save" class="btn-primary">내 학교 시작하기</button>
                 </div>
             </div>
         </div>
@@ -2572,79 +2585,48 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 const splashScreen = document.getElementById('splash-screen');
                 if (splashScreen) splashScreen.classList.add('hidden');
                 
-                // Check Firebase Auth state first
-                if (typeof auth !== 'undefined') {
-                    auth.onAuthStateChanged((user) => {
-                        if (user) {
-                            // User is signed in, merge with local userData
-                            const existingData = JSON.parse(localStorage.getItem('userData') || '{}');
-                            userData = {
-                                ...existingData,
-                                name: existingData.name || user.displayName,
-                                displayName: user.displayName,
-                                email: user.email,
-                                photoURL: user.photoURL,
-                                uid: user.uid
-                            };
-                            localStorage.setItem('userData', JSON.stringify(userData));
-                            
-                            // If they have full info, start app
-                            if (userData.grade && userData.class) {
-                                setupScreen.classList.add('hidden');
-                                startApp();
-                                showPreloadedBanner();
-                            } else {
-                                // Still need school info
-                                setupScreen.classList.remove('hidden');
-                                document.getElementById('setup-name').value = userData.name || '';
-                            }
+                auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        const existingData = JSON.parse(localStorage.getItem('userData') || '{}');
+                        userData = {
+                            ...existingData,
+                            name: existingData.name || user.displayName || user.email.split('@')[0],
+                            email: user.email,
+                            uid: user.uid
+                        };
+                        localStorage.setItem('userData', JSON.stringify(userData));
+                        
+                        if (!userData.grade || !userData.class || !userData.number) {
+                            // Needs info
+                            setupScreen.classList.remove('hidden');
+                            document.getElementById('setup-step-login').classList.add('hidden');
+                            document.getElementById('setup-step-info').classList.remove('hidden');
+                            document.getElementById('setup-name').value = userData.name;
+                            document.getElementById('setup-title').innerText = '거의 다 됐어요!';
+                            document.getElementById('setup-desc').innerText = '마지막으로 학교 정보를 입력해 주세요.';
                         } else {
-                            // Not signed in to Firebase
-                            if (!userData || (!userData.grade && !userData.class)) {
-                                setupScreen.classList.remove('hidden');
-                            } else {
-                                startApp();
-                                showPreloadedBanner();
-                            }
+                            // Ready
+                            setupScreen.classList.add('hidden');
+                            startApp();
+                            showPreloadedBanner();
                         }
-                    });
-                } else {
-                    // Fallback if Firebase fails
-                    if (!userData) {
-                        setupScreen.classList.remove('hidden');
                     } else {
-                        startApp();
-                        showPreloadedBanner();
+                        // Not logged in
+                        setupScreen.classList.remove('hidden');
+                        document.getElementById('setup-step-login').classList.remove('hidden');
+                        document.getElementById('setup-step-info').classList.add('hidden');
                     }
-                }
+                });
             }
 
-            // Google Login Handler
-            window.handleGoogleLogin = function() {
-                if (typeof auth === 'undefined') return;
-                auth.signInWithPopup(googleProvider).then((result) => {
-                    const user = result.user;
-                    const existingData = JSON.parse(localStorage.getItem('userData') || '{}');
-                    userData = {
-                        ...existingData,
-                        name: existingData.name || user.displayName,
-                        displayName: user.displayName,
-                        email: user.email,
-                        photoURL: user.photoURL,
-                        uid: user.uid
-                    };
-                    localStorage.setItem('userData', JSON.stringify(userData));
-                    
-                    document.getElementById('setup-name').value = userData.name;
-                    const googleBtn = document.getElementById('btn-google-login');
-                    if (googleBtn) {
-                        googleBtn.style.borderColor = 'var(--primary)';
-                        googleBtn.querySelector('span').innerText = 'Google 연결됨';
-                    }
-                }).catch((error) => {
-                    console.error('Google Login Error:', error);
-                    showErrorModal('구글 로그인에 실패했습니다. 개인 계정인지 확인하거나 이메일 링크 로그인을 사용해주세요.');
-                });
+            // Listen for login from login.html
+            const authBc = new BroadcastChannel('myjdms_auth');
+            authBc.onmessage = (ev) => {
+                if (ev.data.type === 'LOGIN_SUCCESS') {
+                    // Update user data and refresh state
+                    userData = ev.data.userData;
+                    runSplashSequence();
+                }
             };
 
             // Email Link Sign-In Handler
@@ -2655,11 +2637,11 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     return;
                 }
                 
-                // Ensure the continue URL is authorized in Firebase Console
-                let continueUrl = window.location.origin + window.location.pathname;
+                // Redirect to login.html to complete sign-in
+                let continueUrl = window.location.origin + window.location.pathname.replace('index.html', '') + 'login.html';
                 if (window.location.protocol === 'file:') {
-                    continueUrl = 'https://jaewondev27.github.io/myjdmsappmainpagecontrol/index.html';
-                    alert('로컬 파일(file://) 환경에서는 이메일 로그인이 제한될 수 있습니다. 작동하지 않을 경우 웹 서버(Live Server 등)를 사용하거나 호스팅된 페이지에서 시도해주세요.');
+                    alert('로컬 파일 환경에서는 인증이 제한됩니다. 웹 서버를 사용해 주세요.');
+                    return;
                 }
 
                 const actionCodeSettings = {
@@ -2669,75 +2651,15 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 auth.sendSignInLinkToEmail(email, actionCodeSettings)
                     .then(() => {
                         window.localStorage.setItem('emailForSignIn', email);
-                        alert('로그인 링크가 이메일로 전송되었습니다! 이메일 함을 확인해주세요.');
+                        alert('인증 링크가 이메일로 전송되었습니다! 메일함을 확인해 주세요.');
                         const btn = document.getElementById('btn-send-link');
-                        if (btn) btn.innerText = '이메일 확인 중...';
+                        if (btn) btn.innerText = '인증 메일 확인 대기 중...';
                     })
                     .catch((error) => {
                         console.error('Email Link Error:', error);
-                        if (error.code === 'auth/invalid-continue-uri') {
-                            showErrorModal('이메일 발송 오류: 현재 접속 주소가 Firebase에 승인되지 않았습니다. (GitHub Pages나 localhost를 사용해주세요)');
-                        } else {
-                            showErrorModal('이메일 발송 중 오류가 발생했습니다: ' + error.message);
-                        }
+                        showErrorModal('이메일 발송 오류: ' + error.message);
                     });
             };
-
-            // Confirm Email Link Sign-In on Page Load
-            let isProcessingEmailLink = false;
-            function checkEmailLinkSignIn() {
-                if (isProcessingEmailLink) return;
-                if (auth.isSignInWithEmailLink(window.location.href)) {
-                    isProcessingEmailLink = true;
-                    let email = window.localStorage.getItem('emailForSignIn');
-                    if (!email) {
-                        email = window.prompt('로그인을 완료하기 위해 이메일 주소를 다시 한번 입력해주세요.');
-                    }
-                    if (email) {
-                        const btn = document.getElementById('btn-send-link');
-                        if (btn) btn.innerText = '로그인 처리 중...';
-                        
-                        auth.signInWithEmailLink(email, window.location.href)
-                            .then((result) => {
-                                window.localStorage.removeItem('emailForSignIn');
-                                const user = result.user;
-                                const existingData = JSON.parse(localStorage.getItem('userData') || '{}');
-                                userData = {
-                                    ...existingData,
-                                    name: existingData.name || user.displayName || email.split('@')[0],
-                                    displayName: user.displayName || email.split('@')[0],
-                                    email: user.email,
-                                    photoURL: user.photoURL,
-                                    uid: user.uid
-                                };
-                                localStorage.setItem('userData', JSON.stringify(userData));
-                                
-                                // Clean the URL
-                                if (window.history && window.history.replaceState) {
-                                    window.history.replaceState({}, document.title, window.location.pathname);
-                                }
-                                
-                                alert('로그인이 완료되었습니다!');
-                                window.location.reload(); // Refresh to clean state and start app
-                            })
-                            .catch((error) => {
-                                isProcessingEmailLink = false;
-                                console.error('Sign in with link error:', error);
-                                if (error.code === 'auth/invalid-action-code') {
-                                    // Already used or expired, just clean URL
-                                    if (window.history && window.history.replaceState) {
-                                        window.history.replaceState({}, document.title, window.location.pathname);
-                                    }
-                                } else {
-                                    showErrorModal('로그인 링크 확인에 실패했습니다: ' + error.message);
-                                }
-                            });
-                    } else {
-                        isProcessingEmailLink = false;
-                    }
-                }
-            }
-            checkEmailLinkSignIn();
 
             const emailLinkBtn = document.getElementById('btn-send-link');
             if (emailLinkBtn) emailLinkBtn.addEventListener('click', window.handleEmailLinkSignIn);
@@ -3200,11 +3122,18 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 const grade = document.getElementById('setup-grade').value;
                 const cls = document.getElementById('setup-class').value;
                 const num = document.getElementById('setup-number').value;
-                if (name && grade && cls && num) {
-                    userData = { name, grade: parseInt(grade), class: parseInt(cls), number: parseInt(num) };
+                if (grade && cls && num) {
+                    const existingData = JSON.parse(localStorage.getItem('userData') || '{}');
+                    userData = { 
+                        ...existingData, 
+                        name: name || existingData.name, 
+                        grade: parseInt(grade), 
+                        class: parseInt(cls), 
+                        number: parseInt(num) 
+                    };
                     localStorage.setItem('userData', JSON.stringify(userData));
                     transitionFromSetupToApp();
-                } else { showErrorModal('이름, 학년, 반, 번호를 모두 선택해주세요.'); }
+                } else { showErrorModal('학년, 반, 번호를 모두 선택해주세요.'); }
             });
 
             navItems.forEach(item => item.addEventListener('click', () => switchPage(item.getAttribute('data-page'))));
@@ -3240,22 +3169,17 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             }
 
             function updateHeader() {
-                if (userData.displayName) {
-                    document.getElementById('welcome-text').innerHTML = `<span class="welcome-inline">${userData.displayName}님,</span><br>반가워요!`;
-                } else {
-                    document.getElementById('welcome-text').innerHTML = `<span class="welcome-inline">${userData.grade}학년 ${userData.class}반 ${userData.number}번,</span><br>반가워요!`;
-                }
+                const displayName = userData.name || userData.displayName || '사용자';
+                document.getElementById('welcome-text').innerHTML = `<span class="welcome-inline">${displayName}님,</span><br>반가워요!`;
                 
                 document.getElementById('today-date').innerText = new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' });
                 
                 if (document.getElementById('profile-name-display')) {
-                    document.getElementById('profile-name-display').innerText = userData.displayName || userData.name;
+                    document.getElementById('profile-name-display').innerText = displayName;
                     
-                    if (userData.email) {
-                        document.getElementById('profile-details-display').innerText = userData.email;
-                    } else {
-                        document.getElementById('profile-details-display').innerText = `${userData.grade}학년 ${userData.class}반 ${userData.number}번`;
-                    }
+                    const schoolInfo = `${userData.grade}학년 ${userData.class}반 ${userData.number}번`;
+                    const emailInfo = userData.email ? ` (${userData.email})` : '';
+                    document.getElementById('profile-details-display').innerText = schoolInfo + emailInfo;
                     
                     if (userData.photoURL) {
                         const pImg = document.querySelector('.profile-img');
