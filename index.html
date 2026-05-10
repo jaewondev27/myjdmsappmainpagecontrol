@@ -405,7 +405,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: calc(var(--sat) + 28px) 24px calc(28px + var(--sab-chrome));
+            padding: calc(var(--sat) + 80px) 24px calc(80px + var(--sab-chrome));
             background:
                 radial-gradient(circle at 12% 0%, rgba(49, 130, 246, 0.14), transparent 42%),
                 radial-gradient(circle at 88% 15%, rgba(80, 164, 255, 0.12), transparent 44%),
@@ -413,7 +413,8 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             position: fixed;
             inset: 0;
             z-index: 1100;
-            overflow: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         #setup-screen.entering-app {
@@ -429,7 +430,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         .setup-shell {
             width: 100%;
             max-width: 520px;
-            margin: 0 auto;
+            margin: 40px auto;
             border-radius: 0;
             background: transparent;
             border: none;
@@ -1985,16 +1986,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                             <span>로그인 링크 이메일로 받기</span>
                         </button>
                     </div>
-                    <div class="setup-divider">또는 Google로 계속하기</div>
-                    <button type="button" id="btn-google-login" class="btn-google">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-1 .67-2.28 1.07-3.71 1.07-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                        </svg>
-                        <span>개인 계정(Gmail)으로 로그인</span>
-                    </button>
                     <div class="setup-divider">정보 직접 입력</div>
                     <div class="input-group">
                         <label>이름</label>
@@ -2307,7 +2298,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         if (typeof firebase !== 'undefined') {
             firebase.initializeApp(firebaseConfig);
             var auth = firebase.auth();
-            var googleProvider = new firebase.auth.GoogleAuthProvider();
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -2664,8 +2654,16 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     showErrorModal('이메일 주소를 입력해주세요.');
                     return;
                 }
+                
+                // Ensure the continue URL is authorized in Firebase Console
+                let continueUrl = window.location.origin + window.location.pathname;
+                if (window.location.protocol === 'file:') {
+                    continueUrl = 'https://jaewondev27.github.io/myjdmsappmainpagecontrol/index.html';
+                    alert('로컬 파일(file://) 환경에서는 이메일 로그인이 제한될 수 있습니다. 작동하지 않을 경우 웹 서버(Live Server 등)를 사용하거나 호스팅된 페이지에서 시도해주세요.');
+                }
+
                 const actionCodeSettings = {
-                    url: window.location.href, // This URL should be authorized in Firebase
+                    url: continueUrl,
                     handleCodeInApp: true
                 };
                 auth.sendSignInLinkToEmail(email, actionCodeSettings)
@@ -2677,18 +2675,28 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     })
                     .catch((error) => {
                         console.error('Email Link Error:', error);
-                        showErrorModal('이메일 발송 중 오류가 발생했습니다: ' + error.message);
+                        if (error.code === 'auth/invalid-continue-uri') {
+                            showErrorModal('이메일 발송 오류: 현재 접속 주소가 Firebase에 승인되지 않았습니다. (GitHub Pages나 localhost를 사용해주세요)');
+                        } else {
+                            showErrorModal('이메일 발송 중 오류가 발생했습니다: ' + error.message);
+                        }
                     });
             };
 
             // Confirm Email Link Sign-In on Page Load
+            let isProcessingEmailLink = false;
             function checkEmailLinkSignIn() {
+                if (isProcessingEmailLink) return;
                 if (auth.isSignInWithEmailLink(window.location.href)) {
+                    isProcessingEmailLink = true;
                     let email = window.localStorage.getItem('emailForSignIn');
                     if (!email) {
                         email = window.prompt('로그인을 완료하기 위해 이메일 주소를 다시 한번 입력해주세요.');
                     }
                     if (email) {
+                        const btn = document.getElementById('btn-send-link');
+                        if (btn) btn.innerText = '로그인 처리 중...';
+                        
                         auth.signInWithEmailLink(email, window.location.href)
                             .then((result) => {
                                 window.localStorage.removeItem('emailForSignIn');
@@ -2709,20 +2717,28 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                                     window.history.replaceState({}, document.title, window.location.pathname);
                                 }
                                 
-                                runSplashSequence(); // Re-run to handle logged in state
+                                alert('로그인이 완료되었습니다!');
+                                window.location.reload(); // Refresh to clean state and start app
                             })
                             .catch((error) => {
+                                isProcessingEmailLink = false;
                                 console.error('Sign in with link error:', error);
-                                showErrorModal('로그인 링크 확인에 실패했습니다.');
+                                if (error.code === 'auth/invalid-action-code') {
+                                    // Already used or expired, just clean URL
+                                    if (window.history && window.history.replaceState) {
+                                        window.history.replaceState({}, document.title, window.location.pathname);
+                                    }
+                                } else {
+                                    showErrorModal('로그인 링크 확인에 실패했습니다: ' + error.message);
+                                }
                             });
+                    } else {
+                        isProcessingEmailLink = false;
                     }
                 }
             }
             checkEmailLinkSignIn();
 
-            const googleLoginBtn = document.getElementById('btn-google-login');
-            if (googleLoginBtn) googleLoginBtn.addEventListener('click', window.handleGoogleLogin);
-            
             const emailLinkBtn = document.getElementById('btn-send-link');
             if (emailLinkBtn) emailLinkBtn.addEventListener('click', window.handleEmailLinkSignIn);
 
