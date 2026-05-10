@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
     <title>AI · My JDMS</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
     <script>
         (function () {
             'use strict';
@@ -367,6 +369,70 @@
         .msg-bot-body-pre {
             white-space: pre-wrap;
             word-break: break-word;
+        }
+        .msg-bot-body pre {
+            margin: 8px 0;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.06);
+            overflow-x: auto;
+            font-size: 13px;
+            line-height: 1.45;
+        }
+        body.dark-mode .msg-bot-body pre {
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .msg-bot-body code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 0.92em;
+        }
+        .msg-bot-body a {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+        .msg-bot-body ul {
+            margin: 6px 0 6px 18px;
+            padding: 0;
+        }
+        .msg-bot-body li {
+            margin: 2px 0;
+        }
+        .msg-bot-body .md-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            margin: 8px 0;
+            -webkit-overflow-scrolling: touch;
+        }
+        .msg-bot-body table {
+            width: max-content;
+            min-width: 100%;
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
+            border-collapse: separate;
+            border-spacing: 0;
+            overflow: hidden;
+            background: var(--surface);
+        }
+        .msg-bot-body th,
+        .msg-bot-body td {
+            padding: 8px 10px;
+            border-right: 1px solid var(--border-soft);
+            border-bottom: 1px solid var(--border-soft);
+            text-align: left;
+            vertical-align: top;
+            white-space: nowrap;
+        }
+        .msg-bot-body th {
+            font-weight: 700;
+            background: var(--announce-bg);
+        }
+        .msg-bot-body tr th:last-child,
+        .msg-bot-body tr td:last-child {
+            border-right: none;
+        }
+        .msg-bot-body tr:last-child td {
+            border-bottom: none;
         }
 
         .msg-bot-body.ai-type-caret::after {
@@ -753,7 +819,9 @@
 
             function saveChatStorage() {
                 try {
-                    var slice = chatMessages.length > MAX_CHAT_MESSAGES ? chatMessages.slice(-MAX_CHAT_MESSAGES) : chatMessages;
+                    var todayKey = dayKey(Date.now());
+                    var todayOnly = chatMessages.filter(function (m) { return messageDayKey(m) === todayKey; });
+                    var slice = todayOnly.length > MAX_CHAT_MESSAGES ? todayOnly.slice(-MAX_CHAT_MESSAGES) : todayOnly;
                     chatMessages = slice;
                     localStorage.setItem(STORAGE_KEY, JSON.stringify({ v: 1, messages: slice }));
                 } catch (e) {}
@@ -770,7 +838,8 @@
                         var m = data.messages[i];
                         if (!m || (m.role !== 'user' && m.role !== 'assistant') || typeof m.content !== 'string') continue;
                         var atVal = (typeof m.at === 'number' && isFinite(m.at)) ? m.at : Date.now();
-                        next.push(makeStoredMessage(m.role, m.content, atVal));
+                        var normalized = makeStoredMessage(m.role, m.content, atVal);
+                        if (messageDayKey(normalized) === dayKey(Date.now())) next.push(normalized);
                     }
                     chatMessages = next.length > MAX_CHAT_MESSAGES ? next.slice(-MAX_CHAT_MESSAGES) : next;
                     return true;
@@ -828,16 +897,24 @@
             }
 
             function renderAiMarkdown(raw) {
-                var text = (raw == null) ? '' : String(raw);
-                var esc = escapeHtml(text);
-                esc = esc.replace(/```([\s\S]*?)```/g, function (_, code) {
-                    return '<pre><code>' + code.replace(/\n/g, '<br>') + '</code></pre>';
-                });
-                esc = esc.replace(/`([^`\n]+)`/g, '<code>$1</code>');
-                esc = esc.replace(/\*\*([^\n*]+)\*\*/g, '<strong>$1</strong>');
-                esc = esc.replace(/\*([^\n*]+)\*/g, '<em>$1</em>');
-                esc = esc.replace(/\[([^\]\n]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-                esc = esc.replace(/\n/g, '<br>');
+                var text = (raw == null) ? '' : String(raw).replace(/\r\n/g, '\n');
+                try {
+                    if (window.marked && typeof window.marked.parse === 'function') {
+                        window.marked.setOptions({
+                            gfm: true,
+                            breaks: true
+                        });
+                        var html = window.marked.parse(text);
+                        // 표는 파싱 후 래핑해서 버전별 renderer 차이 이슈를 피함
+                        html = html.replace(/<table>/g, '<div class="md-table-wrap"><table>');
+                        html = html.replace(/<\/table>/g, '</table></div>');
+                        if (window.DOMPurify && typeof window.DOMPurify.sanitize === 'function') {
+                            return window.DOMPurify.sanitize(html, { USE_PROFILES: { html: true } });
+                        }
+                        return html;
+                    }
+                } catch (e) {}
+                var esc = escapeHtml(text).replace(/\n/g, '<br>');
                 return esc;
             }
 
@@ -1031,6 +1108,15 @@
                     system_prompt: SYSTEM_PROMPT,
                     messages: aiHistory,
                     model: 'groq/compound-mini',
+                    chat_session_id: (function () {
+                        var k = 'jdms_ai_chat_session_id_v1';
+                        var v = localStorage.getItem(k);
+                        if (!v) {
+                            v = 's_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+                            localStorage.setItem(k, v);
+                        }
+                        return v;
+                    })(),
                     school: (localStorage.getItem('school_name') || '중동중학교'),
                     grade: (function () { try { return JSON.parse(localStorage.getItem('userData') || '{}').grade || 2; } catch (e) { return 2; } })(),
                     class: (function () { try { return JSON.parse(localStorage.getItem('userData') || '{}').class || 8; } catch (e) { return 8; } })()
