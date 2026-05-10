@@ -455,9 +455,10 @@
         }
         .msg-bot-body table {
             width: 100%;
-            border: none;
+            border: 1px solid var(--border-soft);
             border-radius: 10px;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
             overflow: hidden;
             background: var(--surface);
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -465,7 +466,7 @@
         .msg-bot-body th,
         .msg-bot-body td {
             padding: 10px 12px;
-            border: none;
+            border-right: 1px solid var(--border-soft);
             border-bottom: 1px solid var(--border-soft);
             text-align: left;
             vertical-align: middle;
@@ -475,15 +476,36 @@
         }
         .msg-bot-body th {
             font-weight: 700;
-            background: linear-gradient(135deg, #3182f6, #2c5aa0);
-            color: white;
-            border-bottom: 2px solid #2c5aa0;
+            background: var(--announce-bg);
+            color: var(--text-main);
+        }
+        .msg-bot-body tr th:last-child,
+        .msg-bot-body tr td:last-child {
+            border-right: none;
         }
         .msg-bot-body tr:last-child td {
             border-bottom: none;
         }
         .msg-bot-body tr:hover {
             background: rgba(49, 130, 246, 0.05);
+        }
+
+        /* 다크모드 테이블 스타일 */
+        body.dark-mode .msg-bot-body table {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        body.dark-mode .msg-bot-body th,
+        body.dark-mode .msg-bot-body td {
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        body.dark-mode .msg-bot-body th {
+            background: rgba(255, 255, 255, 0.08);
+            color: #e5e7eb;
+        }
+        body.dark-mode .msg-bot-body tr:hover {
+            background: rgba(49, 130, 246, 0.15);
         }
 
         .msg-bot-body.ai-type-caret::after {
@@ -1194,7 +1216,28 @@
                 }
             }
 
+            async function fetchScheduleData() {
+                try {
+                    var res = await fetch(BACKEND_URL + '/api/school/schedule');
+                    if (res.ok) {
+                        return await res.json();
+                    }
+                } catch (e) {
+                    console.error('일정 조회 실패:', e);
+                }
+                return null;
+            }
+
             async function fetchBackendReply() {
+                // 마지막 사용자 메시지 확인
+                var lastUserMsg = '';
+                for (var i = aiHistory.length - 1; i >= 0; i--) {
+                    if (aiHistory[i].role === 'user') {
+                        lastUserMsg = aiHistory[i].content.toLowerCase();
+                        break;
+                    }
+                }
+                
                 var payload = {
                     system_prompt: SYSTEM_PROMPT,
                     messages: aiHistory,
@@ -1212,6 +1255,35 @@
                     grade: (function () { try { return JSON.parse(localStorage.getItem('userData') || '{}').grade || 2; } catch (e) { return 2; } })(),
                     class: (function () { try { return JSON.parse(localStorage.getItem('userData') || '{}').class || 8; } catch (e) { return 8; } })()
                 };
+                
+                // 일정 관련 키워드 확인
+                var scheduleKeywords = ['일정', '행사', '공지', '다음', '언제', '이벤트'];
+                var hasScheduleKeyword = scheduleKeywords.some(function(kw) { return lastUserMsg.includes(kw); });
+                
+                // 일정 조회 필요 시 미리 가져오기
+                if (hasScheduleKeyword) {
+                    var scheduleData = await fetchScheduleData();
+                    if (scheduleData && scheduleData.status === 'success') {
+                        var scheduleContext = '\n\n【현재 학교 일정 데이터】\n';
+                        scheduleContext += '오늘: ' + scheduleData.today + '\n';
+                        
+                        if (scheduleData.today_schedule && scheduleData.today_schedule.length > 0) {
+                            scheduleContext += '오늘 일정: ' + scheduleData.today_schedule.map(function(s) { return s.event; }).join(', ') + '\n';
+                        }
+                        
+                        if (scheduleData.before_schedule && scheduleData.before_schedule.length > 0) {
+                            scheduleContext += '지난 일정: ' + scheduleData.before_schedule.slice(-5).map(function(s) { return s.date + ' ' + s.event; }).join(' / ') + '\n';
+                        }
+                        
+                        if (scheduleData.after_schedule && scheduleData.after_schedule.length > 0) {
+                            scheduleContext += '예정된 일정: ' + scheduleData.after_schedule.slice(0, 5).map(function(s) { return s.date + ' ' + s.event; }).join(' / ') + '\n';
+                        }
+                        
+                        // 마지막 메시지에 일정 정보 추가
+                        payload.messages[payload.messages.length - 1].content += scheduleContext;
+                    }
+                }
+                
                 var res = await fetch(BACKEND_AI_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
