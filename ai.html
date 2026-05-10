@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#ffffff">
+    <title>AI · My JDMS</title>
+    <script>
+        (function () {
+            'use strict';
+            function __jdmsApplySafeInsetCssVars() {
+                try {
+                    var CAP_TOP = 38;
+                    var CAP_BOT = 80;
+                    var probe = document.createElement('div');
+                    probe.setAttribute('aria-hidden', 'true');
+                    probe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;visibility:hidden;overflow:hidden;z-index:0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0);padding-left:0;padding-right:0;';
+                    document.documentElement.appendChild(probe);
+                    var cs = getComputedStyle(probe);
+                    var topEnv = parseFloat(cs.paddingTop) || 0;
+                    var bottomEnv = parseFloat(cs.paddingBottom) || 0;
+                    probe.remove();
+
+                    var nativeT = NaN;
+                    var nativeB = NaN;
+                    try {
+                        if (typeof AndroidInterface !== 'undefined' && AndroidInterface.getInsetTopPx) {
+                            nativeT = +AndroidInterface.getInsetTopPx();
+                            nativeB = +AndroidInterface.getInsetBottomPx();
+                        }
+                    } catch (e1) {}
+
+                    var top = 0;
+                    if (!isNaN(nativeT) && nativeT > 0.5) top = Math.max(top, nativeT);
+                    if (topEnv > 0.5) top = Math.max(top, topEnv);
+                    top = Math.round(top * 0.68);
+                    top = Math.min(Math.max(0, top), CAP_TOP);
+
+                    var bottom = 0;
+                    if (!isNaN(nativeB) && nativeB > 0.5) bottom = Math.max(bottom, nativeB);
+                    if (bottomEnv > 0.5) bottom = Math.max(bottom, bottomEnv);
+                    var vv = window.visualViewport;
+                    if (vv && vv.scale <= 1.02) {
+                        var vvBot = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+                        if (vvBot > bottom + 24 && vvBot < 420) bottom = vvBot;
+                    }
+                    bottom = Math.min(Math.max(0, bottom), CAP_BOT);
+
+                    var rs = document.documentElement.style;
+                    function setInsetVar(name, px) {
+                        if (px > 0.5) rs.setProperty(name, px + 'px');
+                        else rs.removeProperty(name);
+                    }
+                    setInsetVar('--sat', top);
+                    setInsetVar('--sab', bottom);
+                } catch (e) {}
+            }
+            function __jdmsKickSafeInsets() {
+                __jdmsApplySafeInsetCssVars();
+                if (typeof requestAnimationFrame === 'function') {
+                    requestAnimationFrame(function () { __jdmsApplySafeInsetCssVars(); });
+                }
+            }
+            window.__jdmsApplySafeInsetCssVars = __jdmsApplySafeInsetCssVars;
+            window.__jdmsKickSafeInsets = __jdmsKickSafeInsets;
+            __jdmsKickSafeInsets();
+            [0, 160, 600, 1800].forEach(function (ms) { setTimeout(__jdmsApplySafeInsetCssVars, ms); });
+            window.addEventListener('load', __jdmsKickSafeInsets);
+            window.addEventListener('pageshow', __jdmsKickSafeInsets);
+            document.addEventListener('visibilitychange', function () { if (!document.hidden) __jdmsKickSafeInsets(); });
+            window.addEventListener('focus', __jdmsKickSafeInsets);
+        })();
+    </script>
+    <style>
+        :root {
+            --sat: env(safe-area-inset-top, 0px);
+            --sab: env(safe-area-inset-bottom, 0px);
+            --primary: #3182f6;
+            --surface: #ffffff;
+            --announce-bg: #f0f2f5;
+            --composer-bg: #f0f2f5;
+            --text-main: #191f28;
+            --text-sub: #4e5968;
+            --text-mute: #8b95a1;
+            --meta-text: #aeb4bd;
+            --border-soft: #e8eaed;
+            --icon-gray: #9ca3af;
+        }
+
+        body.dark-mode {
+            --surface: #141414;
+            --announce-bg: #252525;
+            --composer-bg: #252525;
+            --text-main: #f3f3f3;
+            --text-sub: #c2c2c2;
+            --text-mute: #9a9a9a;
+            --meta-text: #8b92a0;
+            --border-soft: #353535;
+            --icon-gray: #9ca3af;
+        }
+
+        ::-webkit-scrollbar {
+            display: none !important;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
+        }
+
+        html, body {
+            margin: 0;
+            height: 100%;
+            height: 100dvh;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans KR", sans-serif;
+            background: var(--surface);
+            color: var(--text-main);
+            overflow: hidden;
+        }
+
+        #top-status-bar-vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--sat);
+            z-index: 10;
+            pointer-events: none;
+            background: linear-gradient(180deg, var(--surface) 0%, var(--surface) 52%, transparent 100%);
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: var(--sab);
+            background: var(--surface);
+            z-index: 9;
+            pointer-events: none;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .ai-app {
+            height: 100%;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+            padding-left: 16px;
+            padding-right: 16px;
+            padding-top: calc(var(--sat) + 14px);
+        }
+
+        /* 공지 배너 */
+        .announce-bar {
+            width: 100%;
+            border: 1px solid var(--border-soft);
+            background: var(--announce-bg);
+            border-radius: 20px;
+            padding: 13px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            text-align: left;
+            font: inherit;
+            color: inherit;
+            margin: 0 0 18px;
+            -webkit-appearance: none;
+            appearance: none;
+            transition: background 0.15s ease;
+        }
+
+        .announce-bar:active {
+            opacity: 0.92;
+        }
+
+        .announce-bar svg.icon-megaphone {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            color: var(--icon-gray);
+            stroke-width: 2;
+        }
+
+        .announce-text-wrap {
+            flex: 1;
+            min-width: 0;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-sub);
+            line-height: 1.45;
+            letter-spacing: -0.02em;
+        }
+
+        .announce-text-wrap.collapsed {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .announce-bar svg.icon-chevron {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            color: var(--icon-gray);
+            transition: transform 0.2s ease;
+        }
+
+        .announce-bar[aria-expanded="true"] svg.icon-chevron {
+            transform: rotate(180deg);
+        }
+
+        .announce-expanded {
+            margin: -10px 0 18px;
+            padding: 0 4px 4px;
+            font-size: 14px;
+            line-height: 1.55;
+            color: var(--text-sub);
+            word-break: keep-all;
+        }
+
+        /* 채팅 영역 */
+        .chat-scroll {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 12px;
+        }
+
+        .chat-date-divider {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 18px 0 14px;
+        }
+
+        .chat-date-divider:first-child {
+            margin-top: 2px;
+        }
+
+        .chat-date-divider span {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-mute);
+            background: var(--announce-bg);
+            padding: 6px 15px;
+            border-radius: 999px;
+            letter-spacing: -0.02em;
+            max-width: 100%;
+            text-align: center;
+            word-break: keep-all;
+        }
+
+        body.dark-mode .chat-date-divider span {
+            background: var(--announce-bg);
+            color: var(--text-mute);
+        }
+
+        .msg-bot {
+            padding-bottom: 8px;
+        }
+
+        .msg-bot-body {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-main);
+            line-height: 1.55;
+            letter-spacing: -0.02em;
+        }
+
+        .msg-bot-body p {
+            margin: 0 0 6px;
+        }
+
+        .msg-bot-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        .msg-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .meta-avatar {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #4f9dff 0%, var(--primary) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 1px 4px rgba(49, 130, 246, 0.35);
+        }
+
+        .meta-avatar svg {
+            width: 12px;
+            height: 12px;
+            color: #fff;
+        }
+
+        .meta-text {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--meta-text);
+            letter-spacing: -0.01em;
+        }
+
+        .msg-user {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 18px;
+            margin-bottom: 8px;
+        }
+
+        .msg-user-bubble {
+            max-width: 85%;
+            background: var(--announce-bg);
+            color: var(--text-main);
+            border-radius: 18px;
+            padding: 12px 16px;
+            font-size: 15px;
+            font-weight: 500;
+            line-height: 1.45;
+            word-break: break-word;
+        }
+
+        body.dark-mode .msg-user-bubble {
+            background: #2a2a2a;
+        }
+
+        .msg-bot-body-pre {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .msg-bot-body.ai-type-caret::after {
+            content: '';
+            display: inline-block;
+            width: 2px;
+            height: 1.05em;
+            margin-left: 3px;
+            vertical-align: -0.15em;
+            background: var(--primary);
+            border-radius: 1px;
+            animation: ai-caret-blink 0.88s step-end infinite;
+        }
+
+        @keyframes ai-caret-blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        .typing-row {
+            padding: 8px 0 6px;
+        }
+
+        .typing-pulse-wrap {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 18px;
+        }
+
+        .typing-pulse-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #111111;
+            transform-origin: center;
+            animation: ai-pulse 1.05s ease-in-out infinite;
+        }
+
+        body.dark-mode .typing-pulse-dot {
+            background: #ffffff;
+        }
+
+        @keyframes ai-pulse {
+            0%, 100% {
+                transform: scale(0.72);
+                opacity: 0.62;
+            }
+            50% {
+                transform: scale(1.08);
+                opacity: 1;
+            }
+        }
+
+        .composer-wrap.is-busy .composer {
+            opacity: 0.72;
+            pointer-events: none;
+        }
+
+        /* 하단 입력 */
+        .composer-wrap {
+            flex-shrink: 0;
+            padding-bottom: calc(10px + var(--sab));
+            padding-top: 6px;
+            background: var(--surface);
+        }
+
+        .composer {
+            background: var(--composer-bg);
+            border-radius: 22px;
+            border: 1px solid var(--border-soft);
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            /* 오른쪽·아래 여백 동일 (전송 버튼 기준) */
+            padding: 8px 8px 8px 12px;
+        }
+
+        .composer-field-wrap {
+            position: relative;
+            min-height: 0;
+            margin-left: 3px;
+        }
+
+        .composer-input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            resize: none;
+            font: inherit;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-main);
+            line-height: 1.4;
+            min-height: calc(15px * 1.4);
+            max-height: 96px;
+            padding: 0;
+            margin: 0;
+            outline: none;
+            user-select: text;
+            -webkit-user-select: text;
+        }
+
+        .composer-input::placeholder {
+            color: var(--text-mute);
+        }
+
+        .composer-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 0;
+            padding-top: 0;
+        }
+
+        .composer-tools-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .icon-btn {
+            width: 34px;
+            height: 34px;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            color: var(--icon-gray);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .icon-btn:active {
+            opacity: 0.65;
+        }
+
+        .icon-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke-width: 2;
+        }
+
+        .send-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary);
+            color: #fff;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 3px 10px rgba(49, 130, 246, 0.32);
+            -webkit-appearance: none;
+            appearance: none;
+            transition: transform 0.12s ease, opacity 0.12s ease;
+        }
+
+        .send-btn:active {
+            transform: scale(0.94);
+            opacity: 0.95;
+        }
+
+        .send-btn svg {
+            width: 17px;
+            height: 17px;
+            stroke-width: 2.5;
+        }
+
+        .send-btn:disabled {
+            opacity: 0.45;
+            pointer-events: none;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="top-status-bar-vignette"></div>
+    <div class="ai-app">
+        <button type="button" class="announce-bar" id="announce-toggle" aria-expanded="false" aria-controls="announce-panel">
+            <svg class="icon-megaphone" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m3 11 18-5v12L3 13v-2z" />
+                <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" />
+            </svg>
+            <span class="announce-text-wrap collapsed" id="announce-preview">중동중 학생·학부모를 위한 JDMS AI 베타입니다. 학교 일정·급식 등은 추후 연동될 수 있어요.</span>
+            <svg class="icon-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m6 9 6 6 6-6" />
+            </svg>
+        </button>
+        <div id="announce-panel" class="announce-expanded hidden" role="region">
+            중동중 학생·학부모를 위한 JDMS AI 베타입니다. 학교 일정·급식 등은 추후 연동될 수 있어요. 챗봇 응답은 참고용이며, 중요한 안내는 학교 공지를 확인해 주세요.
+        </div>
+
+        <div class="chat-scroll" id="chat-scroll" aria-live="polite">
+            <div id="chat-messages"></div>
+        </div>
+
+        <footer class="composer-wrap">
+            <div class="composer">
+                <div class="composer-field-wrap">
+                    <textarea id="composer-input" class="composer-input" rows="1" placeholder="메시지를 입력해주세요." maxlength="2000" autocomplete="off"></textarea>
+                </div>
+                <div class="composer-toolbar">
+                    <div class="composer-tools-left">
+                        <button type="button" class="icon-btn" aria-label="첨부">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.38-8.38a4 4 0 0 1 5.66 5.66l-8.38 8.38a2 2 0 0 1-2.83-2.83l7.07-7.07" />
+                            </svg>
+                        </button>
+                        <button type="button" class="icon-btn" aria-label="이모지">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                                <line x1="9" x2="9.01" y1="9" y2="9" />
+                                <line x1="15" x2="15.01" y1="9" y2="9" />
+                            </svg>
+                        </button>
+                    </div>
+                    <button type="button" class="send-btn" id="send-btn" aria-label="보내기">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <line x1="12" x2="12" y1="19" y2="5" />
+                            <polyline points="5 12 12 5 19 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        (function () {
+            var THEME_MODE_KEY = 'theme_mode';
+            var BC_KEY = 'myjdms_theme_sync_v1';
+            var themeMode = localStorage.getItem(THEME_MODE_KEY) || 'auto';
+            var darkQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+            function applyTheme(mode) {
+                var shouldDark = mode === 'dark' || (mode === 'auto' && darkQuery && darkQuery.matches);
+                document.body.classList.toggle('dark-mode', !!shouldDark);
+                var meta = document.querySelector('meta[name="theme-color"]');
+                if (meta) meta.setAttribute('content', shouldDark ? '#141414' : '#ffffff');
+            }
+
+            function setTheme(mode) {
+                if (mode !== 'light' && mode !== 'dark' && mode !== 'auto') return;
+                themeMode = mode;
+                applyTheme(mode);
+            }
+
+            try {
+                var bc = new BroadcastChannel(BC_KEY);
+                bc.onmessage = function (ev) {
+                    if (ev && ev.data && ev.data.mode) setTheme(ev.data.mode);
+                };
+            } catch (e) {}
+
+            window.addEventListener('storage', function (e) {
+                if (e.key === THEME_MODE_KEY && e.newValue) setTheme(e.newValue);
+            });
+            if (darkQuery && darkQuery.addEventListener) {
+                darkQuery.addEventListener('change', function () { applyTheme(themeMode); });
+            }
+            applyTheme(themeMode);
+
+            if (typeof window.__jdmsKickSafeInsets === 'function') window.__jdmsKickSafeInsets();
+
+            function formatMetaTimeAt(ts) {
+                try {
+                    return new Date(ts).toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit', hour12: true });
+                } catch (e2) {
+                    return '';
+                }
+            }
+
+            function dayKey(ts) {
+                try {
+                    var d = new Date(ts);
+                    return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+                } catch (e) {
+                    return '0';
+                }
+            }
+
+            function formatDateDividerLabel(ts) {
+                try {
+                    return new Date(ts).toLocaleDateString('ko-KR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        weekday: 'long'
+                    });
+                } catch (e2) {
+                    return '';
+                }
+            }
+
+            function toStorageDate(ts) {
+                try {
+                    return new Date(ts).toLocaleDateString('ko-KR', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    });
+                } catch (e) {
+                    return '';
+                }
+            }
+
+            function toStorageTime(ts) {
+                try {
+                    return new Date(ts).toLocaleTimeString('ko-KR', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                    });
+                } catch (e) {
+                    return '';
+                }
+            }
+
+            function makeStoredMessage(role, content, atTs) {
+                return {
+                    role: role,
+                    content: content,
+                    at: atTs,
+                    date: toStorageDate(atTs),
+                    time: toStorageTime(atTs),
+                    day_key: dayKey(atTs)
+                };
+            }
+
+            var announceToggle = document.getElementById('announce-toggle');
+            var announcePanel = document.getElementById('announce-panel');
+            var announcePreview = document.getElementById('announce-preview');
+            if (announceToggle && announcePanel) {
+                announceToggle.addEventListener('click', function () {
+                    var open = announceToggle.getAttribute('aria-expanded') === 'true';
+                    announceToggle.setAttribute('aria-expanded', open ? 'false' : 'true');
+                    announcePanel.classList.toggle('hidden', open);
+                    if (announcePreview) announcePreview.classList.toggle('collapsed', !open);
+                });
+            }
+
+            var inputEl = document.getElementById('composer-input');
+            var sendBtn = document.getElementById('send-btn');
+            var chatMessagesEl = document.getElementById('chat-messages');
+            var chatScroll = document.getElementById('chat-scroll');
+            var composerWrap = document.querySelector('.composer-wrap');
+
+            var STORAGE_KEY = 'jdms_ai_chat_v1';
+            var MAX_CHAT_MESSAGES = 200;
+            var WELCOME_ASSISTANT_TEXT = '안녕하세요 JDMS AI입니다. 😊\n무엇을 도와드릴까요?';
+            var BOT_AVATAR_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2M20 14h2M15 13v2M9 13v2" /></svg>';
+
+            var chatMessages = [];
+
+            var BACKEND_AI_URL = 'https://sigan.onrender.com/api/ai/chat';
+            var SYSTEM_PROMPT = [
+                '당신은 중동중학교 My JDMS 앱 안내 AI입니다.',
+                '항상 한국어로 친절하고 간결하게 답합니다.',
+                '학교의 공식 입장을 대변하지 않으며, 불확실하면 담당 교사나 학교로 문의하라고 안내합니다.',
+                '중학생이 이해하기 쉬운 말을 씁니다.',
+                '유해·비방·시험 부정행위·개인정보(주민번호 등) 요청은 정중히 거절합니다.'
+            ].join(' ');
+
+            var aiHistory = [];
+
+            function scrollChatBottom() {
+                if (!chatScroll) return;
+                requestAnimationFrame(function () {
+                    chatScroll.scrollTop = chatScroll.scrollHeight;
+                });
+            }
+
+            function saveChatStorage() {
+                try {
+                    var slice = chatMessages.length > MAX_CHAT_MESSAGES ? chatMessages.slice(-MAX_CHAT_MESSAGES) : chatMessages;
+                    chatMessages = slice;
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify({ v: 1, messages: slice }));
+                } catch (e) {}
+            }
+
+            function loadChatStorage() {
+                try {
+                    var raw = localStorage.getItem(STORAGE_KEY);
+                    if (!raw) return false;
+                    var data = JSON.parse(raw);
+                    if (!data || data.v !== 1 || !Array.isArray(data.messages)) return false;
+                    var next = [];
+                    for (var i = 0; i < data.messages.length; i++) {
+                        var m = data.messages[i];
+                        if (!m || (m.role !== 'user' && m.role !== 'assistant') || typeof m.content !== 'string') continue;
+                        var atVal = (typeof m.at === 'number' && isFinite(m.at)) ? m.at : Date.now();
+                        next.push(makeStoredMessage(m.role, m.content, atVal));
+                    }
+                    chatMessages = next.length > MAX_CHAT_MESSAGES ? next.slice(-MAX_CHAT_MESSAGES) : next;
+                    return true;
+                } catch (e2) {
+                    chatMessages = [];
+                    return false;
+                }
+            }
+
+            function rebuildGeminiHistoryFromChat() {
+                aiHistory = [];
+                var seenUser = false;
+                for (var i = 0; i < chatMessages.length; i++) {
+                    var m = chatMessages[i];
+                    if (m.role === 'user') {
+                        seenUser = true;
+                        aiHistory.push({ role: 'user', content: m.content });
+                    } else if (m.role === 'assistant') {
+                        if (!seenUser) continue;
+                        aiHistory.push({ role: 'assistant', content: m.content });
+                    }
+                }
+                trimGeminiHistory();
+            }
+
+            function appendDateDividerRow(atTs) {
+                if (!chatMessagesEl) return;
+                var row = document.createElement('div');
+                row.className = 'chat-date-divider';
+                row.setAttribute('role', 'presentation');
+                var pill = document.createElement('span');
+                pill.textContent = formatDateDividerLabel(atTs);
+                row.appendChild(pill);
+                chatMessagesEl.appendChild(row);
+            }
+
+            function messageDayKey(msg) {
+                if (msg && typeof msg.day_key === 'string' && msg.day_key.trim()) return msg.day_key;
+                return dayKey(msg && msg.at ? msg.at : Date.now());
+            }
+
+            function needsDayDividerBefore(atTs) {
+                if (!chatMessages.length) return true;
+                var prev = chatMessages[chatMessages.length - 1];
+                return messageDayKey(prev) !== dayKey(atTs);
+            }
+
+            function appendUserDom(text) {
+                var wrap = document.createElement('div');
+                wrap.className = 'msg-user';
+                wrap.innerHTML = '<div class="msg-user-bubble"></div>';
+                wrap.querySelector('.msg-user-bubble').textContent = text;
+                chatMessagesEl.appendChild(wrap);
+            }
+
+            function appendBotDomInstant(rawText, atTs) {
+                var wrap = document.createElement('div');
+                wrap.className = 'msg-bot';
+                var body = document.createElement('div');
+                body.className = 'msg-bot-body msg-bot-body-pre';
+                body.textContent = rawText;
+
+                var meta = document.createElement('div');
+                meta.className = 'msg-meta';
+
+                var av = document.createElement('span');
+                av.className = 'meta-avatar';
+                av.setAttribute('aria-hidden', 'true');
+                av.innerHTML = BOT_AVATAR_SVG;
+
+                var mt = document.createElement('span');
+                mt.className = 'meta-text';
+                mt.textContent = 'JDMS AI · My JDMS, ' + formatMetaTimeAt(atTs);
+
+                meta.appendChild(av);
+                meta.appendChild(mt);
+                wrap.appendChild(body);
+                wrap.appendChild(meta);
+                chatMessagesEl.appendChild(wrap);
+            }
+
+            function renderFullChatFromStorage() {
+                if (!chatMessagesEl) return;
+                chatMessagesEl.innerHTML = '';
+                var prevDk = null;
+                for (var i = 0; i < chatMessages.length; i++) {
+                    var m = chatMessages[i];
+                    var dk = messageDayKey(m);
+                    if (prevDk === null || dk !== prevDk) {
+                        appendDateDividerRow(m.at);
+                        prevDk = dk;
+                    }
+                    if (m.role === 'user') appendUserDom(m.content);
+                    else appendBotDomInstant(m.content, m.at);
+                }
+                rebuildGeminiHistoryFromChat();
+                scrollChatBottom();
+            }
+
+            function appendUserMessage(text) {
+                if (!chatMessagesEl || !text) return;
+                var at = Date.now();
+                if (needsDayDividerBefore(at)) appendDateDividerRow(at);
+                appendUserDom(text);
+                chatMessages.push(makeStoredMessage('user', text, at));
+                saveChatStorage();
+                rebuildGeminiHistoryFromChat();
+                scrollChatBottom();
+            }
+
+            function appendBotMessage(text) {
+                if (!chatMessagesEl) return;
+                var raw = (text == null || text === '') ? '(응답이 비었어요)' : String(text);
+                var at = Date.now();
+                if (needsDayDividerBefore(at)) appendDateDividerRow(at);
+                appendBotDomInstant(raw, at);
+                chatMessages.push(makeStoredMessage('assistant', raw, at));
+                saveChatStorage();
+                rebuildGeminiHistoryFromChat();
+                scrollChatBottom();
+            }
+
+            function appendBotMessageWithTyping(fullText, onComplete) {
+                if (!chatMessagesEl) {
+                    if (onComplete) onComplete();
+                    return;
+                }
+                var raw = (fullText == null || fullText === '') ? '(응답이 비었어요)' : String(fullText);
+                var tsStart = Date.now();
+                if (needsDayDividerBefore(tsStart)) appendDateDividerRow(tsStart);
+
+                var wrap = document.createElement('div');
+                wrap.className = 'msg-bot';
+                var body = document.createElement('div');
+                body.className = 'msg-bot-body msg-bot-body-pre ai-type-caret';
+                body.textContent = '';
+
+                var meta = document.createElement('div');
+                meta.className = 'msg-meta';
+
+                var av = document.createElement('span');
+                av.className = 'meta-avatar';
+                av.setAttribute('aria-hidden', 'true');
+                av.innerHTML = BOT_AVATAR_SVG;
+
+                var mt = document.createElement('span');
+                mt.className = 'meta-text';
+                mt.textContent = 'JDMS AI · My JDMS, …';
+
+                meta.appendChild(av);
+                meta.appendChild(mt);
+                wrap.appendChild(body);
+                wrap.appendChild(meta);
+                chatMessagesEl.appendChild(wrap);
+
+                var chars = Array.from(raw);
+                var n = chars.length;
+                var idx = 0;
+
+                function finishTyping() {
+                    var atDone = Date.now();
+                    body.textContent = raw;
+                    body.classList.remove('ai-type-caret');
+                    mt.textContent = 'JDMS AI · My JDMS, ' + formatMetaTimeAt(atDone);
+                    chatMessages.push(makeStoredMessage('assistant', raw, atDone));
+                    saveChatStorage();
+                    rebuildGeminiHistoryFromChat();
+                    scrollChatBottom();
+                    if (onComplete) onComplete();
+                }
+
+                if (n === 0) {
+                    finishTyping();
+                    return;
+                }
+
+                var targetMs = 11200;
+                var msPerTick = Math.max(9, Math.min(26, Math.floor(targetMs / Math.max(n, 1))));
+                function chunkSize() {
+                    if (n > 720) return 4;
+                    if (n > 420) return 3;
+                    if (n > 200) return 2;
+                    return 1;
+                }
+
+                function tick() {
+                    if (idx >= n) {
+                        finishTyping();
+                        return;
+                    }
+                    var step = chunkSize();
+                    idx = Math.min(n, idx + step);
+                    body.textContent = chars.slice(0, idx).join('');
+                    scrollChatBottom();
+                    setTimeout(tick, msPerTick);
+                }
+
+                tick();
+            }
+
+            function trimGeminiHistory() {
+                var maxMsgs = 24;
+                if (aiHistory.length > maxMsgs) {
+                    aiHistory = aiHistory.slice(-maxMsgs);
+                }
+            }
+
+            function showTyping() {
+                if (!chatMessagesEl) return;
+                hideTyping();
+                var row = document.createElement('div');
+                row.className = 'msg-bot typing-row';
+                row.id = 'ai-typing-indicator';
+                row.innerHTML = '<div class="typing-pulse-wrap" aria-hidden="true"><span class="typing-pulse-dot"></span></div>';
+                chatMessagesEl.appendChild(row);
+                scrollChatBottom();
+            }
+
+            function hideTyping() {
+                var el = document.getElementById('ai-typing-indicator');
+                if (el) el.remove();
+            }
+
+            function setComposerBusy(busy) {
+                if (composerWrap) composerWrap.classList.toggle('is-busy', !!busy);
+                if (inputEl) inputEl.disabled = !!busy;
+                if (sendBtn) {
+                    if (busy) sendBtn.disabled = true;
+                    else syncSendState();
+                }
+            }
+
+            async function fetchBackendReply() {
+                var payload = {
+                    system_prompt: SYSTEM_PROMPT,
+                    messages: aiHistory
+                };
+                var res = await fetch(BACKEND_AI_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                var data = {};
+                try {
+                    data = await res.json();
+                } catch (e) {
+                    data = {};
+                }
+
+                if (!res.ok || !data.success) {
+                    var err = (data && data.error) ? data.error : ('백엔드 오류 (' + res.status + ')');
+                    throw new Error(err);
+                }
+                var reply = (data.reply || '').trim();
+                if (!reply) throw new Error('빈 응답이에요');
+                return reply;
+            }
+
+            async function sendMessage() {
+                if (!inputEl || inputEl.disabled) return;
+                var t = inputEl.value.replace(/\r\n/g, '\n').trim();
+                if (!t) return;
+
+                appendUserMessage(t);
+                inputEl.value = '';
+                inputEl.style.height = '';
+                syncSendState();
+
+                setComposerBusy(true);
+                showTyping();
+
+                try {
+                    var reply = await fetchBackendReply();
+                    hideTyping();
+                    appendBotMessageWithTyping(reply, function () {
+                        setComposerBusy(false);
+                    });
+                } catch (err) {
+                    hideTyping();
+                    var msg = (err && err.message) ? err.message : String(err);
+                    appendBotMessage('지금은 답을 가져오지 못했어요.\n\n' + msg + '\n\n잠시 후 다시 시도해 주세요.');
+                    setComposerBusy(false);
+                    scrollChatBottom();
+                }
+            }
+
+            function resetChatMessagesByUser() {
+                chatMessages = [makeStoredMessage('assistant', WELCOME_ASSISTANT_TEXT, Date.now())];
+                saveChatStorage();
+                renderFullChatFromStorage();
+                if (inputEl) {
+                    inputEl.value = '';
+                    inputEl.style.height = '';
+                }
+                syncSendState();
+            }
+
+            function syncSendState() {
+                if (!sendBtn || !inputEl) return;
+                sendBtn.disabled = inputEl.disabled || inputEl.value.trim().length === 0;
+            }
+
+            if (inputEl) {
+                inputEl.addEventListener('input', function () {
+                    syncSendState();
+                    inputEl.style.height = 'auto';
+                    inputEl.style.height = Math.min(inputEl.scrollHeight, 96) + 'px';
+                });
+                inputEl.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                });
+            }
+            syncSendState();
+
+            if (sendBtn) {
+                var longPressTimer = null;
+                var longPressTriggered = false;
+                var LONG_PRESS_MS = 700;
+
+                function clearPressTimer() {
+                    if (longPressTimer) {
+                        clearTimeout(longPressTimer);
+                        longPressTimer = null;
+                    }
+                }
+
+                function onPressStart() {
+                    if (sendBtn.disabled) return;
+                    longPressTriggered = false;
+                    clearPressTimer();
+                    longPressTimer = setTimeout(function () {
+                        longPressTriggered = true;
+                        var ok = window.confirm('대화 내용을 모두 초기화할까요?');
+                        if (ok) resetChatMessagesByUser();
+                    }, LONG_PRESS_MS);
+                }
+
+                function onPressEnd() {
+                    clearPressTimer();
+                }
+
+                sendBtn.addEventListener('pointerdown', onPressStart);
+                sendBtn.addEventListener('pointerup', onPressEnd);
+                sendBtn.addEventListener('pointercancel', onPressEnd);
+                sendBtn.addEventListener('pointerleave', onPressEnd);
+
+                sendBtn.addEventListener('click', function (e) {
+                    if (longPressTriggered) {
+                        e.preventDefault();
+                        longPressTriggered = false;
+                        return;
+                    }
+                    sendMessage();
+                });
+            }
+
+            loadChatStorage();
+            if (!chatMessages.length) {
+                chatMessages.push(makeStoredMessage('assistant', WELCOME_ASSISTANT_TEXT, Date.now()));
+                saveChatStorage();
+            }
+            renderFullChatFromStorage();
+        })();
+    </script>
+</body>
+</html>

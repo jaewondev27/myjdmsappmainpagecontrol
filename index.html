@@ -7,6 +7,9 @@
     <link rel="prefetch" href="https://jaewondev27.github.io/myjdmsappmainpagecontrol/inform">
     <link rel="prefetch" href="https://jaewondev27.github.io/myjdmsappmainpagecontrol/theme">
     <link rel="prefetch" href="https://jaewondev27.github.io/myjdmsappmainpagecontrol/mysetting">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap" rel="stylesheet">
     <title>My JDMS</title>
     <script>
 (function(){
@@ -31,6 +34,8 @@ var ICONS = {
 'menu':'<line x1="4" x2="20" y1="12" y2="12" /> <line x1="4" x2="20" y1="6" y2="6" /> <line x1="4" x2="20" y1="18" y2="18" />'
 ,
 'chevron-left':'<path d="m15 18-6-6 6-6" />'
+,
+'chevron-right':'<path d="m9 18 6-6-6-6" />'
 ,
 'chevrons-up-down':'<path d="m7 15 5 5 5-5" /> <path d="m7 9 5-5 5 5" />'
 ,
@@ -253,6 +258,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         body.dark-mode #ai-coming-modal { background: rgba(0,0,0,0.62) !important; }
         body.dark-mode .error-message,
         body.dark-mode .profile-desc,
+        body.dark-mode .profile-email-display,
         body.dark-mode .today-date { color: var(--text-mute) !important; }
         body.dark-mode .offline-fallback { background: #1d1d1d; color: var(--text-sub); }
         body.dark-mode .setup-note { background: #1f1f1f; color: #d7d7d7; }
@@ -329,22 +335,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             width: 100%;
             height: 100%;
             object-fit: contain;
-        }
-
-        /* 홈 헤더 우측 로고용 */
-        #home-logo-img {
-            width: auto;
-            height: 100%;
-            object-fit: contain;
-            object-position: right center;
-        }
-
-        #home-logo-wrap {
-            width: min(48vw, 220px);
-            height: 64px;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
         }
 
         .splash-text {
@@ -644,28 +634,221 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             padding-bottom: calc(8px + var(--sab-chrome));
         }
 
+        /* 긴 이름·이메일이 가로로 밀 때 오른쪽 앱 정보 버튼이 잘리지 않도록 */
+        #page-more .profile-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        #page-more .profile-card-head {
+            flex: 1 1 auto;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        #page-more .profile-info {
+            min-width: 0;
+            flex: 1 1 auto;
+        }
+
+        #page-more .profile-name {
+            font-size: 21px;
+            margin-bottom: 3px;
+        }
+
+        #page-more .profile-desc {
+            font-size: 14px;
+        }
+
+        #page-more .profile-email-display {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-mute);
+            margin-top: 3px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        #page-more .profile-name,
+        #page-more .profile-desc,
+        #page-more .profile-email-display {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        #page-more .profile-img {
+            flex-shrink: 0;
+        }
+
+        #page-more .app-info-btn {
+            flex-shrink: 0;
+        }
+
         .home-header {
             margin-bottom: 32px;
             padding: 8px 4px;
         }
 
-        .welcome-text {
-            font-size: 26px;
-            font-weight: 800;
-            line-height: 1.35;
-            letter-spacing: -0.6px;
+        /* 로고+학교명 영역이 남는 가로를 채우고, 학교명은 그 안에서 이름 열 쪽(오른쪽)으로 붙음 */
+        .home-header-inner {
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+            gap: 6px;
+            flex-wrap: nowrap;
         }
 
-        .welcome-inline {
+        .home-header-copy {
+            flex: 0 0 auto;
+            width: min(56vw, 300px);
+            max-width: calc(100% - 56px);
+            min-width: 0;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: stretch;
+            text-align: right;
+        }
+
+        .home-logo-wrap {
+            flex: 1 1 0;
+            min-width: 0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+            gap: 8px;
+        }
+
+        /* 학교명: 줄 안에서는 왼쪽 정렬 · 블록은 행 안 오른쪽(margin-left:auto) */
+        .home-logo-text-block {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+            gap: 2px;
+            flex: 0 0 auto;
+            flex-shrink: 0;
+            margin-left: auto;
+            padding-top: 0;
+            line-height: 1.15;
+            overflow: visible;
+            max-width: min(220px, calc(100% - 40px));
+        }
+
+        .home-school-name-ko {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif;
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: -0.08em;
+            color: var(--text-main);
+            white-space: nowrap;
+            display: block;
+            line-height: 1.15;
+            max-width: 100%;
+        }
+
+        .home-school-name-en {
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.055em;
+            color: var(--text-mute);
+            white-space: nowrap;
+            display: block;
+            line-height: 1.15;
+            max-width: 100%;
+        }
+
+        #home-logo-img {
+            flex-shrink: 0;
+            height: auto;
+            width: auto;
+            max-height: 46px;
+            max-width: min(52vw, 156px);
+            object-fit: contain;
+            object-position: left center;
+        }
+
+        .welcome-row {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+        }
+
+        /* 화살표 + 이름을 한 덩어리로 묶어 함께 오른쪽 정렬 */
+        .welcome-row-cluster {
+            display: flex;
+            align-items: center;
+            gap: 1px;
+            width: fit-content;
+            max-width: 100%;
+            min-width: 0;
+        }
+
+        .welcome-text-clip {
+            flex: 1 1 0;
+            min-width: 0;
+            overflow: hidden;
+            text-align: right;
+        }
+
+        .welcome-row:active {
+            opacity: 0.72;
+        }
+
+        .welcome-text {
+            font-family: "M PLUS Rounded 1c", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.35;
+            letter-spacing: -0.02em;
+            color: var(--text-main);
             white-space: nowrap;
             display: inline-block;
+            vertical-align: top;
+            max-width: 100%;
+        }
+
+        .welcome-row .welcome-chevron {
+            color: var(--text-mute);
+            opacity: 0.9;
+        }
+
+        .welcome-row svg.welcome-chevron {
+            display: block;
+        }
+
+        .today-date-wrap {
+            margin-top: 6px;
+            width: 100%;
+            overflow: hidden;
+            text-align: right;
+            box-sizing: border-box;
         }
 
         .today-date {
             font-size: 15px;
             font-weight: 500;
             color: var(--text-mute);
-            margin-top: 6px;
+            margin-top: 0;
+            white-space: nowrap;
+            display: inline-block;
+            vertical-align: top;
+            max-width: 100%;
         }
 
         .card {
@@ -2165,13 +2348,28 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 </div>
 
                 <div id="page-home" class="page">
-                    <div class="home-header" style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <div id="welcome-text" class="welcome-text"></div>
-                            <div id="today-date" class="today-date"></div>
-                        </div>
-                        <div id="home-logo-wrap">
-                            <img id="home-logo-img" alt="logo">
+                    <div class="home-header">
+                        <div class="home-header-inner">
+                            <div class="home-logo-wrap">
+                                <img id="home-logo-img" alt="">
+                                <div class="home-logo-text-block">
+                                    <span class="home-school-name-ko">중동중학교</span>
+                                    <span class="home-school-name-en">JoongdongMiddleSchool</span>
+                                </div>
+                            </div>
+                            <div class="home-header-copy">
+                                <div class="welcome-row" role="button" tabindex="0" aria-label="더보기 탭으로 이동">
+                                    <span class="welcome-row-cluster">
+                                        <i data-lucide="chevron-left" class="welcome-chevron" width="15" height="15" aria-hidden="true"></i>
+                                        <span class="welcome-text-clip">
+                                            <span id="welcome-text" class="welcome-text"></span>
+                                        </span>
+                                    </span>
+                                </div>
+                                <div class="today-date-wrap">
+                                    <span id="today-date" class="today-date"></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="notice-banner-wrap hidden">
@@ -2252,12 +2450,13 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 </div>
 
                 <div id="page-more" class="page hidden">
-                    <div class="profile-card" style="display: flex; justify-content: space-between; align-items: center;">
-                        <div style="display: flex; align-items: center; gap: 16px;">
+                    <div class="profile-card">
+                        <div class="profile-card-head">
                             <img src="https://mblogthumb-phinf.pstatic.net/MjAyMDAyMTBfODAg/MDAxNTgxMzA0MTE3ODMy.ACRLtB9v5NH-I2qjWrwiXLb7TeUiG442cJmcdzVum7cg.eTLpNg_n0rAS5sWOsofRrvBy0qZk_QcWSfUiIagTfd8g.JPEG.lattepain/1581304118739.jpg?type=w800" class="profile-img" style="margin-right: 0;">
                             <div class="profile-info">
                                 <div class="profile-name" id="profile-name-display">이름</div>
                                 <div class="profile-desc" id="profile-details-display">0학년 0반 0번</div>
+                                <div class="profile-email-display" id="profile-email-display" hidden></div>
                             </div>
                         </div>
                         <button class="app-info-btn ripple-btn" onclick="window.openAppInfo()" style="background: none; border: none; padding: 10px; color: var(--text-mute); border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent;">
@@ -2441,10 +2640,12 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             <iframe title="" loading="eager" src="https://jaewondev27.github.io/myjdmsappmainpagecontrol/theme"></iframe>
             <iframe title="" loading="eager" src="https://jaewondev27.github.io/myjdmsappmainpagecontrol/mysetting"></iframe>
         </div>
+
     </div>
     <script>
         // --- DIY Auth Configuration ---
         const BACKEND_URL = 'https://sigan.onrender.com';
+
         let userData = null;
         let currentDeviceId = null;
         let pollInterval = null;
@@ -2702,7 +2903,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             const svgContent = template ? template.innerHTML.trim() : '';
             const splashLogoContainer = document.getElementById('splash-logo-container');
             const ptrLogoContainer = document.getElementById('ptr-logo-container');
-            const homeLogoImg = document.getElementById('home-logo-img'); 
+            const homeLogoImg = document.getElementById('home-logo-img');
             let currentPickerContext = null;
             const pickerSheet = document.getElementById('picker-sheet');
             const pickerPanel = pickerSheet ? pickerSheet.querySelector('.picker-panel') : null;
@@ -2718,8 +2919,10 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     const svgString = new XMLSerializer().serializeToString(svgEl);
                     const dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgString)}`;
 
-                    // 홈 탭 로고는 기존 앱 로고 사용
-                    if (homeLogoImg) homeLogoImg.src = dataUrl;
+                    if (homeLogoImg) {
+                        homeLogoImg.src = dataUrl;
+                        homeLogoImg.alt = '로고';
+                    }
 
                     const splashMask = document.getElementById('splash-shimmer-mask');
                     splashMask.style.webkitMaskImage = `url("${dataUrl}")`;
@@ -3479,8 +3682,72 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             navItems.forEach(item => item.addEventListener('click', () => switchPage(item.getAttribute('data-page'))));
             floatingTabItems.forEach(item => item.addEventListener('click', () => switchPage(item.getAttribute('data-float-page'))));
 
+            (function bindWelcomeRowToMoreTab() {
+                const row = document.querySelector('#page-home .welcome-row');
+                if (!row) return;
+                function goMore() {
+                    if (typeof window.switchPageTo === 'function') window.switchPageTo('more');
+                }
+                row.addEventListener('click', goMore);
+                row.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        goMore();
+                    }
+                });
+            })();
+
+            var __fitHomeHdrTimer = null;
+            function scheduleFitHomeHeaderTexts() {
+                clearTimeout(__fitHomeHdrTimer);
+                __fitHomeHdrTimer = setTimeout(fitHomeHeaderTexts, 45);
+            }
+
+            function fitHomeHeaderTexts() {
+                if (!mainContent || mainContent.classList.contains('hidden')) return;
+                var pageHome = document.getElementById('page-home');
+                if (!pageHome || pageHome.classList.contains('hidden')) return;
+
+                var koSchool = document.querySelector('#page-home .home-school-name-ko');
+                var enSchool = document.querySelector('#page-home .home-school-name-en');
+                if (koSchool) koSchool.style.removeProperty('font-size');
+                if (enSchool) enSchool.style.removeProperty('font-size');
+
+                function shrink(el, box, minPx) {
+                    if (!el || !box || box.clientWidth < 2) return;
+                    el.style.removeProperty('font-size');
+                    var maxPx = parseFloat(window.getComputedStyle(el).fontSize);
+                    if (isNaN(maxPx) || maxPx < minPx) maxPx = minPx;
+                    el.style.fontSize = maxPx + 'px';
+                    var n = 0;
+                    while (el.scrollWidth > box.clientWidth + 0.5 && parseFloat(el.style.fontSize) > minPx && n < 160) {
+                        n++;
+                        el.style.fontSize = (parseFloat(el.style.fontSize) - 0.25) + 'px';
+                    }
+                }
+
+                var clip = document.querySelector('#page-home .welcome-text-clip');
+                shrink(document.getElementById('welcome-text'), clip, 9);
+
+                var dw = document.querySelector('#page-home .today-date-wrap');
+                shrink(document.getElementById('today-date'), dw, 9);
+            }
+
+            (function observeHomeHeaderFit() {
+                var hdr = document.querySelector('#page-home .home-header-inner');
+                if (!hdr || typeof ResizeObserver === 'undefined') return;
+                var ro = new ResizeObserver(function () { scheduleFitHomeHeaderTexts(); });
+                ro.observe(hdr);
+            })();
+
+            window.addEventListener('resize', scheduleFitHomeHeaderTexts);
+            window.addEventListener('orientationchange', function () { setTimeout(scheduleFitHomeHeaderTexts, 120); });
+
             function switchPage(target) {
-                if (target === 'ai') { window.openAiComingModal(); return; }
+                if (target === 'ai') {
+                    window.open(`${REMOTE_CONTROL_BASE}/ai`, '_blank');
+                    return;
+                }
                 if (target === 'jbs') {
                     if (typeof AndroidInterface !== 'undefined' && AndroidInterface.openJbs) {
                         AndroidInterface.openJbs();
@@ -3494,7 +3761,11 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 floatingTabItems.forEach(tab => tab.classList.toggle('active', tab.getAttribute('data-float-page') === target));
                 pages.forEach(p => p.classList.toggle('hidden', p.id !== `page-${target}`));
                 syncNativeStatusBar(target);
-                if (target === 'home') { loadTodayTimetableIframe(); loadHomeLunchIframe(); }
+                if (target === 'home') {
+                    loadTodayTimetableIframe();
+                    loadHomeLunchIframe();
+                    scheduleFitHomeHeaderTexts();
+                }
                 if (target === 'timetable') loadWeeklyTimetableIframe();
                 if (target === 'lunch') loadLunchIframe();
             }
@@ -3506,11 +3777,13 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 if (!navigator.onLine) showOfflineToast();
                 loadTodayTimetableIframe();
                 loadHomeLunchIframe();
+                scheduleFitHomeHeaderTexts();
+                requestAnimationFrame(function () { scheduleFitHomeHeaderTexts(); });
             }
 
             function updateHeader() {
                 const displayName = userData.name || userData.displayName || '사용자';
-                document.getElementById('welcome-text').innerHTML = `<span class="welcome-inline">${displayName}님,</span><br>반가워요!`;
+                document.getElementById('welcome-text').textContent = displayName;
                 
                 document.getElementById('today-date').innerText = new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' });
                 
@@ -3518,14 +3791,26 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     document.getElementById('profile-name-display').innerText = displayName;
                     
                     const schoolInfo = `${userData.grade}학년 ${userData.class}반 ${userData.number}번`;
-                    const emailInfo = userData.email ? ` (${userData.email})` : '';
-                    document.getElementById('profile-details-display').innerText = schoolInfo + emailInfo;
+                    document.getElementById('profile-details-display').innerText = schoolInfo;
+                    var emailRow = document.getElementById('profile-email-display');
+                    if (emailRow) {
+                        var em = userData.email ? String(userData.email).trim() : '';
+                        if (em) {
+                            emailRow.textContent = em;
+                            emailRow.hidden = false;
+                        } else {
+                            emailRow.textContent = '';
+                            emailRow.hidden = true;
+                        }
+                    }
                     
                     if (userData.photoURL) {
                         const pImg = document.querySelector('.profile-img');
                         if (pImg) pImg.src = userData.photoURL;
                     }
                 }
+                scheduleFitHomeHeaderTexts();
+                requestAnimationFrame(function () { scheduleFitHomeHeaderTexts(); });
             }
 
             window.handleLogout = async function() {
@@ -3546,7 +3831,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     const raw = localStorage.getItem('userData');
                     const next = raw ? JSON.parse(raw) : null;
                     if (!next || next.grade == null || next.class == null || next.number == null) return;
-                    const changed = !userData || userData.name !== next.name || userData.grade !== next.grade || userData.class !== next.class || userData.number !== next.number;
+                    const changed = !userData || userData.name !== next.name || userData.email !== next.email || userData.grade !== next.grade || userData.class !== next.class || userData.number !== next.number;
                     if (!changed) return;
                     userData = next;
                     setPickerValue('setup', 'grade', userData.grade);
