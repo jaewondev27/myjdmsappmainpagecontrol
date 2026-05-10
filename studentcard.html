@@ -1498,7 +1498,29 @@
                 });
             }
 
-            toFormBtn.addEventListener("click", () => slideShell.classList.add("step-form"));
+            toFormBtn.addEventListener("click", () => {
+                const user = loadUserData();
+                if (user && user.email && user.grade) {
+                    // Pre-generate the card data
+                    const emailPrefix = user.email.split('@')[0];
+                    const academicId = emailPrefix.replace(/([0-9]+)m([0-9]+)/i, 'M$1$2').toUpperCase();
+                    const cardData = {
+                        name: user.name || user.displayName || '학생',
+                        grade: user.grade,
+                        currentClass: user.class,
+                        currentNumber: user.number,
+                        academicId: academicId,
+                        email: user.email
+                    };
+                    
+                    // Show completion modal instead of form
+                    renderCardFromLogin(cardData);
+                    showRegisterCompleteModal();
+                } else {
+                    // No login info, go to manual form
+                    slideShell.classList.add("step-form");
+                }
+            });
             if (editFormBtn) {
                 editFormBtn.addEventListener("click", () => slideShell.classList.add("step-form"));
             }
@@ -1575,13 +1597,68 @@
                 });
             }
 
-            const saved = loadSaved();
-            if (saved) {
-                renderCard(saved);
-                slideShell.classList.add("hidden");
-                stepCard.classList.remove("hidden");
-            } else {
-                deleteBtn.style.display = "none";
+            function loadUserData() {
+                try {
+                    const raw = localStorage.getItem('userData');
+                    if (!raw) return null;
+                    return JSON.parse(raw);
+                } catch (e) { return null; }
+            }
+
+            function autoGenerateCard() {
+                const user = loadUserData();
+                if (user && user.email && user.grade) {
+                    const emailPrefix = user.email.split('@')[0];
+                    const academicId = emailPrefix.replace(/([0-9]+)m([0-9]+)/i, 'M$1$2').toUpperCase();
+                    
+                    const cardData = {
+                        name: user.name || user.displayName || '학생',
+                        grade: user.grade,
+                        currentClass: user.class,
+                        currentNumber: user.number,
+                        academicId: academicId,
+                        email: user.email
+                    };
+
+                    renderCardFromLogin(cardData);
+                    slideShell.classList.add("hidden");
+                    stepCard.classList.remove("hidden");
+                    return true;
+                }
+                return false;
+            }
+
+            function renderCardFromLogin(data) {
+                const currentStudentNo = buildStudentNumber(data.grade, data.currentClass, data.currentNumber);
+                const barcodeValue = data.academicId;
+                
+                infoEl.innerHTML =
+                    "<strong>" + data.name + "</strong><br>" +
+                    "현재 " + data.grade + "학년 " + data.currentClass + "반 " + data.currentNumber + "번<br>" +
+                    "학교 메일: " + data.email + "<br>" +
+                    "현재 학번 " + currentStudentNo;
+                
+                barcodeNumEl.textContent = barcodeValue;
+                JsBarcode(barcodeEl, barcodeValue, {
+                    format: "CODE39",
+                    displayValue: false,
+                    margin: 0,
+                    height: 76,
+                    width: 1.6
+                });
+                // In login-linked mode, delete might need to be logout or just hidden
+                deleteBtn.style.display = "none"; 
+            }
+
+            if (!autoGenerateCard()) {
+                const saved = loadSaved();
+                if (saved) {
+                    renderCard(saved);
+                    slideShell.classList.add("hidden");
+                    stepCard.classList.remove("hidden");
+                } else {
+                    deleteBtn.style.display = "none";
+                }
             }
 
             if (studentCardEl) {

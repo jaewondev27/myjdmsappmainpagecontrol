@@ -1480,14 +1480,59 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             animation: icon-shake 0.52s cubic-bezier(0.36, 0.07, 0.19, 0.97);
         }
 
-        @keyframes icon-shake {
-            0% { transform: translateX(0); }
-            20% { transform: translateX(-5px); }
-            40% { transform: translateX(5px); }
-            60% { transform: translateX(-4px); }
-            80% { transform: translateX(4px); }
-            100% { transform: translateX(0); }
+        /* Custom Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 24px;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
         }
+        .modal-overlay.show { display: flex; }
+        .modal-overlay.active { opacity: 1; }
+        .custom-modal-card {
+            width: min(90vw, 320px);
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 24px 20px 20px;
+            text-align: center;
+            transform: translateY(20px) scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.2, 0.85, 0.2, 1);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        }
+        .modal-overlay.active .custom-modal-card { transform: translateY(0) scale(1); }
+        .modal-icon-circle {
+            width: 56px; height: 56px; border-radius: 50%;
+            margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;
+            font-size: 28px; font-weight: 800;
+        }
+        .modal-title { font-size: 19px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.3px; }
+        .modal-message { font-size: 14px; color: var(--text-sub); margin-bottom: 24px; line-height: 1.6; word-break: keep-all; }
+        .modal-footer { display: flex; gap: 8px; }
+        .modal-btn {
+            flex: 1; height: 48px; border: none; border-radius: 14px;
+            font-size: 15px; font-weight: 700; cursor: pointer;
+            transition: transform 0.15s ease, opacity 0.2s ease;
+        }
+        .modal-btn.primary { background: var(--primary); color: #fff; }
+        .modal-btn.secondary { background: var(--border); color: var(--text-sub); }
+        .modal-btn:active { transform: scale(0.96); opacity: 0.9; }
+
+        @keyframes icon-shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-4px); }
+            40%, 80% { transform: translateX(4px); }
+        }
+        .modal-icon-circle.error { background: #fff1f2; color: #ef4444; animation: icon-shake 0.4s ease; }
+        .modal-icon-circle.success { background: #f0fdf4; color: #22c55e; }
+        .modal-icon-circle.info { background: #eff6ff; color: #3b82f6; }
 
         .error-title {
             font-size: 20px;
@@ -1981,7 +2026,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     <div id="setup-step-login">
                         <div class="input-group">
                             <label>학교 이메일 인증</label>
-                            <input type="email" id="setup-email" placeholder="25m10135@joongdong.ms.kr">
+                            <input type="email" id="setup-email" placeholder="@joongdong.ms.kr">
                         </div>
                         <button type="button" id="btn-send-link" class="btn-primary" style="margin-bottom: 16px;">
                             <span>인증 링크 받기</span>
@@ -2248,12 +2293,15 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             </div>
         </div>
 
-        <div id="custom-error-modal">
-            <div class="custom-error-card">
-                <div id="error-icon" class="error-icon-circle">!</div>
-                <div class="error-title">입력이 필요해요</div>
-                <div id="error-message" class="error-message">모든 항목을 선택해주세요.</div>
-                <button class="error-confirm-btn" onclick="window.closeErrorModal()">확인</button>
+        <div id="custom-modal" class="modal-overlay">
+            <div class="custom-modal-card">
+                <div id="modal-icon" class="modal-icon-circle">!</div>
+                <div id="modal-title" class="modal-title">알림</div>
+                <div id="modal-message" class="modal-message">메시지 내용입니다.</div>
+                <div id="modal-footer" class="modal-footer">
+                    <button id="modal-confirm-btn" class="modal-btn primary">확인</button>
+                    <button id="modal-cancel-btn" class="modal-btn secondary hidden">취소</button>
+                </div>
             </div>
         </div>
 
@@ -2629,6 +2677,52 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 }
             };
 
+            window.showCustomModal = function(options) {
+                const modal = document.getElementById('custom-modal');
+                const icon = document.getElementById('modal-icon');
+                const title = document.getElementById('modal-title');
+                const message = document.getElementById('modal-message');
+                const confirmBtn = document.getElementById('modal-confirm-btn');
+                const cancelBtn = document.getElementById('modal-cancel-btn');
+
+                title.innerText = options.title || '알림';
+                message.innerText = options.message || '';
+                confirmBtn.innerText = options.confirmText || '확인';
+                cancelBtn.innerText = options.cancelText || '취소';
+                
+                icon.className = 'modal-icon-circle ' + (options.type || 'info');
+                icon.innerText = options.type === 'error' ? '!' : (options.type === 'success' ? '✓' : 'i');
+
+                if (options.showCancel) cancelBtn.classList.remove('hidden');
+                else cancelBtn.classList.add('hidden');
+
+                modal.classList.add('show');
+                requestAnimationFrame(() => modal.classList.add('active'));
+
+                return new Promise((resolve) => {
+                    const onConfirm = () => {
+                        cleanup();
+                        resolve(true);
+                    };
+                    const onCancel = () => {
+                        cleanup();
+                        resolve(false);
+                    };
+                    const cleanup = () => {
+                        confirmBtn.removeEventListener('click', onConfirm);
+                        cancelBtn.removeEventListener('click', onCancel);
+                        modal.classList.remove('active');
+                        setTimeout(() => modal.classList.remove('show'), 250);
+                    };
+                    confirmBtn.addEventListener('click', onConfirm);
+                    cancelBtn.addEventListener('click', onCancel);
+                });
+            };
+
+            window.showErrorModal = function(msg) {
+                return window.showCustomModal({ title: '오류', message: msg, type: 'error' });
+            };
+
             // Email Link Sign-In Handler
             window.handleEmailLinkSignIn = function() {
                 const email = document.getElementById('setup-email').value.trim();
@@ -2637,10 +2731,15 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     return;
                 }
                 
+                if (!email.endsWith('@joongdong.ms.kr')) {
+                    showErrorModal('중동중학교 이메일(@joongdong.ms.kr)만 사용 가능합니다.');
+                    return;
+                }
+                
                 // Redirect to login.html to complete sign-in
                 let continueUrl = window.location.origin + window.location.pathname.replace('index.html', '') + 'login.html';
                 if (window.location.protocol === 'file:') {
-                    alert('로컬 파일 환경에서는 인증이 제한됩니다. 웹 서버를 사용해 주세요.');
+                    showCustomModal({ title: '환경 오류', message: '로컬 파일 환경에서는 인증이 제한됩니다. 웹 서버를 사용해 주세요.', type: 'error' });
                     return;
                 }
 
@@ -2651,7 +2750,11 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 auth.sendSignInLinkToEmail(email, actionCodeSettings)
                     .then(() => {
                         window.localStorage.setItem('emailForSignIn', email);
-                        alert('인증 링크가 이메일로 전송되었습니다! 메일함을 확인해 주세요.');
+                        showCustomModal({ 
+                            title: '메일 발송 완료', 
+                            message: '인증 링크가 전송되었습니다! 메일함(또는 스팸함)을 확인하여 링크를 클릭해주세요.', 
+                            type: 'success' 
+                        });
                         const btn = document.getElementById('btn-send-link');
                         if (btn) btn.innerText = '인증 메일 확인 대기 중...';
                     })
@@ -3188,8 +3291,17 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 }
             }
 
-            window.handleLogout = function() {
-                if (!confirm('로그아웃 하시겠습니까?')) return;
+            window.handleLogout = async function() {
+                const ok = await window.showCustomModal({
+                    title: '로그아웃',
+                    message: '정말 로그아웃 하시겠습니까? 저장된 정보가 모두 초기화됩니다.',
+                    type: 'info',
+                    showCancel: true,
+                    confirmText: '로그아웃',
+                    cancelText: '취소'
+                });
+                if (!ok) return;
+                
                 if (typeof auth !== 'undefined') {
                     auth.signOut().then(() => {
                         resetAppSettings();
