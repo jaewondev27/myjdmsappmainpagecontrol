@@ -2346,43 +2346,35 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         const BACKEND_URL = 'https://sigan.onrender.com';
         let userData = null;
 
-        // Function to handle authentication signal from Python backend
-        function handleAuthSignal() {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('auth_success') === 'true' && urlParams.get('data')) {
-                try {
-                    // Decode Base64 data from backend
-                    const encodedData = urlParams.get('data');
-                    const decodedData = JSON.parse(atob(encodedData.replace(/-/g, '+').replace(/_/g, '/')));
-                    
-                    if (decodedData && decodedData.email) {
-                        // Save to localStorage
-                        const existing = JSON.parse(localStorage.getItem('userData') || '{}');
-                        userData = { ...existing, ...decodedData };
-                        localStorage.setItem('userData', JSON.stringify(userData));
-                        
-                        // Clean URL parameters
-                        window.history.replaceState({}, document.title, window.location.pathname);
-                        
-                        // Show success modal
-                        showCustomModal({
-                            title: '인증 성공',
-                            message: `${userData.name}님, 환영합니다!`,
-                            type: 'success'
-                        });
-                    }
-                } catch (e) {
-                    console.error('Auth signal error:', e);
-                }
+        // Listen for login from login.html (New Tab/Window)
+        const authBc = new BroadcastChannel('myjdms_auth');
+        authBc.onmessage = (ev) => {
+            if (ev.data.type === 'LOGIN_SUCCESS') {
+                userData = ev.data.userData;
+                localStorage.setItem('userData', JSON.stringify(userData));
+                
+                // Show success modal
+                showCustomModal({
+                    title: '인증 완료',
+                    message: `${userData.name}님, 환영합니다! 마지막 정보를 입력해 주세요.`,
+                    type: 'success'
+                });
+                
+                // Transition to info step
+                document.getElementById('setup-step-login').classList.add('hidden');
+                document.getElementById('setup-step-info').classList.remove('hidden');
+                document.getElementById('setup-name').value = userData.name || '';
             }
-            try {
-                const rawUd = localStorage.getItem('userData');
-                if (rawUd) userData = JSON.parse(rawUd);
-            } catch (e) {}
+        };
+
+        try {
+            const rawUd = localStorage.getItem('userData');
+            if (rawUd) userData = JSON.parse(rawUd);
+        } catch (e) {
+            userData = null;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            handleAuthSignal(); // Check for backend auth signal
             function refreshLayoutSafeArea() {
                 if (window.__jdmsKickSafeInsets) window.__jdmsKickSafeInsets();
                 else if (window.__jdmsApplySafeInsetCssVars) window.__jdmsApplySafeInsetCssVars();
@@ -2738,7 +2730,10 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             };
 
             // Email Link Sign-In Handler (Calling Python Backend)
+            let isCooldown = false;
             window.handleEmailLinkSignIn = function() {
+                if (isCooldown) return;
+
                 const email = document.getElementById('setup-email').value.trim();
                 if (!email) {
                     showErrorModal('이메일 주소를 입력해주세요.');
@@ -2750,11 +2745,23 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     return;
                 }
                 
-                // Show loading state
+                // Start Cooldown Timer
+                isCooldown = true;
                 const btn = document.getElementById('btn-send-link');
                 const originalText = btn.innerText;
-                btn.disabled = true;
-                btn.innerText = '인증 메일 발송 중...';
+                let timeLeft = 30;
+
+                const timer = setInterval(() => {
+                    btn.disabled = true;
+                    btn.innerText = `재전송 가능까지 ${timeLeft}초`;
+                    timeLeft--;
+                    if (timeLeft < 0) {
+                        clearInterval(timer);
+                        btn.disabled = false;
+                        btn.innerText = originalText;
+                        isCooldown = false;
+                    }
+                }, 1000);
 
                 // Call Python Backend at sigan.onrender.com
                 fetch(`${BACKEND_URL}/api/auth/send-link`, {
@@ -2771,15 +2778,12 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                             message: '사용자님의 학교 메일로 인증 링크가 전송되었습니다! 메일함을 확인해 주세요.', 
                             type: 'success' 
                         });
-                        btn.innerText = '인증 메일 확인 대기 중...';
                     } else {
                         throw new Error(data.error || '발송 실패');
                     }
                 })
                 .catch((error) => {
                     console.error('Backend Auth Error:', error);
-                    btn.disabled = false;
-                    btn.innerText = originalText;
                     showErrorModal('이메일 발송 오류: ' + error.message);
                 });
             };

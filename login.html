@@ -2,101 +2,128 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>로그인 처리 중 - My JDMS</title>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>인증 완료 - My JDMS</title>
     <style>
+        :root {
+            --primary: #3182f6;
+            --bg: #f2f4f6;
+            --text: #191f28;
+        }
         body {
-            font-family: -apple-system, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard Variable", Pretendard, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             margin: 0;
-            background: #f2f4f6;
-            color: #191f28;
             text-align: center;
         }
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(49, 130, 246, 0.2);
-            border-top: 4px solid #3182f6;
+        .container {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            max-width: 320px;
+            width: 90%;
+        }
+        .icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            margin-bottom: 20px;
+            margin-left: auto;
+            margin-right: auto;
+            animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes scaleIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+        h2 { margin: 0 0 10px 0; font-size: 20px; }
+        p { color: #4e5968; font-size: 14px; line-height: 1.5; margin: 0; }
+        .loader {
+            margin-top: 20px;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #eee;
+            border-top: 3px solid var(--primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-bottom: 20px;
+            display: inline-block;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        h1 { font-size: 20px; margin-bottom: 8px; }
-        p { font-size: 14px; color: #4e5968; }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
-    <div class="spinner"></div>
-    <h1>로그인 확인 중</h1>
-    <p>잠시만 기다려 주세요. 인증이 완료되면 자동으로 창이 닫힙니다.</p>
+    <div class="container">
+        <div id="status-icon" class="icon">✓</div>
+        <h2 id="status-title">인증 완료!</h2>
+        <p id="status-msg">성공적으로 로그인되었습니다.<br>잠시 후 이 창이 자동으로 닫힙니다.</p>
+        <div id="loader" class="loader"></div>
+    </div>
 
     <script>
-        const firebaseConfig = {
-          apiKey: "AIzaSyAKcosBAIbHPjrSeA_P97kniuiH_ncmHcA",
-          authDomain: "myjdms-app.firebaseapp.com",
-          projectId: "myjdms-app",
-          storageBucket: "myjdms-app.firebasestorage.app",
-          messagingSenderId: "1087899300940",
-          appId: "1:1087899300940:web:55e42de9095a1f45cdb0e9"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+        function completeAuth() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isSuccess = urlParams.get('auth_success') === 'true';
+            const encodedData = urlParams.get('data');
 
-        async function completeSignIn() {
-            if (auth.isSignInWithEmailLink(window.location.href)) {
-                let email = window.localStorage.getItem('emailForSignIn');
-                if (!email) {
-                    email = window.prompt('로그인을 완료하기 위해 이메일 주소를 다시 입력해주세요.');
-                }
-                
-                if (email) {
-                    try {
-                        const result = await auth.signInWithEmailLink(email, window.location.href);
-                        window.localStorage.removeItem('emailForSignIn');
-                        
-                        const user = result.user;
-                        const userData = {
-                            name: user.displayName || email.split('@')[0],
-                            displayName: user.displayName || email.split('@')[0],
-                            email: user.email,
-                            uid: user.uid,
-                            photoURL: user.photoURL
-                        };
-                        
-                        // Save to localStorage
+            if (isSuccess && encodedData) {
+                try {
+                    // 1. 데이터 해독 (Base64)
+                    const decodedData = JSON.parse(atob(encodedData.replace(/-/g, '+').replace(/_/g, '/')));
+                    
+                    if (decodedData && decodedData.email) {
+                        // 2. localStorage 저장
+                        const existing = JSON.parse(localStorage.getItem('userData') || '{}');
+                        const userData = { ...existing, ...decodedData };
                         localStorage.setItem('userData', JSON.stringify(userData));
                         
-                        // Broadcast to index.html
-                        const bc = new BroadcastChannel('myjdms_auth');
-                        bc.postMessage({ type: 'LOGIN_SUCCESS', userData });
-                        
-                        document.body.innerHTML = '<h1>로그인 완료!</h1><p>창이 곧 닫힙니다.</p>';
+                        // 3. 메인 창에 신호 전송 (BroadcastChannel)
+                        const authBc = new BroadcastChannel('myjdms_auth');
+                        authBc.postMessage({ type: 'LOGIN_SUCCESS', userData: userData });
+
+                        // 4. 창 닫기 시도
                         setTimeout(() => {
                             window.close();
-                            // Fallback if window.close() fails (sometimes happens in mobile browsers)
-                            window.location.href = 'index.html';
-                        }, 1000);
-                        
-                    } catch (error) {
-                        console.error('Login error:', error);
-                        document.body.innerHTML = '<h1>로그인 실패</h1><p>' + error.message + '</p>';
+                            // 만약 창이 안 닫히면 안내 메시지 변경
+                            setTimeout(() => {
+                                document.getElementById('status-msg').innerHTML = "창이 자동으로 닫히지 않으면<br>직접 닫고 메인 앱으로 돌아가주세요.";
+                                document.getElementById('loader').style.display = 'none';
+                            }, 500);
+                        }, 1500);
                     }
+                } catch (e) {
+                    console.error('Auth error:', e);
+                    showError("인증 정보 해독 중 오류가 발생했습니다.");
                 }
             } else {
-                window.location.href = 'index.html';
+                showError("유효하지 않은 접근입니다.");
             }
         }
 
-        completeSignIn();
+        function showError(msg) {
+            document.getElementById('status-icon').innerText = "!";
+            document.getElementById('status-icon').style.background = "#ff4d4f";
+            document.getElementById('status-title').innerText = "오류 발생";
+            document.getElementById('status-msg').innerText = msg;
+            document.getElementById('loader').style.display = 'none';
+        }
+
+        // 실행
+        window.onload = completeAuth;
     </script>
 </body>
 </html>
