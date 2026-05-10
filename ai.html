@@ -46,8 +46,8 @@
                     }
                     bottom = Math.min(Math.max(0, bottom), CAP_BOT);
 
-                    // 기본 하단 세이프영역은 기존의 절반 정도만 사용
-                    var baseBottom = Math.round(bottom * 0.5);
+                    // 기본 하단 세이프영역은 기존의 1/4 정도만 사용
+                    var baseBottom = Math.round(bottom * 0.25);
                     // 키보드가 올라오면 하단 세이프영역을 없애고, 내려가면 다시 복원
                     var active = document.activeElement;
                     var isEditableFocused = !!(
@@ -1005,7 +1005,7 @@
                 var payload = {
                     system_prompt: SYSTEM_PROMPT,
                     messages: aiHistory,
-                    model: 'compound-mini'
+                    model: 'groq/compound-mini'
                 };
                 var res = await fetch(BACKEND_AI_URL, {
                     method: 'POST',
