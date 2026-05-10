@@ -449,38 +449,41 @@
             width: 100%;
             overflow-x: auto;
             overflow-y: hidden;
-            margin: 8px 0;
+            margin: 10px 0;
             -webkit-overflow-scrolling: touch;
+            border-radius: 10px;
         }
         .msg-bot-body table {
-            width: max-content;
-            min-width: 100%;
-            border: 1px solid var(--border-soft);
-            border-radius: 12px;
-            border-collapse: separate;
-            border-spacing: 0;
+            width: 100%;
+            border: none;
+            border-radius: 10px;
+            border-collapse: collapse;
             overflow: hidden;
             background: var(--surface);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         .msg-bot-body th,
         .msg-bot-body td {
-            padding: 8px 10px;
-            border-right: 1px solid var(--border-soft);
+            padding: 10px 12px;
+            border: none;
             border-bottom: 1px solid var(--border-soft);
             text-align: left;
-            vertical-align: top;
-            white-space: nowrap;
+            vertical-align: middle;
+            white-space: normal;
+            word-break: break-word;
+            font-size: 14px;
         }
         .msg-bot-body th {
             font-weight: 700;
-            background: var(--announce-bg);
-        }
-        .msg-bot-body tr th:last-child,
-        .msg-bot-body tr td:last-child {
-            border-right: none;
+            background: linear-gradient(135deg, #3182f6, #2c5aa0);
+            color: white;
+            border-bottom: 2px solid #2c5aa0;
         }
         .msg-bot-body tr:last-child td {
             border-bottom: none;
+        }
+        .msg-bot-body tr:hover {
+            background: rgba(49, 130, 246, 0.05);
         }
 
         .msg-bot-body.ai-type-caret::after {
@@ -533,6 +536,15 @@
             50% {
                 transform: scale(1.08);
                 opacity: 1;
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
             }
         }
 
@@ -1134,10 +1146,36 @@
             function showTyping() {
                 if (!chatMessagesEl) return;
                 hideTyping();
+                
+                // 마지막 사용자 메시지 확인
+                var lastUserMsg = '';
+                for (var i = chatMessages.length - 1; i >= 0; i--) {
+                    if (chatMessages[i].role === 'user') {
+                        lastUserMsg = chatMessages[i].content.toLowerCase();
+                        break;
+                    }
+                }
+                
+                // 로딩 텍스트 결정
+                var loadingText = '답변을 찾는 중';
+                if (lastUserMsg.includes('시간표') || lastUserMsg.includes('수업')) {
+                    loadingText = '📚 시간표를 찾는 중';
+                } else if (lastUserMsg.includes('급식') || lastUserMsg.includes('밥') || lastUserMsg.includes('점심') || lastUserMsg.includes('조식') || lastUserMsg.includes('저녁')) {
+                    loadingText = '🍽️ 급식표를 찾는 중';
+                } else if (lastUserMsg.includes('일정') || lastUserMsg.includes('공지') || lastUserMsg.includes('행사')) {
+                    loadingText = '📅 일정을 찾는 중';
+                }
+                
                 var row = document.createElement('div');
                 row.className = 'msg-bot typing-row';
                 row.id = 'ai-typing-indicator';
-                row.innerHTML = '<div class="typing-pulse-wrap" aria-hidden="true"><span class="typing-pulse-dot"></span></div>';
+                
+                var body = document.createElement('div');
+                body.className = 'msg-bot-body typing-message';
+                body.textContent = loadingText;
+                body.style.cssText = 'background: linear-gradient(90deg, rgba(49,130,246,0.1) 0%, rgba(49,130,246,0.2) 50%, rgba(49,130,246,0.1) 100%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; padding: 12px; margin: 8px 0;';
+                
+                row.appendChild(body);
                 chatMessagesEl.appendChild(row);
                 scrollChatBottom();
             }
@@ -1160,7 +1198,7 @@
                 var payload = {
                     system_prompt: SYSTEM_PROMPT,
                     messages: aiHistory,
-                    model: 'mistral-large-latest',
+                    model: 'mistral-small-latest',
                     chat_session_id: (function () {
                         var k = 'jdms_ai_chat_session_id_v1';
                         var v = localStorage.getItem(k);
