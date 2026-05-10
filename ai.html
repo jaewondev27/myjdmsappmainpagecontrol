@@ -40,11 +40,24 @@
                     if (!isNaN(nativeB) && nativeB > 0.5) bottom = Math.max(bottom, nativeB);
                     if (bottomEnv > 0.5) bottom = Math.max(bottom, bottomEnv);
                     var vv = window.visualViewport;
+                    var vvBot = 0;
                     if (vv && vv.scale <= 1.02) {
-                        var vvBot = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
-                        if (vvBot > bottom + 24 && vvBot < 420) bottom = vvBot;
+                        vvBot = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
                     }
                     bottom = Math.min(Math.max(0, bottom), CAP_BOT);
+
+                    // 기본 하단 세이프영역은 기존의 절반 정도만 사용
+                    var baseBottom = Math.round(bottom * 0.5);
+                    // 키보드가 올라오면 하단 세이프영역을 없애고, 내려가면 다시 복원
+                    var active = document.activeElement;
+                    var isEditableFocused = !!(
+                        active &&
+                        (active.tagName === 'TEXTAREA' ||
+                         (active.tagName === 'INPUT' && active.type !== 'checkbox' && active.type !== 'radio' && active.type !== 'button') ||
+                         active.isContentEditable)
+                    );
+                    var keyboardOpen = vvBot > 120 && isEditableFocused;
+                    if (keyboardOpen) baseBottom = 0;
 
                     var rs = document.documentElement.style;
                     function setInsetVar(name, px) {
@@ -52,7 +65,7 @@
                         else rs.removeProperty(name);
                     }
                     setInsetVar('--sat', top);
-                    setInsetVar('--sab', bottom);
+                    setInsetVar('--sab', baseBottom);
                 } catch (e) {}
             }
             function __jdmsKickSafeInsets() {
@@ -69,6 +82,12 @@
             window.addEventListener('pageshow', __jdmsKickSafeInsets);
             document.addEventListener('visibilitychange', function () { if (!document.hidden) __jdmsKickSafeInsets(); });
             window.addEventListener('focus', __jdmsKickSafeInsets);
+            window.addEventListener('focusin', __jdmsKickSafeInsets);
+            window.addEventListener('focusout', function () { setTimeout(__jdmsKickSafeInsets, 40); });
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', __jdmsKickSafeInsets);
+                window.visualViewport.addEventListener('scroll', __jdmsKickSafeInsets);
+            }
         })();
     </script>
     <style>
@@ -715,6 +734,7 @@
             var SYSTEM_PROMPT = [
                 '당신은 중동중학교 My JDMS 앱 안내 AI입니다.',
                 '항상 한국어로 친절하고 간결하게 답합니다.',
+                '한자와 불필요한 영어(콩글리시 포함) 표현은 쓰지 않고 쉬운 한국어만 씁니다.',
                 '학교의 공식 입장을 대변하지 않으며, 불확실하면 담당 교사나 학교로 문의하라고 안내합니다.',
                 '중학생이 이해하기 쉬운 말을 씁니다.',
                 '유해·비방·시험 부정행위·개인정보(주민번호 등) 요청은 정중히 거절합니다.'
@@ -984,7 +1004,8 @@
             async function fetchBackendReply() {
                 var payload = {
                     system_prompt: SYSTEM_PROMPT,
-                    messages: aiHistory
+                    messages: aiHistory,
+                    model: 'compound-mini'
                 };
                 var res = await fetch(BACKEND_AI_URL, {
                     method: 'POST',
