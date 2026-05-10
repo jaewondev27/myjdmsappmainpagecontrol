@@ -2341,27 +2341,48 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             <iframe title="" loading="eager" src="https://jaewondev27.github.io/myjdmsappmainpagecontrol/mysetting"></iframe>
         </div>
     </div>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-          apiKey: "AIzaSyAKcosBAIbHPjrSeA_P97kniuiH_ncmHcA",
-          authDomain: "myjdms-app.firebaseapp.com",
-          projectId: "myjdms-app",
-          storageBucket: "myjdms-app.firebasestorage.app",
-          messagingSenderId: "1087899300940",
-          appId: "1:1087899300940:web:55e42de9095a1f45cdb0e9"
-        };
-        
-        // Initialize Firebase
-        if (typeof firebase !== 'undefined') {
-            firebase.initializeApp(firebaseConfig);
-            var auth = firebase.auth();
+        // --- DIY Auth Configuration ---
+        const BACKEND_URL = 'https://sigan.onrender.com';
+        let userData = null;
+
+        // Function to handle authentication signal from Python backend
+        function handleAuthSignal() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('auth_success') === 'true' && urlParams.get('data')) {
+                try {
+                    // Decode Base64 data from backend
+                    const encodedData = urlParams.get('data');
+                    const decodedData = JSON.parse(atob(encodedData.replace(/-/g, '+').replace(/_/g, '/')));
+                    
+                    if (decodedData && decodedData.email) {
+                        // Save to localStorage
+                        const existing = JSON.parse(localStorage.getItem('userData') || '{}');
+                        userData = { ...existing, ...decodedData };
+                        localStorage.setItem('userData', JSON.stringify(userData));
+                        
+                        // Clean URL parameters
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                        
+                        // Show success modal
+                        showCustomModal({
+                            title: '인증 성공',
+                            message: `${userData.name}님, 환영합니다!`,
+                            type: 'success'
+                        });
+                    }
+                } catch (e) {
+                    console.error('Auth signal error:', e);
+                }
+            }
+            try {
+                const rawUd = localStorage.getItem('userData');
+                if (rawUd) userData = JSON.parse(rawUd);
+            } catch (e) {}
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            handleAuthSignal(); // Check for backend auth signal
             function refreshLayoutSafeArea() {
                 if (window.__jdmsKickSafeInsets) window.__jdmsKickSafeInsets();
                 else if (window.__jdmsApplySafeInsetCssVars) window.__jdmsApplySafeInsetCssVars();
@@ -2477,7 +2498,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 if (!document.hidden) setTimeout(() => syncNativeStatusBar(), 50);
             });
 
-            let userData = null;
             try {
                 const rawUd = localStorage.getItem('userData');
                 if (rawUd) userData = JSON.parse(rawUd);
@@ -2633,46 +2653,40 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 const splashScreen = document.getElementById('splash-screen');
                 if (splashScreen) splashScreen.classList.add('hidden');
                 
-                auth.onAuthStateChanged((user) => {
-                    if (user) {
-                        const existingData = JSON.parse(localStorage.getItem('userData') || '{}');
-                        userData = {
-                            ...existingData,
-                            name: existingData.name || user.displayName || user.email.split('@')[0],
-                            email: user.email,
-                            uid: user.uid
-                        };
-                        localStorage.setItem('userData', JSON.stringify(userData));
-                        
-                        if (!userData.grade || !userData.class || !userData.number) {
-                            // Needs info
-                            setupScreen.classList.remove('hidden');
-                            document.getElementById('setup-step-login').classList.add('hidden');
-                            document.getElementById('setup-step-info').classList.remove('hidden');
-                            document.getElementById('setup-name').value = userData.name;
-                            document.getElementById('setup-title').innerText = '거의 다 됐어요!';
-                            document.getElementById('setup-desc').innerText = '마지막으로 학교 정보를 입력해 주세요.';
-                        } else {
-                            // Ready
+                const rawData = localStorage.getItem('userData');
+                if (rawData) {
+                    try {
+                        userData = JSON.parse(rawData);
+                        if (userData.email && userData.grade && userData.class && userData.number) {
+                            // Ready to go
                             setupScreen.classList.add('hidden');
                             startApp();
                             showPreloadedBanner();
+                            return;
                         }
-                    } else {
-                        // Not logged in
-                        setupScreen.classList.remove('hidden');
-                        document.getElementById('setup-step-login').classList.remove('hidden');
-                        document.getElementById('setup-step-info').classList.add('hidden');
-                    }
-                });
+                    } catch (e) {}
+                }
+
+                // If no user data or incomplete info, show appropriate setup step
+                setupScreen.classList.remove('hidden');
+                if (userData && userData.email) {
+                    // Logged in but info missing
+                    document.getElementById('setup-step-login').classList.add('hidden');
+                    document.getElementById('setup-step-info').classList.remove('hidden');
+                    document.getElementById('setup-name').value = userData.name || '';
+                } else {
+                    // Not logged in
+                    document.getElementById('setup-step-login').classList.remove('hidden');
+                    document.getElementById('setup-step-info').classList.add('hidden');
+                }
             }
 
-            // Listen for login from login.html
+            // Listen for login from custom verify page
             const authBc = new BroadcastChannel('myjdms_auth');
             authBc.onmessage = (ev) => {
                 if (ev.data.type === 'LOGIN_SUCCESS') {
-                    // Update user data and refresh state
                     userData = ev.data.userData;
+                    localStorage.setItem('userData', JSON.stringify(userData));
                     runSplashSequence();
                 }
             };
@@ -2723,7 +2737,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 return window.showCustomModal({ title: '오류', message: msg, type: 'error' });
             };
 
-            // Email Link Sign-In Handler
+            // Email Link Sign-In Handler (Calling Python Backend)
             window.handleEmailLinkSignIn = function() {
                 const email = document.getElementById('setup-email').value.trim();
                 if (!email) {
@@ -2736,32 +2750,38 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     return;
                 }
                 
-                // Redirect to login.html to complete sign-in
-                let continueUrl = window.location.origin + window.location.pathname.replace('index.html', '') + 'login.html';
-                if (window.location.protocol === 'file:') {
-                    showCustomModal({ title: '환경 오류', message: '로컬 파일 환경에서는 인증이 제한됩니다. 웹 서버를 사용해 주세요.', type: 'error' });
-                    return;
-                }
+                // Show loading state
+                const btn = document.getElementById('btn-send-link');
+                const originalText = btn.innerText;
+                btn.disabled = true;
+                btn.innerText = '인증 메일 발송 중...';
 
-                const actionCodeSettings = {
-                    url: continueUrl,
-                    handleCodeInApp: true
-                };
-                auth.sendSignInLinkToEmail(email, actionCodeSettings)
-                    .then(() => {
+                // Call Python Backend at sigan.onrender.com
+                fetch(`${BACKEND_URL}/api/auth/send-link`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
                         window.localStorage.setItem('emailForSignIn', email);
                         showCustomModal({ 
                             title: '메일 발송 완료', 
-                            message: '인증 링크가 전송되었습니다! 메일함(또는 스팸함)을 확인하여 링크를 클릭해주세요.', 
+                            message: '사용자님의 학교 메일로 인증 링크가 전송되었습니다! 메일함을 확인해 주세요.', 
                             type: 'success' 
                         });
-                        const btn = document.getElementById('btn-send-link');
-                        if (btn) btn.innerText = '인증 메일 확인 대기 중...';
-                    })
-                    .catch((error) => {
-                        console.error('Email Link Error:', error);
-                        showErrorModal('이메일 발송 오류: ' + error.message);
-                    });
+                        btn.innerText = '인증 메일 확인 대기 중...';
+                    } else {
+                        throw new Error(data.error || '발송 실패');
+                    }
+                })
+                .catch((error) => {
+                    console.error('Backend Auth Error:', error);
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                    showErrorModal('이메일 발송 오류: ' + error.message);
+                });
             };
 
             const emailLinkBtn = document.getElementById('btn-send-link');
@@ -3301,14 +3321,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     cancelText: '취소'
                 });
                 if (!ok) return;
-                
-                if (typeof auth !== 'undefined') {
-                    auth.signOut().then(() => {
-                        resetAppSettings();
-                    });
-                } else {
-                    resetAppSettings();
-                }
+                resetAppSettings();
             };
 
             function syncUserDataFromSettingsPage() {
