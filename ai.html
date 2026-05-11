@@ -199,6 +199,77 @@
             display: none !important;
         }
 
+        /* ── 상단 네비게이션 바 ── */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: var(--surface);
+            display: flex;
+            align-items: center;
+            padding-top: var(--sat);
+            height: calc(var(--sat) + 52px);
+            padding-left: 4px;
+            padding-right: 16px;
+            border-bottom: 1px solid var(--border-soft);
+        }
+
+        .top-nav-back {
+            width: 44px;
+            height: 44px;
+            border: none;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-main);
+            flex-shrink: 0;
+            -webkit-appearance: none;
+            appearance: none;
+            border-radius: 12px;
+        }
+
+        .top-nav-back:active {
+            opacity: 0.55;
+        }
+
+        .top-nav-back svg {
+            width: 22px;
+            height: 22px;
+            stroke-width: 2.2;
+        }
+
+        .top-nav-title {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0;
+            padding-left: 4px;
+        }
+
+        .top-nav-title-school {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .top-nav-title-label {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
         .ai-app {
             position: fixed;
             top: 0;
@@ -210,7 +281,7 @@
             background: var(--surface);
             padding-left: 16px;
             padding-right: 16px;
-            padding-top: calc(var(--sat) + 14px);
+            padding-top: calc(var(--sat) + 52px); /* nav bar height */
         }
 
         /* 공지 배너 */
@@ -311,11 +382,11 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 18px 0 14px;
+            margin: 28px 0 20px;
         }
 
         .chat-date-divider:first-child {
-            margin-top: 2px;
+            margin-top: 14px;
         }
 
         .chat-date-divider span {
@@ -337,7 +408,8 @@
         }
 
         .msg-bot {
-            padding-bottom: 8px;
+            padding-bottom: 6px;
+            margin-top: 4px;
         }
 
         .msg-bot-body {
@@ -409,8 +481,8 @@
         .msg-user {
             display: flex;
             justify-content: flex-end;
-            margin-top: 18px;
-            margin-bottom: 8px;
+            margin-top: 22px;
+            margin-bottom: 16px;
         }
 
         .msg-user-bubble {
@@ -590,31 +662,27 @@
             pointer-events: none;
         }
 
-        /* 하단 입력 */
+        /* ── 하단 입력 (카카오 ChatGPT 스타일) ── */
         .composer-wrap {
             flex-shrink: 0;
-            padding-bottom: calc(16px + var(--sab));
-            padding-top: 6px;
+            padding: 8px 0 calc(12px + var(--sab));
             background: var(--surface);
-            /* 키보드 대응: visualViewport로 직접 위치 제어 */
             transition: padding-bottom 0.05s linear;
         }
 
         .composer {
             background: var(--composer-bg);
-            border-radius: 22px;
+            border-radius: 28px;
             border: 1px solid var(--border-soft);
             display: flex;
             flex-direction: column;
-            gap: 0;
-            /* 오른쪽·아래 여백 동일 (전송 버튼 기준) */
-            padding: 8px 8px 8px 12px;
+            overflow: hidden;
         }
 
+        /* 텍스트 입력 영역 */
         .composer-field-wrap {
             position: relative;
-            min-height: 0;
-            margin-left: 3px;
+            padding: 14px 16px 4px 16px;
         }
 
         .composer-input {
@@ -623,44 +691,48 @@
             background: transparent;
             resize: none;
             font: inherit;
-            font-size: 15px;
-            font-weight: 500;
+            font-size: 16px;
+            font-weight: 400;
             color: var(--text-main);
-            line-height: 1.4;
-            min-height: calc(15px * 1.4);
-            max-height: 96px;
+            line-height: 1.45;
+            min-height: calc(16px * 1.45);
+            max-height: 120px;
             padding: 0;
             margin: 0;
             outline: none;
             user-select: text;
             -webkit-user-select: text;
+            display: block;
         }
 
         .composer-input::placeholder {
             color: var(--text-mute);
         }
 
+        /* 하단 툴바 */
         .composer-toolbar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-top: 0;
-            padding-top: 0;
+            padding: 6px 8px 8px 8px;
+            gap: 6px;
         }
 
         .composer-tools-left {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
+            flex: 1;
         }
 
+        /* + 버튼 */
         .icon-btn {
             width: 34px;
             height: 34px;
             border: none;
-            border-radius: 12px;
+            border-radius: 50%;
             background: transparent;
-            color: var(--icon-gray);
+            color: var(--text-sub);
             cursor: pointer;
             display: inline-flex;
             align-items: center;
@@ -668,31 +740,63 @@
             padding: 0;
             -webkit-appearance: none;
             appearance: none;
+            font-size: 22px;
+            font-weight: 300;
+            line-height: 1;
+            flex-shrink: 0;
         }
 
-        .icon-btn:active {
-            opacity: 0.65;
+        .icon-btn:active { opacity: 0.55; }
+
+        /* assistant 뱃지 */
+        .composer-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 10px 5px 6px;
+            border-radius: 999px;
+            background: rgba(0,0,0,0.06);
+            cursor: default;
+            flex-shrink: 0;
         }
 
-        .icon-btn svg {
+        body.dark-mode .composer-badge {
+            background: rgba(255,255,255,0.08);
+        }
+
+        .composer-badge-dot {
             width: 18px;
             height: 18px;
-            stroke-width: 2;
+            border-radius: 50%;
+            border: 2px solid;
+            border-color: #e91e8c;
+            background: transparent;
+            flex-shrink: 0;
+        }
+
+        .composer-badge-label {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .send-btn {
-            width: 34px;
-            height: 34px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             border: none;
-            background: var(--primary);
-            color: #fff;
+            background: var(--text-main);
+            color: var(--surface);
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            box-shadow: 0 3px 10px rgba(49, 130, 246, 0.32);
+            box-shadow: none;
             -webkit-appearance: none;
             appearance: none;
             transition: transform 0.12s ease, opacity 0.12s ease;
@@ -732,6 +836,34 @@
             pointer-events: none;
             box-shadow: none;
         }
+        /* ── 스피너 전용 오버레이 (스플래시 아닐 때) ── */
+        #mini-loader {
+            position: fixed;
+            inset: 0;
+            background: var(--surface);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.35s ease, visibility 0.35s ease;
+        }
+        #mini-loader.hide {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .mini-loader-svg {
+            width: 38px;
+            height: 38px;
+            animation: google-rotate 2s linear infinite;
+        }
+        .mini-loader-circle {
+            stroke: var(--primary);
+            stroke-linecap: round;
+            transform-origin: center;
+            animation: google-dash 1.5s ease-in-out infinite;
+        }
+
         /* ============ 스플래시 화면 ============ */
         #splash-screen {
             position: fixed;
@@ -845,7 +977,7 @@
         }
 
         .loader-circle {
-            stroke: #ffffff;
+            stroke: var(--primary);
             stroke-linecap: round;
             transform-origin: center;
             animation: google-dash 1.5s ease-in-out infinite;
@@ -872,6 +1004,13 @@
     </style>
 </head>
 <body>
+    <!-- 스피너 전용 오버레이 (스플래시 아닐 때) -->
+    <div id="mini-loader" style="display:none;">
+        <svg class="mini-loader-svg" viewBox="0 0 50 50">
+            <circle class="mini-loader-circle" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+        </svg>
+    </div>
+
     <div id="splash-screen">
         <div class="splash-content">
             <div class="splash-title">중동중학교</div>
@@ -883,6 +1022,20 @@
             </div>
         </div>
     </div>
+
+    <!-- 상단 네비게이션 바 -->
+    <nav class="top-nav" id="top-nav">
+        <button type="button" class="top-nav-back" id="btn-back" aria-label="뒤로가기">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"/>
+            </svg>
+        </button>
+        <div class="top-nav-title">
+            <span class="top-nav-title-school">중동중학교</span>
+            <span class="top-nav-title-label">assistant</span>
+        </div>
+    </nav>
+
     <div id="top-status-bar-vignette"></div>
     <div id="top-soft-vignette" aria-hidden="true"></div>
     <div class="ai-app">
@@ -893,23 +1046,15 @@
         <footer class="composer-wrap">
             <div class="composer">
                 <div class="composer-field-wrap">
-                    <textarea id="composer-input" class="composer-input" rows="1" placeholder="메시지를 입력해주세요." maxlength="2000" autocomplete="off"></textarea>
+                    <textarea id="composer-input" class="composer-input" rows="1" placeholder="무엇이든 물어보세요" maxlength="2000" autocomplete="off"></textarea>
                 </div>
                 <div class="composer-toolbar">
                     <div class="composer-tools-left">
-                        <button type="button" class="icon-btn" aria-label="첨부">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.38-8.38a4 4 0 0 1 5.66 5.66l-8.38 8.38a2 2 0 0 1-2.83-2.83l7.07-7.07" />
-                            </svg>
-                        </button>
-                        <button type="button" class="icon-btn" aria-label="이모지">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-                                <line x1="9" x2="9.01" y1="9" y2="9" />
-                                <line x1="15" x2="15.01" y1="9" y2="9" />
-                            </svg>
-                        </button>
+                        <button type="button" class="icon-btn" aria-label="추가">+</button>
+                        <div class="composer-badge">
+                            <span class="composer-badge-dot"></span>
+                            <span class="composer-badge-label">assistant</span>
+                        </div>
                     </div>
                     <button type="button" class="send-btn" id="send-btn" aria-label="보내기">
                         <svg class="icon-send" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -966,6 +1111,7 @@
             (function() {
                 var aiApp = document.querySelector('.ai-app');
                 var composerWrap = document.querySelector('.composer-wrap');
+                var topNav = document.getElementById('top-nav');
                 if (!aiApp || !composerWrap) return;
 
                 function updateLayout() {
@@ -979,14 +1125,13 @@
                     // visualViewport의 실제 위치·크기로 ai-app 영역을 고정
                     aiApp.style.top = vvTop + 'px';
                     aiApp.style.height = vvH + 'px';
+                    if (topNav) topNav.style.top = vvTop + 'px';
 
                     // 키보드가 올라온 만큼 composer-wrap 하단 여백 조정
                     var keyboardH = Math.max(0, windowH - (vvTop + vvH));
                     if (keyboardH > 50) {
-                        // 키보드가 있는 경우: 하단 safe area 없애고 키보드 위에 붙임
-                        composerWrap.style.paddingBottom = '8px';
+                        composerWrap.style.paddingBottom = '6px';
                     } else {
-                        // 키보드 없는 경우: 원래 safe area 복원
                         composerWrap.style.paddingBottom = '';
                     }
                 }
@@ -1070,16 +1215,71 @@
             var chatScroll = document.getElementById('chat-scroll');
             var composerWrap = document.querySelector('.composer-wrap');
             var splashScreen = document.getElementById('splash-screen');
+            var miniLoader = document.getElementById('mini-loader');
 
-            // 스플래시 숨김 (3.8초 후)
-            setTimeout(function() {
+            // ── 뒤로가기 버튼 (웹뷰 & 브라우저 모두 지원) ──
+            var backBtn = document.getElementById('btn-back');
+            if (backBtn) {
+                backBtn.addEventListener('click', function () {
+                    // Android WebView 인터페이스
+                    if (typeof AndroidInterface !== 'undefined' && AndroidInterface.closePage) {
+                        try { AndroidInterface.closePage(); return; } catch (e) {}
+                    }
+                    // iOS WebKit handler
+                    if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.closePage) {
+                        try { window.webkit.messageHandlers.closePage.postMessage(null); return; } catch (e) {}
+                    }
+                    // JavaScript bridge fallback (앱에서 window.close 허용 시)
+                    if (window.opener || window.history.length <= 1) {
+                        window.close();
+                        return;
+                    }
+                    history.back();
+                });
+            }
+
+            // ── 스플래시 / 스피너 로직 (4번에 1번 스플래시) ──
+            var SPLASH_COUNT_KEY = 'jdms_ai_splash_count_v1';
+            var SPLASH_INTERVAL = 4; // 매 N번째에만 스플래시
+
+            function getSplashCount() {
+                try { return parseInt(localStorage.getItem(SPLASH_COUNT_KEY) || '0', 10) || 0; } catch (e) { return 0; }
+            }
+            function incSplashCount() {
+                try { localStorage.setItem(SPLASH_COUNT_KEY, String(getSplashCount() + 1)); } catch (e) {}
+            }
+
+            var count = getSplashCount();
+            var showFullSplash = (count % SPLASH_INTERVAL === 0); // 0, 4, 8... 번째에 스플래시
+            incSplashCount();
+
+            if (showFullSplash) {
+                // 풀 스플래시: mini-loader 숨김, splash 표시
+                if (miniLoader) miniLoader.style.display = 'none';
                 if (splashScreen) {
-                    splashScreen.classList.add('hide');
+                    splashScreen.style.display = '';
                     setTimeout(function() {
-                        if (splashScreen.parentNode) splashScreen.parentNode.removeChild(splashScreen);
-                    }, 500);
+                        splashScreen.classList.add('hide');
+                        setTimeout(function() {
+                            if (splashScreen.parentNode) splashScreen.parentNode.removeChild(splashScreen);
+                        }, 500);
+                    }, 3800);
                 }
-            }, 3800);
+            } else {
+                // 스피너만: splash 즉시 제거, mini-loader 표시 후 빠르게 사라짐
+                if (splashScreen) {
+                    splashScreen.style.display = 'none';
+                }
+                if (miniLoader) {
+                    miniLoader.style.display = 'flex';
+                    setTimeout(function() {
+                        miniLoader.classList.add('hide');
+                        setTimeout(function() {
+                            if (miniLoader.parentNode) miniLoader.parentNode.removeChild(miniLoader);
+                        }, 400);
+                    }, 900);
+                }
+            }
 
             // 햅틱 헬퍼
             function microHaptic() {
@@ -1104,10 +1304,16 @@
             var WELCOME_ASSISTANT_TEXT = '안녕하세요 JDMS AI입니다. 😊\n무엇을 도와드릴까요?';
             var BOT_AVATAR_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2M20 14h2M15 13v2M9 13v2" /></svg>';
 
-            var chatMessages = [];
+            // 학년·반·번호를 localStorage에서 가져와 시스템 프롬프트에 주입
+            var __ud = (function() { try { return JSON.parse(localStorage.getItem('userData') || '{}'); } catch(e) { return {}; } })();
+            var __grade  = __ud.grade  || null;
+            var __class  = __ud.class  || null;
+            var __number = __ud.number || null;
+            var __userCtx = '';
+            if (__grade && __class) {
+                __userCtx = ' 현재 대화 중인 학생은 ' + __grade + '학년 ' + __class + '반' + (__number ? ' ' + __number + '번' : '') + '입니다. 시간표 등 학년·반 관련 질문에는 이 정보를 자동으로 활용하세요.';
+            }
 
-            var BACKEND_URL = 'https://sigan.onrender.com';
-            var BACKEND_AI_URL = BACKEND_URL + '/api/ai/chat';
             var SYSTEM_PROMPT = [
                 '당신은 중동중학교 My JDMS 앱 안내 AI입니다.',
                 '항상 한국어로 친절하고 간결하게 답합니다.',
@@ -1116,7 +1322,12 @@
                 '학교의 공식 입장을 대변하지 않으며, 불확실하면 담당 교사나 학교로 문의하라고 안내합니다.',
                 '중학생이 이해하기 쉬운 말을 씁니다.',
                 '유해·비방·시험 부정행위·개인정보(주민번호 등) 요청은 정중히 거절합니다.'
-            ].join(' ');
+            ].join(' ') + __userCtx;
+
+            var chatMessages = [];
+
+            var BACKEND_URL = 'https://sigan.onrender.com';
+            var BACKEND_AI_URL = BACKEND_URL + '/api/ai/chat';
 
             var aiHistory = [];
 
