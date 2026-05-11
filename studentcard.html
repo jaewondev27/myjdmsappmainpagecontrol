@@ -1032,10 +1032,52 @@
                 transform: translateY(0);
             }
         }
+        /* ── 페이지 진입 로딩 스피너 ── */
+        #page-loader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.35s ease, visibility 0.35s ease;
+        }
+        #page-loader.hide {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .page-loader-spinner {
+            width: 40px;
+            height: 40px;
+            animation: pl-rotate 1.4s linear infinite;
+        }
+        .page-loader-circle {
+            stroke: var(--primary);
+            stroke-linecap: round;
+            transform-origin: center;
+            animation: pl-dash 1.4s ease-in-out infinite;
+        }
+        @keyframes pl-rotate {
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes pl-dash {
+            0%   { stroke-dasharray: 1, 120; stroke-dashoffset: 0; }
+            50%  { stroke-dasharray: 89, 120; stroke-dashoffset: -35; }
+            100% { stroke-dasharray: 89, 120; stroke-dashoffset: -124; }
+        }
     </style>
 </head>
 
 <body>
+    <!-- 페이지 진입 로딩 오버레이 -->
+    <div id="page-loader">
+        <svg class="page-loader-spinner" viewBox="0 0 50 50">
+            <circle class="page-loader-circle" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+        </svg>
+    </div>
+
     <div id="agreement-overlay" class="agreement-overlay hidden">
         <div class="agreement-content">
             <div class="agreement-box">
@@ -1175,6 +1217,28 @@
 
         <script>
             (function () {
+                // ── 로딩 스피너 숨기기 (페이지 준비되면 제거) ──
+                function hidePageLoader() {
+                    var loader = document.getElementById('page-loader');
+                    if (!loader) return;
+                    loader.classList.add('hide');
+                    setTimeout(function() {
+                        if (loader.parentNode) loader.parentNode.removeChild(loader);
+                    }, 400);
+                }
+                // DOM 준비 + 최소 600ms 이후에 숨김 (너무 짧으면 깜빡임)
+                var loaderStartTime = Date.now();
+                var MIN_LOADER_MS = 700;
+                if (document.readyState === 'complete') {
+                    var elapsed = Date.now() - loaderStartTime;
+                    setTimeout(hidePageLoader, Math.max(0, MIN_LOADER_MS - elapsed));
+                } else {
+                    window.addEventListener('load', function() {
+                        var elapsed = Date.now() - loaderStartTime;
+                        setTimeout(hidePageLoader, Math.max(0, MIN_LOADER_MS - elapsed));
+                    });
+                }
+
                 const STORAGE_KEY = "myjdms_student_card_v1";
                 const THEME_MODE_KEY = "theme_mode";
                 const BC_KEY = "myjdms_theme_sync_v1";

@@ -200,8 +200,11 @@
         }
 
         .ai-app {
-            height: 100%;
-            height: 100dvh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             display: flex;
             flex-direction: column;
             background: var(--surface);
@@ -593,6 +596,8 @@
             padding-bottom: calc(16px + var(--sab));
             padding-top: 6px;
             background: var(--surface);
+            /* 키보드 대응: visualViewport로 직접 위치 제어 */
+            transition: padding-bottom 0.05s linear;
         }
 
         .composer {
@@ -956,6 +961,43 @@
             applyTheme(themeMode);
 
             if (typeof window.__jdmsKickSafeInsets === 'function') window.__jdmsKickSafeInsets();
+
+            // ── 키보드 올라올 때 입력창만 올라가도록 (visualViewport 기반) ──
+            (function() {
+                var aiApp = document.querySelector('.ai-app');
+                var composerWrap = document.querySelector('.composer-wrap');
+                if (!aiApp || !composerWrap) return;
+
+                function updateLayout() {
+                    var vv = window.visualViewport;
+                    if (!vv) return;
+
+                    var windowH = window.innerHeight;
+                    var vvTop = vv.offsetTop;
+                    var vvH = vv.height;
+
+                    // visualViewport의 실제 위치·크기로 ai-app 영역을 고정
+                    aiApp.style.top = vvTop + 'px';
+                    aiApp.style.height = vvH + 'px';
+
+                    // 키보드가 올라온 만큼 composer-wrap 하단 여백 조정
+                    var keyboardH = Math.max(0, windowH - (vvTop + vvH));
+                    if (keyboardH > 50) {
+                        // 키보드가 있는 경우: 하단 safe area 없애고 키보드 위에 붙임
+                        composerWrap.style.paddingBottom = '8px';
+                    } else {
+                        // 키보드 없는 경우: 원래 safe area 복원
+                        composerWrap.style.paddingBottom = '';
+                    }
+                }
+
+                if (window.visualViewport) {
+                    window.visualViewport.addEventListener('resize', updateLayout);
+                    window.visualViewport.addEventListener('scroll', updateLayout);
+                }
+                window.addEventListener('resize', updateLayout);
+                updateLayout();
+            })();
 
             function formatMetaTimeAt(ts) {
                 try {
@@ -1422,8 +1464,8 @@
                     })(),
                     school: (localStorage.getItem('school_name') || '중동중학교'),
                     grade: (function () { try { return JSON.parse(localStorage.getItem('userData') || '{}').grade || 2; } catch (e) { return 2; } })(),
-                    class: (function () { try { return JSON.parse(localStorage.getItem('userData') || '{}').class || 8; } catch (e) { return 8; } })()
-                };
+                    class: (function () { try { return JSON.parse(localStorage.getItem('userData') || '{}').class || 8; } catch (e) { return 8; } })(),
+                    number: (function () { try { return JSON.parse(localStorage.getItem('userData') || '{}').number || null; } catch (e) { return null; } })()                };
                 
                 var res = await fetch(BACKEND_AI_URL, {
                     method: 'POST',
