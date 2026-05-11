@@ -173,17 +173,14 @@
             height: var(--sat);
             z-index: 10;
             pointer-events: none;
-            background: linear-gradient(180deg, var(--surface) 0%, var(--surface) 52%, transparent 100%);
+            background: linear-gradient(180deg, 
+                var(--surface) 0%, 
+                var(--surface) 60%,
+                color-mix(in srgb, var(--surface) 70%, transparent) 85%,
+                transparent 100%);
         }
         #top-soft-vignette {
-            position: fixed;
-            top: var(--sat);
-            left: 0;
-            right: 0;
-            height: 14px;
-            z-index: 10;
-            pointer-events: none;
-            background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 78%, transparent) 0%, transparent 100%);
+            display: none;
         }
 
         body::after {
@@ -211,31 +208,6 @@
             padding-left: 16px;
             padding-right: 16px;
             padding-top: calc(var(--sat) + 14px);
-        }
-
-        /* 상단바 */
-        .top-bar {
-            width: calc(100% + 32px);
-            margin-left: -16px;
-            margin-right: -16px;
-            margin-top: calc(0px - var(--sat) - 14px);
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-bottom: 1px solid var(--border-soft);
-            background: var(--surface);
-            flex-shrink: 0;
-            margin-bottom: 8px;
-            box-sizing: border-box;
-        }
-
-        .top-bar-title {
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--text-main);
-            letter-spacing: -0.02em;
-            line-height: 1;
         }
 
         /* 공지 배너 */
@@ -732,21 +704,183 @@
             stroke-width: 2.5;
         }
 
+        .send-btn .icon-stop {
+            display: none;
+        }
+        .send-btn.is-stopping {
+            background: #ef4444 !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            cursor: pointer;
+        }
+        .send-btn.is-stopping .icon-send {
+            display: none;
+        }
+        .send-btn.is-stopping .icon-stop {
+            display: block;
+            width: 14px;
+            height: 14px;
+        }
+
         .send-btn:disabled {
             opacity: 0.45;
             pointer-events: none;
             box-shadow: none;
         }
+        /* ============ 스플래시 화면 ============ */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--surface);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        #splash-screen.hide {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .splash-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .splash-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.03em;
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            padding: 4px 8px;
+            transform-origin: center;
+            animation: splash-title-shrink 0.6s ease 2.0s forwards;
+        }
+
+        .splash-title::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--surface);
+            animation: splash-wipe 1.4s cubic-bezier(0.77, 0, 0.18, 1) 0.3s forwards;
+        }
+
+        @keyframes splash-wipe {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(110%);
+            }
+        }
+
+        @keyframes splash-title-shrink {
+            0% {
+                transform: scale(1) translateY(0);
+            }
+            100% {
+                transform: scale(0.55) translateY(-4px);
+            }
+        }
+
+        .splash-subtitle {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: splash-subtitle-in 0.5s ease 2.5s forwards;
+            margin-top: -18px;
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        @keyframes splash-subtitle-in {
+            0% {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .splash-loader {
+            opacity: 0;
+            animation: splash-loader-in 0.4s ease 3.0s forwards;
+            margin-top: 8px;
+        }
+
+        @keyframes splash-loader-in {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .google-loader {
+            width: 32px;
+            height: 32px;
+            animation: google-rotate 2s linear infinite;
+        }
+
+        .loader-circle {
+            stroke: #ffffff;
+            stroke-linecap: round;
+            transform-origin: center;
+            animation: google-dash 1.5s ease-in-out infinite;
+        }
+
+        @keyframes google-rotate {
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes google-dash {
+            0% {
+                stroke-dasharray: 1, 125;
+                stroke-dashoffset: 0;
+            }
+            50% {
+                stroke-dasharray: 90, 125;
+                stroke-dashoffset: -35;
+            }
+            100% {
+                stroke-dasharray: 90, 125;
+                stroke-dashoffset: -124;
+            }
+        }
     </style>
 </head>
 <body>
+    <div id="splash-screen">
+        <div class="splash-content">
+            <div class="splash-title">중동중학교</div>
+            <div class="splash-subtitle">assistant</div>
+            <div class="splash-loader">
+                <svg class="google-loader" viewBox="0 0 50 50">
+                    <circle class="loader-circle" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+                </svg>
+            </div>
+        </div>
+    </div>
     <div id="top-status-bar-vignette"></div>
     <div id="top-soft-vignette" aria-hidden="true"></div>
     <div class="ai-app">
-        <header class="top-bar">
-            <div class="top-bar-title">중동중학교</div>
-        </header>
-
         <div class="chat-scroll" id="chat-scroll" aria-live="polite">
             <div id="chat-messages"></div>
         </div>
@@ -773,9 +907,12 @@
                         </button>
                     </div>
                     <button type="button" class="send-btn" id="send-btn" aria-label="보내기">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <svg class="icon-send" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <line x1="12" x2="12" y1="19" y2="5" />
                             <polyline points="5 12 12 5 19 12" />
+                        </svg>
+                        <svg class="icon-stop" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <rect x="6" y="6" width="12" height="12" rx="2" />
                         </svg>
                     </button>
                 </div>
@@ -890,6 +1027,35 @@
             var chatMessagesEl = document.getElementById('chat-messages');
             var chatScroll = document.getElementById('chat-scroll');
             var composerWrap = document.querySelector('.composer-wrap');
+            var splashScreen = document.getElementById('splash-screen');
+
+            // 스플래시 숨김 (3.8초 후)
+            setTimeout(function() {
+                if (splashScreen) {
+                    splashScreen.classList.add('hide');
+                    setTimeout(function() {
+                        if (splashScreen.parentNode) splashScreen.parentNode.removeChild(splashScreen);
+                    }, 500);
+                }
+            }, 3800);
+
+            // 햅틱 헬퍼
+            function microHaptic() {
+                if (navigator.vibrate) {
+                    try { navigator.vibrate(3); } catch (e) {}
+                }
+            }
+            var __hapticInterval = null;
+            function startTypingHaptic() {
+                stopTypingHaptic();
+                __hapticInterval = setInterval(microHaptic, 80);
+            }
+            function stopTypingHaptic() {
+                if (__hapticInterval) {
+                    clearInterval(__hapticInterval);
+                    __hapticInterval = null;
+                }
+            }
 
             var STORAGE_KEY = 'jdms_ai_chat_v1';
             var MAX_CHAT_MESSAGES = 200;
@@ -1087,7 +1253,7 @@
             function appendBotMessageWithTyping(fullText, onComplete) {
                 if (!chatMessagesEl) {
                     if (onComplete) onComplete();
-                    return;
+                    return { cancel: function() {} };
                 }
                 var raw = (fullText == null || fullText === '') ? '(응답이 비었어요)' : String(fullText);
                 var tsStart = Date.now();
@@ -1105,11 +1271,16 @@
                 var chars = Array.from(raw);
                 var n = chars.length;
                 var idx = 0;
+                var cancelled = false;
+
+                // 타이핑 시작 시 햅틱 시작
+                startTypingHaptic();
 
                 function finishTyping() {
                     var atDone = Date.now();
                     body.innerHTML = renderAiMarkdown(raw);
                     body.classList.remove('ai-type-caret');
+                    stopTypingHaptic();  // 타이핑 끝나면 햅틱 정지
                     chatMessages.push(makeStoredMessage('assistant', raw, atDone));
                     saveChatStorage();
                     rebuildGeminiHistoryFromChat();
@@ -1119,7 +1290,7 @@
 
                 if (n === 0) {
                     finishTyping();
-                    return;
+                    return { cancel: function() {} };
                 }
 
                 var targetMs = 11200;
@@ -1132,6 +1303,7 @@
                 }
 
                 function tick() {
+                    if (cancelled) return;
                     if (idx >= n) {
                         finishTyping();
                         return;
@@ -1144,6 +1316,14 @@
                 }
 
                 tick();
+
+                return {
+                    cancel: function() {
+                        cancelled = true;
+                        // 현재까지 타이핑된 내용으로 마감
+                        finishTyping();
+                    }
+                };
             }
 
             function trimGeminiHistory() {
@@ -1182,8 +1362,18 @@
                 
                 var body = document.createElement('div');
                 body.className = 'msg-bot-body typing-message';
-                body.textContent = loadingText;
-                body.style.cssText = 'background: linear-gradient(90deg, rgba(49,130,246,0.1) 0%, rgba(49,130,246,0.2) 50%, rgba(49,130,246,0.1) 100%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; padding: 12px; margin: 8px 0;';
+                body.style.cssText = 'background: linear-gradient(90deg, rgba(49,130,246,0.1) 0%, rgba(49,130,246,0.2) 50%, rgba(49,130,246,0.1) 100%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; padding: 12px; margin: 8px 0; display: flex; align-items: center; justify-content: space-between; gap: 10px;';
+                
+                var textSpan = document.createElement('span');
+                textSpan.textContent = loadingText;
+                textSpan.style.cssText = 'flex: 1;';
+                
+                var spinnerWrap = document.createElement('span');
+                spinnerWrap.style.cssText = 'display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;';
+                spinnerWrap.innerHTML = '<svg class="typing-spinner" viewBox="0 0 50 50" style="width: 18px; height: 18px; animation: google-rotate 1.4s linear infinite;"><circle cx="25" cy="25" r="20" fill="none" stroke-width="4" stroke-linecap="round" style="stroke: #3b82f6; transform-origin: center; animation: google-dash 1.5s ease-in-out infinite;"></circle></svg>';
+                
+                body.appendChild(textSpan);
+                body.appendChild(spinnerWrap);
                 
                 row.appendChild(body);
                 chatMessagesEl.appendChild(row);
@@ -1195,12 +1385,24 @@
                 if (el) el.remove();
             }
 
-            function setComposerBusy(busy) {
+            var __cancelTypingFn = null;
+            function setComposerBusy(busy, cancelFn) {
                 if (composerWrap) composerWrap.classList.toggle('is-busy', !!busy);
                 if (inputEl) inputEl.disabled = !!busy;
                 if (sendBtn) {
-                    if (busy) sendBtn.disabled = true;
-                    else syncSendState();
+                    if (busy) {
+                        // 정지 버튼 모드 활성화
+                        sendBtn.classList.add('is-stopping');
+                        sendBtn.disabled = false;
+                        sendBtn.setAttribute('aria-label', '정지');
+                        __cancelTypingFn = cancelFn || null;
+                    } else {
+                        sendBtn.classList.remove('is-stopping');
+                        sendBtn.setAttribute('aria-label', '보내기');
+                        __cancelTypingFn = null;
+                        stopTypingHaptic();
+                        syncSendState();
+                    }
                 }
             }
 
@@ -1255,14 +1457,23 @@
                 inputEl.style.height = '';
                 syncSendState();
 
+                // 메시지 보낸 직후 강제로 맨 아래 스크롤
+                scrollChatBottom();
+                setTimeout(scrollChatBottom, 50);
+                setTimeout(scrollChatBottom, 150);
+
                 setComposerBusy(true);
                 showTyping();
 
                 try {
                     var reply = await fetchBackendReply();
                     hideTyping();
-                    appendBotMessageWithTyping(reply, function () {
+                    var typingCtrl = appendBotMessageWithTyping(reply, function () {
                         setComposerBusy(false);
+                    });
+                    // 정지 버튼이 호출할 cancel 함수 등록
+                    setComposerBusy(true, function() {
+                        if (typingCtrl && typingCtrl.cancel) typingCtrl.cancel();
                     });
                 } catch (err) {
                     hideTyping();
@@ -1356,6 +1567,13 @@
                     if (longPressTriggered) {
                         e.preventDefault();
                         longPressTriggered = false;
+                        return;
+                    }
+                    // 정지 모드일 때는 타이핑 취소
+                    if (sendBtn.classList.contains('is-stopping')) {
+                        if (typeof __cancelTypingFn === 'function') {
+                            __cancelTypingFn();
+                        }
                         return;
                     }
                     sendMessage();
