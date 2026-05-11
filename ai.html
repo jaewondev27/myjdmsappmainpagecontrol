@@ -213,6 +213,31 @@
             padding-top: calc(var(--sat) + 14px);
         }
 
+        /* 상단바 */
+        .top-bar {
+            width: calc(100% + 32px);
+            margin-left: -16px;
+            margin-right: -16px;
+            margin-top: calc(0px - var(--sat) - 14px);
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid var(--border-soft);
+            background: var(--surface);
+            flex-shrink: 0;
+            margin-bottom: 8px;
+            box-sizing: border-box;
+        }
+
+        .top-bar-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+            line-height: 1;
+        }
+
         /* 공지 배너 */
         .announce-bar {
             width: 100%;
@@ -274,12 +299,27 @@
         }
 
         .announce-expanded {
-            margin: -10px 0 18px;
-            padding: 0 4px 4px;
+            margin: 0 0 18px;
+            padding: 0 4px;
             font-size: 14px;
             line-height: 1.55;
             color: var(--text-sub);
             word-break: keep-all;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: max-height 0.3s ease, opacity 0.25s ease, padding 0.3s ease, margin 0.3s ease;
+        }
+
+        .announce-expanded.is-open {
+            max-height: 500px;
+            opacity: 1;
+            padding: 4px 4px 12px;
+            margin: -10px 0 18px;
+        }
+
+        .announce-expanded.hidden {
+            display: block !important;  /* hidden 무시하고 애니메이션 사용 */
         }
 
         /* 채팅 영역 */
@@ -703,19 +743,9 @@
     <div id="top-status-bar-vignette"></div>
     <div id="top-soft-vignette" aria-hidden="true"></div>
     <div class="ai-app">
-        <button type="button" class="announce-bar" id="announce-toggle" aria-expanded="false" aria-controls="announce-panel">
-            <svg class="icon-megaphone" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="m3 11 18-5v12L3 13v-2z" />
-                <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" />
-            </svg>
-            <span class="announce-text-wrap collapsed" id="announce-preview">중동중 학생·학부모를 위한 JDMS AI 베타입니다. 학교 일정·급식 등은 추후 연동될 수 있어요.</span>
-            <svg class="icon-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="m6 9 6 6 6-6" />
-            </svg>
-        </button>
-        <div id="announce-panel" class="announce-expanded hidden" role="region">
-            중동중 학생·학부모를 위한 JDMS AI 베타입니다. 학교 일정·급식 등은 추후 연동될 수 있어요. 챗봇 응답은 참고용이며, 중요한 안내는 학교 공지를 확인해 주세요.
-        </div>
+        <header class="top-bar">
+            <div class="top-bar-title">중동중학교</div>
+        </header>
 
         <div class="chat-scroll" id="chat-scroll" aria-live="polite">
             <div id="chat-messages"></div>
@@ -855,18 +885,6 @@
                 };
             }
 
-            var announceToggle = document.getElementById('announce-toggle');
-            var announcePanel = document.getElementById('announce-panel');
-            var announcePreview = document.getElementById('announce-preview');
-            if (announceToggle && announcePanel) {
-                announceToggle.addEventListener('click', function () {
-                    var open = announceToggle.getAttribute('aria-expanded') === 'true';
-                    announceToggle.setAttribute('aria-expanded', open ? 'false' : 'true');
-                    announcePanel.classList.toggle('hidden', open);
-                    if (announcePreview) announcePreview.classList.toggle('collapsed', !open);
-                });
-            }
-
             var inputEl = document.getElementById('composer-input');
             var sendBtn = document.getElementById('send-btn');
             var chatMessagesEl = document.getElementById('chat-messages');
@@ -880,7 +898,8 @@
 
             var chatMessages = [];
 
-            var BACKEND_AI_URL = 'https://sigan.onrender.com/api/ai/chat';
+            var BACKEND_URL = 'https://sigan.onrender.com';
+            var BACKEND_AI_URL = BACKEND_URL + '/api/ai/chat';
             var SYSTEM_PROMPT = [
                 '당신은 중동중학교 My JDMS 앱 안내 AI입니다.',
                 '항상 한국어로 친절하고 간결하게 답합니다.',
@@ -1020,22 +1039,7 @@
                 body.className = 'msg-bot-body msg-bot-body-pre';
                 body.innerHTML = renderAiMarkdown(rawText);
 
-                var meta = document.createElement('div');
-                meta.className = 'msg-meta';
-
-                var av = document.createElement('span');
-                av.className = 'meta-avatar';
-                av.setAttribute('aria-hidden', 'true');
-                av.innerHTML = BOT_AVATAR_SVG;
-
-                var mt = document.createElement('span');
-                mt.className = 'meta-text';
-                mt.textContent = 'JDMS AI · My JDMS, ' + formatMetaTimeAt(atTs);
-
-                meta.appendChild(av);
-                meta.appendChild(mt);
                 wrap.appendChild(body);
-                wrap.appendChild(meta);
                 chatMessagesEl.appendChild(wrap);
             }
 
@@ -1095,22 +1099,7 @@
                 body.className = 'msg-bot-body msg-bot-body-pre ai-type-caret';
                 body.textContent = '';
 
-                var meta = document.createElement('div');
-                meta.className = 'msg-meta';
-
-                var av = document.createElement('span');
-                av.className = 'meta-avatar';
-                av.setAttribute('aria-hidden', 'true');
-                av.innerHTML = BOT_AVATAR_SVG;
-
-                var mt = document.createElement('span');
-                mt.className = 'meta-text';
-                mt.textContent = 'JDMS AI · My JDMS, …';
-
-                meta.appendChild(av);
-                meta.appendChild(mt);
                 wrap.appendChild(body);
-                wrap.appendChild(meta);
                 chatMessagesEl.appendChild(wrap);
 
                 var chars = Array.from(raw);
@@ -1121,7 +1110,6 @@
                     var atDone = Date.now();
                     body.innerHTML = renderAiMarkdown(raw);
                     body.classList.remove('ai-type-caret');
-                    mt.textContent = 'JDMS AI · My JDMS, ' + formatMetaTimeAt(atDone);
                     chatMessages.push(makeStoredMessage('assistant', raw, atDone));
                     saveChatStorage();
                     rebuildGeminiHistoryFromChat();
@@ -1216,28 +1204,7 @@
                 }
             }
 
-            async function fetchScheduleData() {
-                try {
-                    var res = await fetch(BACKEND_URL + '/api/school/schedule');
-                    if (res.ok) {
-                        return await res.json();
-                    }
-                } catch (e) {
-                    console.error('일정 조회 실패:', e);
-                }
-                return null;
-            }
-
             async function fetchBackendReply() {
-                // 마지막 사용자 메시지 확인
-                var lastUserMsg = '';
-                for (var i = aiHistory.length - 1; i >= 0; i--) {
-                    if (aiHistory[i].role === 'user') {
-                        lastUserMsg = aiHistory[i].content.toLowerCase();
-                        break;
-                    }
-                }
-                
                 var payload = {
                     system_prompt: SYSTEM_PROMPT,
                     messages: aiHistory,
@@ -1255,34 +1222,6 @@
                     grade: (function () { try { return JSON.parse(localStorage.getItem('userData') || '{}').grade || 2; } catch (e) { return 2; } })(),
                     class: (function () { try { return JSON.parse(localStorage.getItem('userData') || '{}').class || 8; } catch (e) { return 8; } })()
                 };
-                
-                // 일정 관련 키워드 확인
-                var scheduleKeywords = ['일정', '행사', '공지', '다음', '언제', '이벤트'];
-                var hasScheduleKeyword = scheduleKeywords.some(function(kw) { return lastUserMsg.includes(kw); });
-                
-                // 일정 조회 필요 시 미리 가져오기
-                if (hasScheduleKeyword) {
-                    var scheduleData = await fetchScheduleData();
-                    if (scheduleData && scheduleData.status === 'success') {
-                        var scheduleContext = '\n\n【현재 학교 일정 데이터】\n';
-                        scheduleContext += '오늘: ' + scheduleData.today + '\n';
-                        
-                        if (scheduleData.today_schedule && scheduleData.today_schedule.length > 0) {
-                            scheduleContext += '오늘 일정: ' + scheduleData.today_schedule.map(function(s) { return s.event; }).join(', ') + '\n';
-                        }
-                        
-                        if (scheduleData.before_schedule && scheduleData.before_schedule.length > 0) {
-                            scheduleContext += '지난 일정: ' + scheduleData.before_schedule.slice(-5).map(function(s) { return s.date + ' ' + s.event; }).join(' / ') + '\n';
-                        }
-                        
-                        if (scheduleData.after_schedule && scheduleData.after_schedule.length > 0) {
-                            scheduleContext += '예정된 일정: ' + scheduleData.after_schedule.slice(0, 5).map(function(s) { return s.date + ' ' + s.event; }).join(' / ') + '\n';
-                        }
-                        
-                        // 마지막 메시지에 일정 정보 추가
-                        payload.messages[payload.messages.length - 1].content += scheduleContext;
-                    }
-                }
                 
                 var res = await fetch(BACKEND_AI_URL, {
                     method: 'POST',
