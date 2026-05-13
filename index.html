@@ -4098,24 +4098,31 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     overlay.addEventListener('transitionend', function() {
                         overlay.classList.add('gone');
                     }, { once: true });
-                }, 1500);
+                }, 5000);
             })();
 
-            // 홈 로고 ↔ 배너 이미지 3초 크로스페이드
+            // 홈 로고 ↔ 배너 이미지 탭 토글 (기본: 배너 이미지 표시)
             (function() {
                 var defaultEl = document.getElementById('home-logo-default');
                 var bannerEl  = document.getElementById('home-logo-banner');
-                if (!defaultEl || !bannerEl) return;
-                var showingBanner = false;
-                function toggle() {
-                    showingBanner = !showingBanner;
+                var crossfade = document.getElementById('home-logo-crossfade');
+                if (!defaultEl || !bannerEl || !crossfade) return;
+                var showingBanner = true;
+                function applyState() {
                     defaultEl.style.opacity = showingBanner ? '0' : '1';
                     bannerEl.style.opacity  = showingBanner ? '1' : '0';
+                    defaultEl.style.pointerEvents = showingBanner ? 'none' : '';
+                    bannerEl.style.pointerEvents  = showingBanner ? '' : 'none';
                 }
-                setTimeout(function() {
-                    toggle();
-                    setInterval(toggle, 7000);
-                }, 1000);
+                // 처음엔 로고 보이다가 1초 후 배너로 전환
+                defaultEl.style.opacity = '1';
+                bannerEl.style.opacity  = '0';
+                setTimeout(function() { applyState(); }, 1000);
+                crossfade.style.cursor = 'pointer';
+                crossfade.addEventListener('click', function() {
+                    showingBanner = !showingBanner;
+                    applyState();
+                });
             })();
         });
     </script>
