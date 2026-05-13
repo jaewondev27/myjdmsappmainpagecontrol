@@ -623,11 +623,20 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             min-height: calc(100dvh - var(--sat) - 20px);
             box-sizing: border-box;
             transition: padding-bottom var(--nav-morph-duration) var(--nav-morph-ease);
+            overflow-x: hidden;
         }
 
         .page {
             padding: 8px 12px;
             background-color: var(--bg);
+        }
+
+        @keyframes page-slide-in {
+            from { opacity: 0; transform: translateX(18px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        .page.page-entering {
+            animation: page-slide-in 0.28s cubic-bezier(0.25, 0.8, 0.25, 1) both;
         }
 
         #page-more {
@@ -2223,9 +2232,41 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         .student-card-banner-wrapper:active {
             transform: scale(0.97);
         }
+
+        /* --- 인트로 이미지 오버레이 --- */
+        #intro-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+            pointer-events: none;
+        }
+        #intro-overlay.fade-out {
+            opacity: 0;
+        }
+        #intro-overlay.gone {
+            display: none !important;
+        }
+        #intro-overlay img {
+            width: auto;
+            height: auto;
+            max-width: 60vw;
+            max-height: 60vh;
+            object-fit: contain;
+        }
     </style>
 </head>
 <body>
+
+    <!-- 인트로 이미지 오버레이 -->
+    <div id="intro-overlay">
+        <img src="https://i.imgur.com/pZuWE5c.png" alt="">
+    </div>
 
     <div id="top-status-bar-vignette"></div>
 
@@ -2351,10 +2392,15 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     <div class="home-header">
                         <div class="home-header-inner">
                             <div class="home-logo-wrap">
-                                <img id="home-logo-img" alt="">
-                                <div class="home-logo-text-block">
-                                    <span class="home-school-name-ko">중동중학교</span>
-                                    <span class="home-school-name-en">JoongdongMiddleSchool</span>
+                                <div id="home-logo-crossfade" style="position:relative;display:flex;align-items:flex-start;gap:8px;flex:1 1 0;min-width:0;">
+                                    <div id="home-logo-default" style="display:flex;align-items:flex-start;gap:8px;transition:opacity 0.6s ease;opacity:1;flex-shrink:0;max-width:100%;">
+                                        <img id="home-logo-img" alt="">
+                                        <div class="home-logo-text-block">
+                                            <span class="home-school-name-ko">중동중학교</span>
+                                            <span class="home-school-name-en">JoongdongMiddleSchool</span>
+                                        </div>
+                                    </div>
+                                    <img id="home-logo-banner" src="https://i.imgur.com/cChsh4W.png" alt="" style="position:absolute;left:0;top:0;height:46px;max-width:min(52vw,156px);object-fit:contain;object-position:left center;opacity:0;transition:opacity 0.6s ease;pointer-events:none;">
                                 </div>
                             </div>
                             <div class="home-header-copy">
@@ -3222,10 +3268,16 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     expireDate: '2026-05-09'
                 },
                 {
-                    title: '음악방송',
-                    content: '방송부에 대한 지속적인 공격및 비난으로 무기한 중지됩니다',
-                    effectiveDate: '2027-01-01',
-                    expireDate: '2027-01-01'
+                    title: '음악방송 재개',
+                    content: '음악방송이 재개됩니다. 앞으로도 방송부에 많은 관심과 응원 부탁드립니다.',
+                    effectiveDate: '2026-05-13',
+                    expireDate: '2026-06-30'
+                },
+                {
+                    title: '스승의날 행사',
+                    content: '5월 15일(금) 스승의날 행사로 인해 30분 수업으로 진행됩니다.',
+                    effectiveDate: '2026-05-13',
+                    expireDate: '2026-05-15'
                 }
             ];
             let noticeAutoSlideTimer = null;
@@ -3759,7 +3811,16 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 }
                 navItems.forEach(nav => nav.classList.toggle('active', nav.getAttribute('data-page') === target));
                 floatingTabItems.forEach(tab => tab.classList.toggle('active', tab.getAttribute('data-float-page') === target));
-                pages.forEach(p => p.classList.toggle('hidden', p.id !== `page-${target}`));
+                pages.forEach(p => {
+                    const isTarget = p.id === `page-${target}`;
+                    p.classList.toggle('hidden', !isTarget);
+                    if (isTarget) {
+                        p.classList.remove('page-entering');
+                        void p.offsetWidth;
+                        p.classList.add('page-entering');
+                        p.addEventListener('animationend', () => p.classList.remove('page-entering'), { once: true });
+                    }
+                });
                 syncNativeStatusBar(target);
                 if (target === 'home') {
                     loadTodayTimetableIframe();
@@ -3777,6 +3838,8 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 if (!navigator.onLine) showOfflineToast();
                 loadTodayTimetableIframe();
                 loadHomeLunchIframe();
+                loadWeeklyTimetableIframe();
+                loadLunchIframe();
                 scheduleFitHomeHeaderTexts();
                 requestAnimationFrame(function () { scheduleFitHomeHeaderTexts(); });
             }
@@ -4025,6 +4088,35 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             document.body.addEventListener('mouseleave', clearRipples, true);
 
             runSplashSequence();
+
+            // 인트로 오버레이 페이드아웃
+            (function() {
+                var overlay = document.getElementById('intro-overlay');
+                if (!overlay) return;
+                setTimeout(function() {
+                    overlay.classList.add('fade-out');
+                    overlay.addEventListener('transitionend', function() {
+                        overlay.classList.add('gone');
+                    }, { once: true });
+                }, 1500);
+            })();
+
+            // 홈 로고 ↔ 배너 이미지 3초 크로스페이드
+            (function() {
+                var defaultEl = document.getElementById('home-logo-default');
+                var bannerEl  = document.getElementById('home-logo-banner');
+                if (!defaultEl || !bannerEl) return;
+                var showingBanner = false;
+                function toggle() {
+                    showingBanner = !showingBanner;
+                    defaultEl.style.opacity = showingBanner ? '0' : '1';
+                    bannerEl.style.opacity  = showingBanner ? '1' : '0';
+                }
+                setTimeout(function() {
+                    toggle();
+                    setInterval(toggle, 7000);
+                }, 1000);
+            })();
         });
     </script>
 </body>
