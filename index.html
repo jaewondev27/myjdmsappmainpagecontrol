@@ -237,7 +237,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             pointer-events: none;
             background: linear-gradient(180deg, var(--bg) 0%, var(--bg) 48%, transparent 100%);
         }
-        body.dark-mode #splash-screen,
         body.dark-mode #setup-screen,
         body.dark-mode .picker-panel,
         body.dark-mode .version-modal-content,
@@ -264,7 +263,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         body.dark-mode .setup-note { background: #1f1f1f; color: #d7d7d7; }
         body.dark-mode .nav-item:active { background-color: #2a2a2a !important; }
         body.dark-mode .floating-tab-item:active { background-color: rgba(255, 255, 255, 0.1) !important; }
-        body.dark-mode .splash-text { color: #ffffff !important; }
         body.dark-mode [data-lucide],
         body.dark-mode svg.lucide-inline { color: var(--text-main) !important; stroke: currentColor !important; }
         body.dark-mode .menu-icon { color: var(--text-main) !important; }
@@ -276,12 +274,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         body.dark-mode .floating-tab-item.active svg.lucide-inline,
         body.dark-mode .nav-item.active span,
         body.dark-mode .floating-tab-item.active span { color: var(--primary) !important; }
-        body.dark-mode.segment-mode .bottom-nav {
-            background: #2b2b2b !important;
-            border: 1px solid #6a6969 !important;
-            box-shadow: 0 10px 26px rgba(0,0,0,0.42), inset 0 0 0 1px rgba(255,255,255,0.06);
-        }
-
         body::after {
             content: '';
             position: fixed;
@@ -303,90 +295,10 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             display: none !important;
         }
 
-        /* --- 스플래시 스크린 스타일 --- */
-        #splash-screen {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: #ffffff;
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.5s ease-out;
-        }
-        #splash-screen { display: none !important; }
-
-        .splash-content-wrapper {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .splash-logo-container {
-            width: 130px;
-            height: 130px;
-            position: relative;
-            opacity: 0;
-            transform: scale(0.9);
-        }
-
-        .splash-logo-container svg, .center-logo-container svg {
+        .center-logo-container svg {
             width: 100%;
             height: 100%;
             object-fit: contain;
-        }
-
-        .splash-text {
-            font-size: 22px;
-            font-weight: 800;
-            color: #191f28;
-            letter-spacing: -0.5px;
-            position: absolute;
-            top: 100%;
-            margin-top: 2px;
-            opacity: 0;
-            transform: translateY(-24px);
-            clip-path: inset(0 100% 0 0);
-            -webkit-clip-path: inset(0 100% 0 0);
-            transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.2, 0.85, 0.2, 1);
-        }
-
-        .splash-text.visible {
-            opacity: 1;
-            transform: translateY(-24px);
-        }
-
-        .splash-text.reveal-sweep {
-            animation: splash-text-reveal 0.62s cubic-bezier(0.2, 0.85, 0.2, 1) forwards;
-        }
-
-        @keyframes splash-text-reveal {
-            0% {
-                opacity: 0.2;
-                clip-path: inset(0 100% 0 0);
-                -webkit-clip-path: inset(0 100% 0 0);
-            }
-            100% {
-                opacity: 1;
-                clip-path: inset(0 0 0 0);
-                -webkit-clip-path: inset(0 0 0 0);
-            }
-        }
-
-        @keyframes splash-intro {
-            0% { opacity: 0; transform: scale(0.9); }
-            100% { opacity: 1; transform: scale(1.05); }
-        }
-
-        @keyframes splash-shrink {
-            0% { opacity: 1; transform: scale(1.05) translateY(0); }
-            100% { opacity: 1; transform: scale(0.85) translateY(-15px); }
-        }
-
-        @keyframes splash-text-fade {
-            0% { opacity: 0; transform: translateY(10px); }
-            100% { opacity: 1; transform: translateY(-24px); } 
         }
 
         /* Setup Screen */
@@ -617,7 +529,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         }
 
         .page-content {
-            padding-bottom: calc(80px + var(--sab-chrome));
+            padding-bottom: calc(90px + var(--sab-chrome));
             position: relative;
             background-color: var(--bg);
             min-height: calc(100dvh - var(--sat) - 20px);
@@ -1055,21 +967,51 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             padding-bottom: calc(84px + var(--sab-chrome));
         }
 
-        #page-timetable:not(.hidden),
-        #page-lunch:not(.hidden) {
+        #page-school:not(.hidden) {
             display: block;
             min-height: 0;
         }
 
-        #page-timetable:not(.hidden) .timetable-card,
-        #page-lunch:not(.hidden) .lunch-card {
+        #page-school:not(.hidden) .timetable-card,
+        #page-school:not(.hidden) .lunch-card {
             display: block;
         }
 
-        #page-timetable:not(.hidden) .iframe-container,
-        #page-lunch:not(.hidden) .iframe-container {
-            height: calc(100dvh - var(--sat) - 36px - 8px - 74px - var(--sab-chrome));
+        #page-school:not(.hidden) .school-panel:not(.hidden) .iframe-container {
+            height: calc(100dvh - var(--sat) - 36px - 8px - 118px - var(--sab-chrome));
             min-height: 280px;
+        }
+
+        .school-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding: 4px;
+            background: var(--card-bg);
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        .school-tab {
+            flex: 1;
+            border: none;
+            background: transparent;
+            color: var(--text-sub);
+            font-size: 14px;
+            font-weight: 600;
+            padding: 10px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .school-tab.active {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .school-panel.hidden {
+            display: none !important;
         }
         
         #today-timetable-container {
@@ -1084,100 +1026,225 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             display: block;
         }
 
-        .bottom-nav {
+        /* 하단바: 양쪽 배경 + 중앙 노치 SVG + 그리드 + FAB */
+        .bottom-nav-container {
             position: fixed;
-            bottom: -1px;
+            bottom: 0;
             left: 0;
             right: 0;
-            height: auto;
-            max-height: 220px;
-            background: var(--nav-bg);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            display: flex;
-            justify-content: space-around;
-            align-items: flex-start;
-            padding-top: 12px;
-            border-top: 1px solid var(--border);
-            padding-bottom: calc(20px + var(--sab-chrome));
+            height: calc(60px + var(--sab-chrome));
+            padding-bottom: var(--sab-chrome);
             z-index: 1000;
-            border-radius: 28px 28px 0 0;
+            box-sizing: border-box;
+        }
+
+        .nav-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            display: flex;
+            z-index: 1;
+            filter:
+                drop-shadow(0 -1px 0 rgba(0, 0, 0, 0.05))
+                drop-shadow(0 -4px 10px rgba(0, 0, 0, 0.08))
+                drop-shadow(0 -10px 22px rgba(0, 0, 0, 0.06));
+        }
+
+        .nav-contour-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            z-index: 4;
+            pointer-events: none;
+            display: flex;
+        }
+
+        .contour-side {
+            flex: 1;
+            height: 100%;
+            border-top: 1px solid rgba(0, 0, 0, 0.07);
+            box-sizing: border-box;
+        }
+
+        .contour-center-notch {
+            width: 180px;
+            height: 60px;
+            flex-shrink: 0;
+        }
+
+        .contour-center-notch svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .bg-side {
+            flex: 1;
+            background-color: #ffffff;
+            height: 100%;
             overflow: hidden;
-            box-shadow: none;
-            transition-property: left, right, bottom, transform, border-radius, padding-top, padding-bottom, max-height, box-shadow, background-color, border-color, border-top-color, backdrop-filter, -webkit-backdrop-filter;
-            transition-duration: var(--nav-morph-duration);
-            transition-timing-function: var(--nav-morph-ease);
+        }
+
+        .nav-background .bg-side:first-child,
+        .nav-contour-line .contour-side:first-child {
+            border-top-left-radius: 20px;
+        }
+
+        .nav-background .bg-side:last-child,
+        .nav-contour-line .contour-side:last-child {
+            border-top-right-radius: 20px;
+        }
+
+        .bg-center-notch {
+            width: 180px;
+            height: 60px;
+            flex-shrink: 0;
+        }
+
+        .bg-center-notch svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .bg-center-notch path {
+            fill: #ffffff;
+        }
+
+        body.dark-mode .bg-side {
+            background-color: #1d1d1d;
+        }
+
+        body.dark-mode .bg-center-notch path {
+            fill: #1d1d1d;
+        }
+
+        body.dark-mode .nav-background {
+            filter:
+                drop-shadow(0 -1px 0 rgba(0, 0, 0, 0.35))
+                drop-shadow(0 -4px 14px rgba(0, 0, 0, 0.32))
+                drop-shadow(0 -10px 26px rgba(0, 0, 0, 0.28));
+        }
+
+        body.dark-mode .contour-side {
+            border-top-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .contour-center-notch path {
+            stroke: rgba(255, 255, 255, 0.1);
+        }
+
+        .bottom-nav-items {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 72px 1fr 1fr;
+            align-items: center;
+            z-index: 2;
+            padding: 0 8px;
         }
 
         .nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 5px;
-            color: #abb1b9;
-            flex: 1;
-            min-height: 0;
-            padding: 8px 0;
-            border-radius: 14px;
-            margin: 0 4px;
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease,
-                margin var(--nav-morph-duration) var(--nav-morph-ease),
-                border-radius var(--nav-morph-duration) var(--nav-morph-ease),
-                padding var(--nav-morph-duration) var(--nav-morph-ease),
-                min-height var(--nav-morph-duration) var(--nav-morph-ease);
+            justify-content: center;
+            color: #8e8e93;
+            font-size: 11px;
+            font-weight: 500;
+            padding-top: 4px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            transition: transform 0.15s ease, color 0.15s ease;
         }
 
         .nav-item:active {
-            transform: scale(0.85);
-            transition: transform 0.1s ease-out;
-        }
-
-        body.segment-mode .bottom-nav {
-            left: 14px;
-            right: 14px;
-            bottom: 8px;
-            border-radius: 999px;
-            border-top: 1px solid transparent;
-            box-shadow: 0 10px 26px rgba(0,0,0,0.14);
-            min-height: 58px;
-            max-height: 58px;
-            padding-top: 5px;
-            padding-bottom: calc(4px + var(--sab-gap));
-            align-items: center;
-            justify-content: space-between;
-            background: var(--nav-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-        }
-
-        body.segment-mode .nav-item {
-            margin: 0 3px;
-            border-radius: 999px;
-            min-height: 48px;
-            padding: 8px 0;
-            justify-content: center;
+            transform: scale(0.9);
         }
 
         .nav-item.active {
             color: var(--primary);
+            font-weight: 600;
         }
 
         .nav-item i,
         .nav-item svg.lucide-inline {
-            width: 24px;
-            height: 24px;
-            stroke-width: 2.5px;
+            width: 23px;
+            height: 23px;
+            margin-bottom: 3px;
+            stroke-width: 2px;
             flex-shrink: 0;
         }
 
         .nav-item span {
             font-size: 11px;
-            font-weight: 600;
+            font-weight: inherit;
+            line-height: 1.1;
         }
+
         .nav-item[data-page="jbs"] span:last-child {
             transform: translateY(-1px);
             line-height: 1.05;
-            margin-top: 0;
+        }
+
+        .center-space-placeholder {
+            width: 72px;
+            pointer-events: none;
+        }
+
+        .nav-fab {
+            position: absolute;
+            left: 50%;
+            top: -8px;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(145deg, #b8e4ff 0%, #d8c8ff 52%, #ffc8e4 100%);
+            box-shadow: 0 4px 16px rgba(186, 168, 228, 0.5);
+            color: #ffffff;
+            -webkit-tap-highlight-color: transparent;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .nav-fab:active {
+            transform: translateX(-50%) scale(0.94);
+        }
+
+        .nav-fab.active {
+            color: #ffffff;
+            background: linear-gradient(145deg, #b8e4ff 0%, #d8c8ff 52%, #ffc8e4 100%);
+            box-shadow: 0 4px 16px rgba(186, 168, 228, 0.5);
+        }
+
+        .nav-fab-label {
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: -0.2px;
+            line-height: 1;
+        }
+
+        body.dark-mode .nav-item {
+            color: #9a9a9a;
+        }
+
+        body.dark-mode .nav-item.active {
+            color: var(--primary);
         }
 
         .error-msg {
@@ -1269,9 +1336,10 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             line-height: 1.05;
             margin-top: 0;
         }
-        .bottom-nav .nav-item[data-page="jbs"] .jbs-icon {
-            width: 26px;
-            height: 26px;
+        .bottom-nav-items .nav-item[data-page="jbs"] .jbs-icon {
+            width: 23px;
+            height: 23px;
+            margin-bottom: 3px;
             transform: translateY(0);
         }
 
@@ -1359,11 +1427,9 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             margin: 8px 0 14px;
         }
 
-        .quick-square-btn {
-            border: 1px solid var(--border);
-            background: var(--card-bg);
-            color: var(--text-main);
-            border-radius: 14px;
+        .quick-squircle-btn {
+            border: none;
+            color: #ffffff;
             width: 100%;
             aspect-ratio: 1 / 1;
             display: flex;
@@ -1372,26 +1438,52 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             justify-content: center;
             text-align: center;
             font-size: 11px;
-            font-weight: 500;
-            line-height: 1.1;
+            font-weight: 600;
+            line-height: 1.15;
             padding: 8px 6px;
             cursor: pointer;
-            transition: transform 0.18s ease, background-color 0.2s ease;
+            transition: transform 0.18s ease, filter 0.2s ease;
             gap: 6px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            clip-path: url(#squircle-clip);
+            -webkit-clip-path: url(#squircle-clip);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
         }
 
-        .quick-square-btn:active {
-            transform: scale(0.96);
+        .quick-squircle-btn:active {
+            transform: scale(0.94);
+            filter: brightness(0.96);
         }
 
-        .quick-square-btn i,
-        .quick-square-btn svg.lucide-inline {
-            width: 18px;
-            height: 18px;
-            color: var(--primary);
+        .quick-squircle-btn i,
+        .quick-squircle-btn svg.lucide-inline {
+            width: 20px;
+            height: 20px;
+            color: #ffffff;
+            stroke-width: 2.2px;
+        }
+
+        .quick-squircle-btn span {
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+        }
+
+        .quick-squircle-btn--timetable {
+            background: linear-gradient(135deg, #7eb6ff, #4f8ef7);
+        }
+
+        .quick-squircle-btn--lunch {
+            background: linear-gradient(135deg, #7ddea8, #3cb878);
+        }
+
+        .quick-squircle-btn--doc {
+            background: linear-gradient(135deg, #ffb07c, #f97316);
+        }
+
+        .quick-squircle-btn--student {
+            background: linear-gradient(135deg, #c4b5fd, #8b5cf6);
         }
 
         .slide-panel {
@@ -2233,40 +2325,225 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             transform: scale(0.97);
         }
 
-        /* --- 인트로 이미지 오버레이 --- */
-        #intro-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 99999;
-            background: #000;
+        #page-my {
+            padding-bottom: calc(8px + var(--sab-chrome));
+        }
+
+        .my-profile-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            padding: 20px 18px 18px;
+            margin-bottom: 14px;
+            color: #ffffff;
+            background: linear-gradient(135deg, #ff6ad5 0%, #a855f7 48%, #4f46e5 100%);
+            box-shadow: 0 10px 28px rgba(168, 85, 247, 0.28);
+        }
+
+        .my-profile-card::before,
+        .my-profile-card::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.12);
+            pointer-events: none;
+        }
+
+        .my-profile-card::before {
+            width: 120px;
+            height: 120px;
+            top: -36px;
+            right: -24px;
+        }
+
+        .my-profile-card::after {
+            width: 80px;
+            height: 80px;
+            bottom: 28px;
+            left: -20px;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .my-profile-top {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .my-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: rgba(126, 134, 148, 0.92);
             display: flex;
             align-items: center;
             justify-content: center;
-            opacity: 1;
-            transition: opacity 0.5s ease-out;
+            font-size: 24px;
+            font-weight: 800;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .my-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .my-profile-text {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .my-name-row {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 4px;
+        }
+
+        .my-display-name {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.4px;
+            line-height: 1.15;
+        }
+
+        .my-badge {
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0.88;
+        }
+
+        .my-school-line {
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0.92;
+            margin-bottom: 2px;
+        }
+
+        .my-points-line {
+            font-size: 13px;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .my-level-row {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0.95;
+            margin-bottom: 8px;
+        }
+
+        .my-progress-track {
+            position: relative;
+            z-index: 1;
+            height: 6px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.22);
+            overflow: hidden;
+        }
+
+        .my-progress-fill {
+            height: 100%;
+            width: 0;
+            border-radius: 999px;
+            background: #ffffff;
+            transition: width 0.35s ease;
+        }
+
+        .my-student-card {
+            position: relative;
+            height: 72px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+            background: transparent;
+            -webkit-tap-highlight-color: transparent;
+            transition: transform 0.12s ease;
+        }
+
+        .my-student-card:active {
+            transform: scale(0.98);
+        }
+
+        .my-student-card-inner {
+            position: absolute;
+            inset: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 0 72px 0 18px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        .my-student-card-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .my-student-card-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 52px;
+            height: 52px;
+            object-fit: contain;
             pointer-events: none;
         }
-        #intro-overlay.fade-out {
-            opacity: 0;
+
+        #page-more .more-page-title,
+        #page-my .my-page-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin: 4px 4px 24px;
+            letter-spacing: -0.4px;
         }
-        #intro-overlay.gone {
-            display: none !important;
+
+        .nav-item[data-page="school"] {
+            transform: translateX(-10px);
         }
-        #intro-overlay img {
-            width: auto;
-            height: auto;
-            max-width: 60vw;
-            max-height: 60vh;
-            object-fit: contain;
+
+        .nav-item[data-page="jbs"] {
+            transform: translateX(10px);
         }
+
+        .nav-item[data-page="school"]:active {
+            transform: translateX(-10px) scale(0.9);
+        }
+
+        .nav-item[data-page="jbs"]:active {
+            transform: translateX(10px) scale(0.9);
+        }
+
     </style>
 </head>
 <body>
 
-    <!-- 인트로 이미지 오버레이 -->
-    <div id="intro-overlay">
-        <img src="https://i.imgur.com/pZuWE5c.png" alt="">
-    </div>
+    <svg width="0" height="0" aria-hidden="true" style="position:absolute">
+        <defs>
+            <clipPath id="squircle-clip" clipPathUnits="objectBoundingBox">
+                <path d="M 0,0.5 C 0,0.16 0.16,0 0.5,0 C 0.84,0 1,0.16 1,0.5 C 1,0.84 0.84,1 0.5,1 C 0.16,1 0,0.84 0,0.5 Z" />
+            </clipPath>
+        </defs>
+    </svg>
 
     <div id="top-status-bar-vignette"></div>
 
@@ -2275,17 +2552,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
 
         </template>
-
-    <div id="splash-screen">
-        <div class="splash-content-wrapper">
-            <div id="splash-logo-container" class="splash-logo-container">
-                <div id="splash-shimmer-mask" class="shimmer-mask">
-                    <div id="splash-shimmer" class="refresh-shimmer"></div>
-                </div>
-            </div>
-            <div id="splash-text" class="splash-text">중동중학교</div>
-        </div>
-    </div>
 
     <div id="banner-overlay" class="hidden"></div>
     <div id="banner-container">
@@ -2449,26 +2715,31 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     </div>
                 </div>
 
-                <div id="page-timetable" class="page hidden">
-                    <div class="card timetable-card">
-                        <div class="iframe-container">
-                            <div class="offline-fallback">
-                                <i data-lucide="wifi-off"></i>
-                                <span>데이터를 불러올 수 없음</span>
+                <div id="page-school" class="page hidden">
+                    <div class="school-tabs" role="tablist" aria-label="학교정보">
+                        <button type="button" class="school-tab active" data-school-tab="timetable" role="tab" aria-selected="true">시간표</button>
+                        <button type="button" class="school-tab" data-school-tab="lunch" role="tab" aria-selected="false">급식</button>
+                    </div>
+                    <div class="school-panel school-panel-timetable" data-school-panel="timetable" role="tabpanel">
+                        <div class="card timetable-card">
+                            <div class="iframe-container">
+                                <div class="offline-fallback">
+                                    <i data-lucide="wifi-off"></i>
+                                    <span>데이터를 불러올 수 없음</span>
+                                </div>
+                                <iframe id="weekly-timetable-iframe" class="timetable-iframe" src="about:blank"></iframe>
                             </div>
-                            <iframe id="weekly-timetable-iframe" class="timetable-iframe" src="about:blank"></iframe>
                         </div>
                     </div>
-                </div>
-
-                <div id="page-lunch" class="page hidden">
-                    <div class="card lunch-card">
-                        <div class="iframe-container">
-                            <div class="offline-fallback">
-                                <i data-lucide="wifi-off"></i>
-                                <span>데이터를 불러올 수 없음</span>
+                    <div class="school-panel school-panel-lunch hidden" data-school-panel="lunch" role="tabpanel">
+                        <div class="card lunch-card">
+                            <div class="iframe-container">
+                                <div class="offline-fallback">
+                                    <i data-lucide="wifi-off"></i>
+                                    <span>데이터를 불러올 수 없음</span>
+                                </div>
+                                <iframe id="lunch-iframe" class="timetable-iframe" src="about:blank"></iframe>
                             </div>
-                            <iframe id="lunch-iframe" class="timetable-iframe" src="about:blank"></iframe>
                         </div>
                     </div>
                 </div>
@@ -2495,44 +2766,68 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     </div>
                 </div>
 
-                <div id="page-more" class="page hidden">
-                    <div class="profile-card">
-                        <div class="profile-card-head">
-                            <img src="https://mblogthumb-phinf.pstatic.net/MjAyMDAyMTBfODAg/MDAxNTgxMzA0MTE3ODMy.ACRLtB9v5NH-I2qjWrwiXLb7TeUiG442cJmcdzVum7cg.eTLpNg_n0rAS5sWOsofRrvBy0qZk_QcWSfUiIagTfd8g.JPEG.lattepain/1581304118739.jpg?type=w800" class="profile-img" style="margin-right: 0;">
-                            <div class="profile-info">
-                                <div class="profile-name" id="profile-name-display">이름</div>
-                                <div class="profile-desc" id="profile-details-display">0학년 0반 0번</div>
-                                <div class="profile-email-display" id="profile-email-display" hidden></div>
+                <div id="page-my" class="page hidden">
+                    <h2 class="my-page-title">마이페이지</h2>
+                    <div class="my-profile-card">
+                        <div class="my-profile-top">
+                            <div class="my-avatar" id="my-avatar">?</div>
+                            <div class="my-profile-text">
+                                <div class="my-name-row">
+                                    <span class="my-display-name" id="my-display-name">사용자</span>
+                                    <span class="my-badge" id="my-badge">새싹</span>
+                                </div>
+                                <div class="my-school-line" id="my-school-line">중동중 · 0학년 0반</div>
+                                <div class="my-points-line" id="my-points-line">0P</div>
                             </div>
                         </div>
-                        <button class="app-info-btn ripple-btn" onclick="window.openAppInfo()" style="background: none; border: none; padding: 10px; color: var(--text-mute); border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent;">
-                            <i data-lucide="info" style="width: 24px; height: 24px;"></i>
-                        </button>
+                        <div class="my-level-row">
+                            <span id="my-level-label">Lv.1 → Lv.2</span>
+                            <span id="my-level-progress-text">0 / 50P</span>
+                        </div>
+                        <div class="my-progress-track">
+                            <div class="my-progress-fill" id="my-progress-fill"></div>
+                        </div>
                     </div>
+                    <button type="button" class="my-student-card ripple-btn" onclick="window.openStudentCardPage()" aria-label="모바일 학생증 열기">
+                        <div class="my-student-card-inner">
+                            <span class="my-student-card-title">모바일 학생증</span>
+                        </div>
+                        <img class="my-student-card-icon" src="https://cdn-icons-png.flaticon.com/256/6467/6467130.png" alt="">
+                    </button>
+                </div>
+
+                <div id="page-more" class="page hidden">
+                    <h2 class="more-page-title">더보기</h2>
 
                     <div class="notice-banner-wrap hidden" style="margin-bottom: 24px;">
                         <div class="notice-banner-track"></div>
                     </div>
 
                     <div class="quick-grid">
-                        <button class="quick-square-btn" onclick="window.switchPageTo('timetable')">
+                        <button type="button" class="quick-squircle-btn quick-squircle-btn--timetable" onclick="window.switchPageTo('school', 'timetable')">
                             <i data-lucide="layout"></i>
                             <span>시간표 보기</span>
                         </button>
-                        <button class="quick-square-btn" onclick="window.switchPageTo('lunch')">
+                        <button type="button" class="quick-squircle-btn quick-squircle-btn--lunch" onclick="window.switchPageTo('school', 'lunch')">
                             <i data-lucide="utensils"></i>
                             <span>급식표 보기</span>
                         </button>
-                        <button class="quick-square-btn" onclick="window.openDocPage()">
+                        <button type="button" class="quick-squircle-btn quick-squircle-btn--doc" onclick="window.openDocPage()">
                             <i data-lucide="newspaper"></i>
                             <span>가정통신문</span>
                         </button>
-                        <button class="quick-square-btn" onclick="window.openStudentCardPage()">
+                        <button type="button" class="quick-squircle-btn quick-squircle-btn--student" onclick="window.openStudentCardPage()">
                             <i data-lucide="id-card"></i>
                             <span>학생증 BETA</span>
                         </button>
                     </div>
 
+                    <button class="menu-btn" onclick="window.openAppInfo()">
+                        <span class="menu-btn-left">
+                            <i data-lucide="info" class="menu-icon" style="color: #64748b;"></i>
+                            <span>앱 정보</span>
+                        </span>
+                    </button>
                     <button class="menu-btn" onclick="window.openSettingsPanel()">
                         <span class="menu-btn-left">
                             <i data-lucide="settings" class="menu-icon" style="color: #64748b;"></i>
@@ -2554,49 +2849,61 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 </div>
             </div>
 
-            <nav class="bottom-nav">
-                <div class="nav-item active" data-page="home">
-                    <i data-lucide="home"></i>
-                    <span>홈</span>
+            <div class="bottom-nav-container" aria-label="하단 메뉴">
+                <div class="nav-background" aria-hidden="true">
+                    <div class="bg-side"></div>
+                    <div class="bg-center-notch">
+                        <svg viewBox="0 0 180 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M 0 0 L 24 0 C 42 0, 52 8, 58 20 C 68 36, 74 46, 90 46 C 106 46, 112 36, 122 20 C 128 8, 138 0, 156 0 L 180 0 L 180 60 L 0 60 Z"/>
+                        </svg>
+                    </div>
+                    <div class="bg-side"></div>
                 </div>
-                <div class="nav-item" data-page="timetable">
-                    <i data-lucide="layout"></i>
-                    <span>시간표</span>
+                <div class="nav-contour-line" aria-hidden="true">
+                    <div class="contour-side"></div>
+                    <div class="contour-center-notch">
+                        <svg viewBox="0 0 180 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="none" stroke="rgba(0, 0, 0, 0.07)" stroke-width="1" vector-effect="non-scaling-stroke" d="M 0 0.5 L 24 0.5 C 42 0.5, 52 8.5, 58 20.5 C 68 36.5, 74 46.5, 90 46.5 C 106 46.5, 112 36.5, 122 20.5 C 128 8.5, 138 0.5, 156 0.5 L 180 0.5"/>
+                        </svg>
+                    </div>
+                    <div class="contour-side"></div>
                 </div>
-                <div class="nav-item" data-page="lunch">
-                    <i data-lucide="utensils"></i>
-                    <span>급식</span>
-                </div>
-                <div class="nav-item" data-page="ai">
-                    <i data-lucide="sparkles"></i>
-                    <span>AI</span>
-                </div>
-                <div class="nav-item" data-page="jbs">
-                    <span class="jbs-icon" style="--jbs-icon-url:url('https://raw.githubusercontent.com/jaewondev27/image/main/4ca7b4607_njbs-logo%20(1).png');"></span>
-                    <span>JBS</span>
-                </div>
-                <div class="nav-item" data-page="more">
-                    <i data-lucide="menu"></i>
-                    <span>더보기</span>
-                </div>
-            </nav>
+                <nav class="bottom-nav-items">
+                    <div class="nav-item active" data-page="home">
+                        <i data-lucide="home"></i>
+                        <span>홈</span>
+                    </div>
+                    <div class="nav-item" data-page="school">
+                        <i data-lucide="info"></i>
+                        <span>학교정보</span>
+                    </div>
+                    <div class="center-space-placeholder" aria-hidden="true"></div>
+                    <div class="nav-item" data-page="jbs">
+                        <span class="jbs-icon" style="--jbs-icon-url:url('https://raw.githubusercontent.com/jaewondev27/image/main/4ca7b4607_njbs-logo%20(1).png');"></span>
+                        <span>JBS</span>
+                    </div>
+                    <div class="nav-item" data-page="more">
+                        <i data-lucide="menu"></i>
+                        <span>더보기</span>
+                    </div>
+                </nav>
+                <button type="button" class="nav-fab" data-page="my" aria-label="MY">
+                    <span class="nav-fab-label">MY</span>
+                </button>
+            </div>
 
             <div id="floating-tab-bar" class="floating-tab-bar">
                 <div class="floating-tab-item active" data-float-page="home">
                     <i data-lucide="home"></i>
                     <span>홈</span>
                 </div>
-                <div class="floating-tab-item" data-float-page="timetable">
-                    <i data-lucide="layout"></i>
-                    <span>시간표</span>
+                <div class="floating-tab-item" data-float-page="school">
+                    <i data-lucide="info"></i>
+                    <span>학교정보</span>
                 </div>
-                <div class="floating-tab-item" data-float-page="lunch">
-                    <i data-lucide="utensils"></i>
-                    <span>급식</span>
-                </div>
-                <div class="floating-tab-item" data-float-page="ai">
-                    <i data-lucide="sparkles"></i>
-                    <span>AI</span>
+                <div class="floating-tab-item" data-float-page="my">
+                    <i data-lucide="id-card"></i>
+                    <span>MY</span>
                 </div>
                 <div class="floating-tab-item" data-float-page="jbs">
                     <span class="jbs-icon" style="--jbs-icon-url:url('https://raw.githubusercontent.com/jaewondev27/image/main/4ca7b4607_njbs-logo%20(1).png');"></span>
@@ -2885,7 +3192,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             }
 
             function syncNativeStatusBar(forcedPage) {
-                const activePage = forcedPage || (document.querySelector('.nav-item.active')?.getAttribute('data-page')) || 'home';
+                const activePage = forcedPage || (document.querySelector('.bottom-nav-items .nav-item.active')?.getAttribute('data-page')) || 'home';
                 const shouldDark = document.body.classList.contains('dark-mode');
                 const useDarkIcons = activePage === 'jbs' ? true : !shouldDark;
                 try {
@@ -2947,7 +3254,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             
             const template = document.getElementById('user-svg-template');
             const svgContent = template ? template.innerHTML.trim() : '';
-            const splashLogoContainer = document.getElementById('splash-logo-container');
             const ptrLogoContainer = document.getElementById('ptr-logo-container');
             const homeLogoImg = document.getElementById('home-logo-img');
             let currentPickerContext = null;
@@ -2957,9 +3263,9 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             let pickerDragDeltaY = 0;
             let pickerDragging = false;
 
-            if (svgContent) {
-                splashLogoContainer.insertAdjacentHTML('afterbegin', svgContent);
-                const svgEl = splashLogoContainer.querySelector('svg');
+            if (svgContent && ptrLogoContainer) {
+                ptrLogoContainer.insertAdjacentHTML('afterbegin', svgContent);
+                const svgEl = ptrLogoContainer.querySelector('svg');
 
                 if (svgEl) {
                     const svgString = new XMLSerializer().serializeToString(svgEl);
@@ -2969,16 +3275,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                         homeLogoImg.src = dataUrl;
                         homeLogoImg.alt = '로고';
                     }
-
-                    const splashMask = document.getElementById('splash-shimmer-mask');
-                    splashMask.style.webkitMaskImage = `url("${dataUrl}")`;
-                    splashMask.style.maskImage = `url("${dataUrl}")`;
-                    splashMask.style.webkitMaskSize = '100% 100%';
-                    splashMask.style.maskSize = '100% 100%';
-                    splashMask.style.webkitMaskPosition = 'center';
-                    splashMask.style.maskPosition = 'center';
-                    splashMask.style.webkitMaskRepeat = 'no-repeat';
-                    splashMask.style.maskRepeat = 'no-repeat';
 
                     const ptrBg = document.createElement('div');
                     ptrBg.style.position = 'absolute';
@@ -3090,9 +3386,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             preloadBanner();
 
             function runSplashSequence() {
-                const splashScreen = document.getElementById('splash-screen');
-                if (splashScreen) splashScreen.classList.add('hidden');
-                
                 const rawData = localStorage.getItem('userData');
                 if (rawData) {
                     try {
@@ -3254,9 +3547,10 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             if (emailLinkBtn) emailLinkBtn.addEventListener('click', window.handleEmailLinkSignIn);
 
             const btnSave = document.getElementById('btn-save');
-            const navItems = document.querySelectorAll('.nav-item');
+            const navItems = document.querySelectorAll('.bottom-nav-items .nav-item');
+            const navFab = document.querySelector('.nav-fab');
             const pages = document.querySelectorAll('.page');
-            const bottomNav = document.querySelector('.bottom-nav');
+            const bottomNav = document.querySelector('.bottom-nav-container');
             const floatingTabBar = document.getElementById('floating-tab-bar');
             const floatingTabItems = document.querySelectorAll('.floating-tab-item');
             const REMOTE_CONTROL_BASE = 'https://jaewondev27.github.io/myjdmsappmainpagecontrol';
@@ -3282,7 +3576,27 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             ];
             let noticeAutoSlideTimer = null;
 
-            window.switchPageTo = function(page) { switchPage(page); };
+            window.switchPageTo = function(page, schoolTab) {
+                if (page === 'timetable' || page === 'lunch') {
+                    switchPage('school', page);
+                    return;
+                }
+                switchPage(page, schoolTab);
+            };
+
+            function setSchoolTab(tab) {
+                const nextTab = tab === 'lunch' ? 'lunch' : 'timetable';
+                document.querySelectorAll('.school-tab').forEach((btn) => {
+                    const isActive = btn.getAttribute('data-school-tab') === nextTab;
+                    btn.classList.toggle('active', isActive);
+                    btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                });
+                document.querySelectorAll('.school-panel').forEach((panel) => {
+                    panel.classList.toggle('hidden', panel.getAttribute('data-school-panel') !== nextTab);
+                });
+                if (nextTab === 'timetable') loadWeeklyTimetableIframe();
+                else loadLunchIframe();
+            }
             window.openAppInfo = function() {
                 window.open(`${REMOTE_CONTROL_BASE}/inform`, '_blank');
             };
@@ -3690,10 +4004,14 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             }
 
             function reloadCurrentPageIframes() {
-                const page = document.querySelector('.nav-item.active').getAttribute('data-page');
+                const activeNav = document.querySelector('.bottom-nav-items .nav-item.active');
+                const page = activeNav ? activeNav.getAttribute('data-page') : (document.getElementById('page-my')?.classList.contains('hidden') ? 'home' : 'my');
                 if (page === 'home') { loadTodayTimetableIframe(true); loadHomeLunchIframe(true); }
-                else if (page === 'timetable') loadWeeklyTimetableIframe(true);
-                else if (page === 'lunch') loadLunchIframe(true);
+                else if (page === 'school') {
+                    const activeSchoolTab = document.querySelector('.school-tab.active')?.getAttribute('data-school-tab') || 'timetable';
+                    if (activeSchoolTab === 'lunch') loadLunchIframe(true);
+                    else loadWeeklyTimetableIframe(true);
+                }
             }
 
             function transitionFromSetupToApp() {
@@ -3732,6 +4050,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             });
 
             navItems.forEach(item => item.addEventListener('click', () => switchPage(item.getAttribute('data-page'))));
+            if (navFab) navFab.addEventListener('click', () => switchPage(navFab.getAttribute('data-page')));
             floatingTabItems.forEach(item => item.addEventListener('click', () => switchPage(item.getAttribute('data-float-page'))));
 
             (function bindWelcomeRowToMoreTab() {
@@ -3795,9 +4114,21 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             window.addEventListener('resize', scheduleFitHomeHeaderTexts);
             window.addEventListener('orientationchange', function () { setTimeout(scheduleFitHomeHeaderTexts, 120); });
 
-            function switchPage(target) {
-                if (target === 'ai') {
-                    window.open(`${REMOTE_CONTROL_BASE}/ai`, '_blank');
+            document.querySelectorAll('.school-tab').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const tab = btn.getAttribute('data-school-tab');
+                    const schoolPage = document.getElementById('page-school');
+                    if (schoolPage && !schoolPage.classList.contains('hidden')) {
+                        setSchoolTab(tab);
+                        return;
+                    }
+                    switchPage('school', tab);
+                });
+            });
+
+            function switchPage(target, schoolTab) {
+                if (target === 'timetable' || target === 'lunch') {
+                    switchPage('school', target);
                     return;
                 }
                 if (target === 'jbs') {
@@ -3810,7 +4141,9 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     return;
                 }
                 navItems.forEach(nav => nav.classList.toggle('active', nav.getAttribute('data-page') === target));
-                floatingTabItems.forEach(tab => tab.classList.toggle('active', tab.getAttribute('data-float-page') === target));
+                if (navFab) navFab.classList.remove('active');
+                floatingTabItems.forEach(tab => tab.classList.toggle('active', tab.getAttribute('data-float-page') === target && target !== 'my'));
+                if (target === 'school') setSchoolTab(schoolTab || document.querySelector('.school-tab.active')?.getAttribute('data-school-tab') || 'timetable');
                 pages.forEach(p => {
                     const isTarget = p.id === `page-${target}`;
                     p.classList.toggle('hidden', !isTarget);
@@ -3827,13 +4160,61 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     loadHomeLunchIframe();
                     scheduleFitHomeHeaderTexts();
                 }
-                if (target === 'timetable') loadWeeklyTimetableIframe();
-                if (target === 'lunch') loadLunchIframe();
+                if (target === 'school') {
+                    const activeSchoolTab = document.querySelector('.school-tab.active')?.getAttribute('data-school-tab') || 'timetable';
+                    if (activeSchoolTab === 'lunch') loadLunchIframe();
+                    else loadWeeklyTimetableIframe();
+                }
+                if (target === 'my') updateMyProfile();
+            }
+
+            function updateMyProfile() {
+                if (!userData) return;
+                const displayName = userData.name || userData.displayName || '사용자';
+                const grade = userData.grade != null ? userData.grade : 0;
+                const cls = userData.class != null ? userData.class : 0;
+                const points = 0;
+                const level = Number(userData.level) >= 1 ? Number(userData.level) : 1;
+                const nextLevel = level + 1;
+                const goal = Number(userData.nextLevelPoints) > 0 ? Number(userData.nextLevelPoints) : 50;
+                const badge = userData.badge || '새싹';
+                const progressPct = 0;
+
+                const nameEl = document.getElementById('my-display-name');
+                const badgeEl = document.getElementById('my-badge');
+                const schoolEl = document.getElementById('my-school-line');
+                const pointsEl = document.getElementById('my-points-line');
+                const levelLabelEl = document.getElementById('my-level-label');
+                const levelProgressEl = document.getElementById('my-level-progress-text');
+                const progressFillEl = document.getElementById('my-progress-fill');
+                const avatarEl = document.getElementById('my-avatar');
+
+                if (nameEl) nameEl.textContent = displayName;
+                if (badgeEl) badgeEl.textContent = badge;
+                if (schoolEl) schoolEl.textContent = `중동중 · ${grade}학년 ${cls}반`;
+                if (pointsEl) pointsEl.textContent = `${points}P`;
+                if (levelLabelEl) levelLabelEl.textContent = `Lv.${level} → Lv.${nextLevel}`;
+                if (levelProgressEl) levelProgressEl.textContent = `${points} / ${goal}P`;
+                if (progressFillEl) progressFillEl.style.width = `${progressPct}%`;
+
+                if (avatarEl) {
+                    if (userData.photoURL) {
+                        avatarEl.textContent = '';
+                        const img = document.createElement('img');
+                        img.src = userData.photoURL;
+                        img.alt = '';
+                        avatarEl.appendChild(img);
+                    } else {
+                        const initial = String(displayName).trim().charAt(0) || '?';
+                        avatarEl.textContent = initial;
+                    }
+                }
             }
 
             function startApp() {
                 mainContent.classList.remove('hidden');
                 updateHeader();
+                updateMyProfile();
                 try { renderNoticeBanners(); } catch (e) {}
                 if (!navigator.onLine) showOfflineToast();
                 loadTodayTimetableIframe();
@@ -3845,33 +4226,11 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             }
 
             function updateHeader() {
+                if (!userData) return;
                 const displayName = userData.name || userData.displayName || '사용자';
                 document.getElementById('welcome-text').textContent = displayName;
-                
                 document.getElementById('today-date').innerText = new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' });
-                
-                if (document.getElementById('profile-name-display')) {
-                    document.getElementById('profile-name-display').innerText = displayName;
-                    
-                    const schoolInfo = `${userData.grade}학년 ${userData.class}반 ${userData.number}번`;
-                    document.getElementById('profile-details-display').innerText = schoolInfo;
-                    var emailRow = document.getElementById('profile-email-display');
-                    if (emailRow) {
-                        var em = userData.email ? String(userData.email).trim() : '';
-                        if (em) {
-                            emailRow.textContent = em;
-                            emailRow.hidden = false;
-                        } else {
-                            emailRow.textContent = '';
-                            emailRow.hidden = true;
-                        }
-                    }
-                    
-                    if (userData.photoURL) {
-                        const pImg = document.querySelector('.profile-img');
-                        if (pImg) pImg.src = userData.photoURL;
-                    }
-                }
+                updateMyProfile();
                 scheduleFitHomeHeaderTexts();
                 requestAnimationFrame(function () { scheduleFitHomeHeaderTexts(); });
             }
@@ -4068,14 +4427,14 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             }
 
             document.body.addEventListener('mousedown', (e) => {
-                const btn = e.target.closest('button, .nav-item, .floating-tab-item, .notice-banner-card');
+                const btn = e.target.closest('button, .nav-item, .nav-fab, .floating-tab-item, .notice-banner-card, .my-student-card');
                 if (btn) {
                     if (!btn.classList.contains('ripple-btn')) btn.classList.add('ripple-btn');
                     createRipple(e, btn);
                 }
             });
             document.body.addEventListener('touchstart', (e) => {
-                const btn = e.target.closest('button, .nav-item, .floating-tab-item, .notice-banner-card');
+                const btn = e.target.closest('button, .nav-item, .nav-fab, .floating-tab-item, .notice-banner-card, .my-student-card');
                 if (btn) {
                     if (!btn.classList.contains('ripple-btn')) btn.classList.add('ripple-btn');
                     createRipple(e, btn);
@@ -4088,18 +4447,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             document.body.addEventListener('mouseleave', clearRipples, true);
 
             runSplashSequence();
-
-            // 인트로 오버레이 페이드아웃
-            (function() {
-                var overlay = document.getElementById('intro-overlay');
-                if (!overlay) return;
-                setTimeout(function() {
-                    overlay.classList.add('fade-out');
-                    overlay.addEventListener('transitionend', function() {
-                        overlay.classList.add('gone');
-                    }, { once: true });
-                }, 9000);
-            })();
 
             // 홈 로고 ↔ 배너 이미지 탭 토글 (기본: 배너 이미지 표시)
             (function() {
