@@ -131,6 +131,9 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             }
             setInsetVar('--sat', top);
             setInsetVar('--sab', bottom);
+            var chromeBottom = Math.max(bottomEnv, Math.max(0, bottom - 56));
+            chromeBottom = Math.min(Math.max(0, chromeBottom), CAP_BOT);
+            rs.setProperty('--sab-chrome', chromeBottom + 'px');
             rs.setProperty('--sar', '0px');
             rs.setProperty('--sal', '0px');
         } catch (e) {}
@@ -1034,10 +1037,17 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             bottom: 0;
             left: 0;
             right: 0;
-            height: calc(var(--nav-bar-h) + var(--sab-chrome));
-            padding-bottom: var(--sab-chrome);
             z-index: 1000;
+            display: flex;
+            flex-direction: column;
             box-sizing: border-box;
+        }
+
+        .nav-bar-layer {
+            position: relative;
+            flex-shrink: 0;
+            width: 100%;
+            height: var(--nav-bar-h);
         }
 
         .nav-background {
@@ -1045,9 +1055,8 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             top: 0;
             left: 0;
             right: 0;
-            bottom: 0;
+            height: var(--nav-bar-h);
             display: flex;
-            flex-direction: column;
             z-index: 1;
             pointer-events: none;
             filter:
@@ -1056,17 +1065,11 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 drop-shadow(0 -10px 22px rgba(0, 0, 0, 0.06));
         }
 
-        .nav-bar-top {
-            flex-shrink: 0;
-            display: flex;
-            width: 100%;
-            height: var(--nav-bar-h);
-        }
-
         .nav-safe-fill {
             flex-shrink: 0;
-            height: var(--sab-chrome);
             width: 100%;
+            height: var(--sab-chrome, 0px);
+            min-height: var(--sab-chrome, 0px);
             background-color: #ffffff;
         }
 
@@ -1111,12 +1114,12 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             overflow: hidden;
         }
 
-        .nav-bar-top .bg-side:first-child,
+        .nav-background .bg-side:first-child,
         .nav-contour-line .contour-side:first-child {
             border-top-left-radius: 20px;
         }
 
-        .nav-bar-top .bg-side:last-child,
+        .nav-background .bg-side:last-child,
         .nav-contour-line .contour-side:last-child {
             border-top-right-radius: 20px;
         }
@@ -2872,8 +2875,8 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             </div>
 
             <div class="bottom-nav-container" aria-label="하단 메뉴">
-                <div class="nav-background" aria-hidden="true">
-                    <div class="nav-bar-top">
+                <div class="nav-bar-layer">
+                    <div class="nav-background" aria-hidden="true">
                         <div class="bg-side"></div>
                         <div class="bg-center-notch">
                             <svg viewBox="0 0 180 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -2882,18 +2885,16 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                         </div>
                         <div class="bg-side"></div>
                     </div>
-                    <div class="nav-safe-fill"></div>
-                </div>
-                <div class="nav-contour-line" aria-hidden="true">
-                    <div class="contour-side"></div>
-                    <div class="contour-center-notch">
-                        <svg viewBox="0 0 180 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                            <path fill="none" stroke="rgba(0, 0, 0, 0.07)" stroke-width="1" vector-effect="non-scaling-stroke" d="M 0 0.5 L 24 0.5 C 42 0.5, 52 8.5, 58 20.5 C 68 36.5, 74 46.5, 90 46.5 C 106 46.5, 112 36.5, 122 20.5 C 128 8.5, 138 0.5, 156 0.5 L 180 0.5"/>
-                        </svg>
+                    <div class="nav-contour-line" aria-hidden="true">
+                        <div class="contour-side"></div>
+                        <div class="contour-center-notch">
+                            <svg viewBox="0 0 180 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill="none" stroke="rgba(0, 0, 0, 0.07)" stroke-width="1" vector-effect="non-scaling-stroke" d="M 0 0.5 L 24 0.5 C 42 0.5, 52 8.5, 58 20.5 C 68 36.5, 74 46.5, 90 46.5 C 106 46.5, 112 36.5, 122 20.5 C 128 8.5, 138 0.5, 156 0.5 L 180 0.5"/>
+                            </svg>
+                        </div>
+                        <div class="contour-side"></div>
                     </div>
-                    <div class="contour-side"></div>
-                </div>
-                <nav class="bottom-nav-items">
+                    <nav class="bottom-nav-items">
                     <div class="nav-item active" data-page="home">
                         <i data-lucide="home"></i>
                         <span>홈</span>
@@ -2912,9 +2913,11 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                         <span>더보기</span>
                     </div>
                 </nav>
-                <button type="button" class="nav-fab" data-page="my" aria-label="MY">
-                    <span class="nav-fab-label">MY</span>
-                </button>
+                    <button type="button" class="nav-fab" data-page="my" aria-label="MY">
+                        <span class="nav-fab-label">MY</span>
+                    </button>
+                </div>
+                <div class="nav-safe-fill" aria-hidden="true"></div>
             </div>
 
             <div id="floating-tab-bar" class="floating-tab-bar">
