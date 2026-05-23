@@ -164,7 +164,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             --sab: env(safe-area-inset-bottom, 0px);
             --sal: 0px;
             --sab-gap: var(--sab);
-            --sab-chrome: var(--sab);
+            --sab-chrome: calc(var(--sab) * 0.6);
             --nav-bar-h: 60px;
             --nav-notch-w: 180px;
             --nav-morph-duration: 0.62s;
@@ -1033,8 +1033,8 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             bottom: 0;
             left: 0;
             right: 0;
-            height: calc(var(--nav-bar-h) + var(--sab));
-            padding-bottom: var(--sab);
+            height: calc(var(--nav-bar-h) + var(--sab) * 0.6);
+            padding-bottom: calc(var(--sab) * 0.6);
             z-index: 1000;
             box-sizing: border-box;
         }
@@ -1064,7 +1064,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
         .nav-safe-fill {
             flex-shrink: 0;
-            height: var(--sab);
+            height: calc(var(--sab) * 0.6);
             width: 100%;
             background-color: #ffffff;
         }
