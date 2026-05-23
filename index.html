@@ -134,7 +134,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             setInsetVar('--sab-gap', bottom);
             var chromeBottom = Math.max(bottomEnv, Math.max(0, bottom - 56));
             chromeBottom = Math.min(Math.max(0, chromeBottom), CAP_BOT);
-            setInsetVar('--sab-chrome', chromeBottom);
+            rs.setProperty('--sab-chrome', chromeBottom + 'px');
             rs.setProperty('--sar', '0px');
             rs.setProperty('--sal', '0px');
         } catch (e) {}
@@ -1033,7 +1033,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             bottom: 0;
             left: 0;
             right: 0;
-            min-height: var(--nav-bar-h);
+            height: calc(var(--nav-bar-h) + var(--sab-chrome));
             padding-bottom: var(--sab-chrome);
             z-index: 1000;
             box-sizing: border-box;
@@ -1063,10 +1063,14 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         }
 
         .nav-safe-sides {
-            flex: 1;
-            min-height: var(--sab-chrome);
+            flex-shrink: 0;
+            height: var(--sab-chrome);
             display: flex;
             width: 100%;
+        }
+
+        .nav-safe-sides .bg-side {
+            height: 100%;
         }
 
         .nav-safe-notch-gap {
