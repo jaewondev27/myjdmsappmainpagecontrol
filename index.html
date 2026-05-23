@@ -286,6 +286,11 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             background: var(--bg);
             z-index: 998;
             pointer-events: none;
+            transition: height var(--nav-morph-duration) var(--nav-morph-ease);
+        }
+
+        body.segment-mode::after {
+            height: calc(52px + var(--sab-gap));
         }
 
         .hidden {
