@@ -167,6 +167,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             --sab-gap: var(--sab);
             --sab-chrome: var(--sab);
             --nav-bar-h: 60px;
+            --nav-bar-fill: #ffffff;
             --nav-notch-w: 180px;
             --nav-morph-duration: 0.62s;
             --nav-morph-ease: cubic-bezier(0.25, 1, 0.35, 1);
@@ -182,6 +183,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         }
 
         body.dark-mode {
+            --nav-bar-fill: #1d1d1d;
             --bg: #141414;
             --text-main: #f3f3f3;
             --text-sub: #c2c2c2;
@@ -1028,7 +1030,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             display: block;
         }
 
-        /* 하단바: 양쪽 배경 + 중앙 노치 SVG + 그리드 + FAB (+ 하단 세이프 영역) */
+        /* 하단바: PNG 마스크 + 테마 색 채움(높이 맞춤·가로 중앙) + 그리드 + FAB */
         .bottom-nav-container {
             position: fixed;
             bottom: 0;
@@ -1059,90 +1061,50 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         .nav-bar-top {
             flex-shrink: 0;
             display: flex;
+            justify-content: center;
+            align-items: flex-end;
             width: 100%;
             height: var(--nav-bar-h);
-        }
-
-        .nav-safe-fill {
-            flex-shrink: 0;
-            height: var(--sab);
-            width: 100%;
-            background-color: #ffffff;
-        }
-
-        body.dark-mode .nav-safe-fill {
-            background-color: #1d1d1d;
-        }
-
-        .nav-contour-line {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: var(--nav-bar-h);
-            z-index: 4;
-            pointer-events: none;
-            display: flex;
-        }
-
-        .contour-side {
-            flex: 1;
-            height: 100%;
-            border-top: 1px solid rgba(0, 0, 0, 0.07);
-            box-sizing: border-box;
-        }
-
-        .contour-center-notch {
-            width: 180px;
-            height: 60px;
-            flex-shrink: 0;
-        }
-
-        .contour-center-notch svg {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        .bg-side {
-            flex: 1;
-            background-color: #ffffff;
-            height: 100%;
             overflow: hidden;
         }
 
-        .nav-bar-top .bg-side:first-child,
-        .nav-contour-line .contour-side:first-child {
-            border-top-left-radius: 20px;
-        }
-
-        .nav-bar-top .bg-side:last-child,
-        .nav-contour-line .contour-side:last-child {
-            border-top-right-radius: 20px;
-        }
-
-        .bg-center-notch {
-            width: 180px;
-            height: 60px;
+        .nav-bar-image-slot {
+            position: relative;
+            height: var(--nav-bar-h);
+            line-height: 0;
             flex-shrink: 0;
         }
 
-        .bg-center-notch svg {
+        .nav-bar-image-probe {
+            height: var(--nav-bar-h);
+            width: auto;
+            max-width: none;
+            display: block;
+            visibility: hidden;
+            pointer-events: none;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        .nav-bar-image-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
             width: 100%;
             height: 100%;
-            display: block;
-        }
-
-        .bg-center-notch path {
-            fill: #ffffff;
-        }
-
-        body.dark-mode .bg-side {
-            background-color: #1d1d1d;
-        }
-
-        body.dark-mode .bg-center-notch path {
-            fill: #1d1d1d;
+            background-color: var(--nav-bar-fill);
+            -webkit-mask-image: url('https://raw.githubusercontent.com/jaewondev27/myjdmsappmainpagecontrol/main/%ED%95%98%EB%8B%A8%EB%B0%94v2.png');
+            mask-image: url('https://raw.githubusercontent.com/jaewondev27/myjdmsappmainpagecontrol/main/%ED%95%98%EB%8B%A8%EB%B0%94v2.png');
+            -webkit-mask-size: 100% 100%;
+            mask-size: 100% 100%;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            mask-position: center;
+            -webkit-mask-mode: alpha;
+            mask-mode: alpha;
+            pointer-events: none;
+            transition: background-color 0.2s ease;
         }
 
         body.dark-mode .nav-background {
@@ -1152,12 +1114,12 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 drop-shadow(0 -10px 26px rgba(0, 0, 0, 0.28));
         }
 
-        body.dark-mode .contour-side {
-            border-top-color: rgba(255, 255, 255, 0.1);
-        }
-
-        body.dark-mode .contour-center-notch path {
-            stroke: rgba(255, 255, 255, 0.1);
+        .nav-safe-fill {
+            flex-shrink: 0;
+            height: var(--sab);
+            width: 100%;
+            background-color: var(--nav-bar-fill);
+            transition: background-color 0.2s ease;
         }
 
         .bottom-nav-items {
@@ -1226,10 +1188,10 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         .nav-fab {
             position: absolute;
             left: 50%;
-            top: -8px;
-            transform: translateX(-50%);
-            width: 50px;
-            height: 50px;
+            top: -16px;
+            transform: translateX(calc(-50% + 0.65px));
+            width: 54px;
+            height: 54px;
             border: none;
             border-radius: 50%;
             cursor: pointer;
@@ -1245,7 +1207,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         }
 
         .nav-fab:active {
-            transform: translateX(-50%) scale(0.94);
+            transform: translateX(calc(-50% + 0.65px)) scale(0.94);
         }
 
         .nav-fab.active {
@@ -1255,7 +1217,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         }
 
         .nav-fab-label {
-            font-size: 13px;
+            font-size: 13.5px;
             font-weight: 500;
             letter-spacing: -0.2px;
             line-height: 1;
@@ -2874,24 +2836,18 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             <div class="bottom-nav-container" aria-label="하단 메뉴">
                 <div class="nav-background" aria-hidden="true">
                     <div class="nav-bar-top">
-                        <div class="bg-side"></div>
-                        <div class="bg-center-notch">
-                            <svg viewBox="0 0 180 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M 0 0 L 24 0 C 42 0, 52 8, 58 20 C 68 36, 74 46, 90 46 C 106 46, 112 36, 122 20 C 128 8, 138 0, 156 0 L 180 0 L 180 60 L 0 60 Z"/>
-                            </svg>
+                        <div class="nav-bar-image-slot">
+                            <img
+                                class="nav-bar-image-probe"
+                                src="https://raw.githubusercontent.com/jaewondev27/myjdmsappmainpagecontrol/main/%ED%95%98%EB%8B%A8%EB%B0%94v2.png"
+                                alt=""
+                                decoding="async"
+                                draggable="false"
+                            />
+                            <span class="nav-bar-image-fill" aria-hidden="true"></span>
                         </div>
-                        <div class="bg-side"></div>
                     </div>
                     <div class="nav-safe-fill"></div>
-                </div>
-                <div class="nav-contour-line" aria-hidden="true">
-                    <div class="contour-side"></div>
-                    <div class="contour-center-notch">
-                        <svg viewBox="0 0 180 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                            <path fill="none" stroke="rgba(0, 0, 0, 0.07)" stroke-width="1" vector-effect="non-scaling-stroke" d="M 0 0.5 L 24 0.5 C 42 0.5, 52 8.5, 58 20.5 C 68 36.5, 74 46.5, 90 46.5 C 106 46.5, 112 36.5, 122 20.5 C 128 8.5, 138 0.5, 156 0.5 L 180 0.5"/>
-                        </svg>
-                    </div>
-                    <div class="contour-side"></div>
                 </div>
                 <nav class="bottom-nav-items">
                     <div class="nav-item active" data-page="home">
