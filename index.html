@@ -124,7 +124,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 }
             }
             bottom = Math.min(Math.max(0, bottom), CAP_BOT);
-            bottom = Math.round(bottom * 0.6);
+            bottom = Math.round(bottom * 0.45);
             var rs = document.documentElement.style;
             function setInsetVar(name, px) {
                 if (px > 0.5) rs.setProperty(name, px + 'px');
@@ -904,6 +904,33 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             color: var(--primary);
         }
 
+        /* ── 카드 타이틀 아이콘 박스 ── */
+        .card-title-icon-box {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: var(--primary-light);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .card-title-icon-box svg.lucide-inline,
+        .card-title-icon-box [data-lucide] {
+            width: 17px !important;
+            height: 17px !important;
+            color: var(--primary) !important;
+        }
+
+        .card-title-icon-box .jbs-icon {
+            width: 17px !important;
+            height: 17px !important;
+            background-color: var(--primary) !important;
+            transform: none !important;
+            margin-bottom: 0 !important;
+        }
+
         .page-header {
             font-size: 26px;
             font-weight: 800;
@@ -1129,7 +1156,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             width: 100%;
             height: var(--nav-bar-h);
             display: grid;
-            grid-template-columns: 1fr 1fr 72px 1fr 1fr;
+            grid-template-columns: 1.2fr 0.85fr 72px 0.85fr 1.2fr;
             align-items: center;
             z-index: 2;
             padding: 0 8px;
@@ -1468,6 +1495,41 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
         .quick-squircle-btn--student {
             background: linear-gradient(135deg, #c4b5fd, #8b5cf6);
+        }
+
+        .quick-squircle-btn--jbs {
+            background: linear-gradient(135deg, #fde68a, #f59e0b);
+        }
+
+        .quick-squircle-btn--ai {
+            background: linear-gradient(135deg, #a5f3fc, #06b6d4);
+        }
+
+        /* ── 아이콘 박스 래퍼 (더보기 탭 버튼 전용) ── */
+        .menu-btn .menu-icon-box {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .menu-btn .menu-icon-box svg.lucide-inline,
+        .menu-btn .menu-icon-box [data-lucide] {
+            width: 20px !important;
+            height: 20px !important;
+        }
+
+        /* 퀵 그리드 jbs 아이콘 크기 */
+        .quick-squircle-jbs-icon {
+            width: 22px !important;
+            height: 22px !important;
+            margin-bottom: 0;
+            transform: none !important;
+            background-color: #ffffff !important;
         }
 
         .slide-panel {
@@ -2678,7 +2740,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                         <img src="https://cdn-icons-png.flaticon.com/256/6467/6467130.png" style="height: 58px; width: 58px; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); object-fit: contain; pointer-events: none;">
                     </div>
                     <div class="card">
-                        <div class="card-title">오늘의 시간표 <i data-lucide="calendar"></i></div>
+                        <div class="card-title">오늘의 시간표 <span class="card-title-icon-box"><i data-lucide="calendar"></i></span></div>
                         <div class="iframe-container" id="today-timetable-container">
                             <div class="offline-fallback">
                                 <i data-lucide="wifi-off"></i>
@@ -2688,7 +2750,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                         </div>
                     </div>
                     <div class="card">
-                        <div class="card-title">오늘의 급식 <i data-lucide="utensils"></i></div>
+                        <div class="card-title">오늘의 급식 <span class="card-title-icon-box"><i data-lucide="utensils"></i></span></div>
                         <div class="iframe-container" style="height: 300px; min-height: 300px;">
                             <div class="offline-fallback">
                                 <i data-lucide="wifi-off"></i>
@@ -2730,7 +2792,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
                 <div id="page-jbs" class="page hidden">
                     <div class="card">
-                        <div class="card-title">JBS <span class="jbs-icon" style="--jbs-icon-url:url('https://raw.githubusercontent.com/jaewondev27/image/main/4ca7b4607_njbs-logo%20(1).png');"></span></div>
+                        <div class="card-title">JBS <span class="card-title-icon-box"><span class="jbs-icon" style="--jbs-icon-url:url('https://raw.githubusercontent.com/jaewondev27/image/main/4ca7b4607_njbs-logo%20(1).png');"></span></span></div>
                         <div class="ai-placeholder">
                             <span class="jbs-icon" style="--jbs-icon-url:url('https://raw.githubusercontent.com/jaewondev27/image/main/4ca7b4607_njbs-logo%20(1).png'); width:36px; height:36px;"></span>
                             <div>JBS 화면 준비 중입니다.</div>
@@ -2741,7 +2803,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
                 <div id="page-ai" class="page hidden">
                     <div class="card">
-                        <div class="card-title">AI <i data-lucide="sparkles"></i></div>
+                        <div class="card-title">AI <span class="card-title-icon-box"><i data-lucide="sparkles"></i></span></div>
                         <div class="ai-placeholder">
                             <i data-lucide="bot"></i>
                             <div>AI 기능 준비 중입니다.</div>
@@ -2804,29 +2866,37 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                             <i data-lucide="id-card"></i>
                             <span>학생증 BETA</span>
                         </button>
+                        <button type="button" class="quick-squircle-btn quick-squircle-btn--jbs" onclick="window.switchPageTo('jbs')">
+                            <span class="jbs-icon quick-squircle-jbs-icon" style="--jbs-icon-url:url('https://raw.githubusercontent.com/jaewondev27/image/main/4ca7b4607_njbs-logo%20(1).png');"></span>
+                            <span>JBS</span>
+                        </button>
+                        <button type="button" class="quick-squircle-btn quick-squircle-btn--ai" onclick="window.switchPageTo('ai')">
+                            <i data-lucide="sparkles"></i>
+                            <span>AI</span>
+                        </button>
                     </div>
 
                     <button class="menu-btn" onclick="window.openAppInfo()">
                         <span class="menu-btn-left">
-                            <i data-lucide="info" class="menu-icon" style="color: #64748b;"></i>
+                            <span class="menu-icon-box" style="background:#f1f5f9;"><i data-lucide="info" class="menu-icon" style="color: #64748b;"></i></span>
                             <span>앱 정보</span>
                         </span>
                     </button>
                     <button class="menu-btn" onclick="window.openSettingsPanel()">
                         <span class="menu-btn-left">
-                            <i data-lucide="settings" class="menu-icon" style="color: #64748b;"></i>
+                            <span class="menu-icon-box" style="background:#f1f5f9;"><i data-lucide="settings" class="menu-icon" style="color: #64748b;"></i></span>
                             <span>내 정보 설정</span>
                         </span>
                     </button>
                     <button class="menu-btn" onclick="window.openThemePanel()">
                         <span class="menu-btn-left">
-                            <i data-lucide="moon-star" class="menu-icon" style="color: #64748b;"></i>
+                            <span class="menu-icon-box" style="background:#f1f5f9;"><i data-lucide="moon-star" class="menu-icon" style="color: #64748b;"></i></span>
                             <span>테마 설정</span>
                         </span>
                     </button>
                     <button class="menu-btn" onclick="window.handleLogout()" style="margin-top: 24px; background: rgba(240, 68, 82, 0.05); color: #f04452;">
                         <span class="menu-btn-left">
-                            <i data-lucide="info" class="menu-icon" style="color: #f04452;"></i>
+                            <span class="menu-icon-box" style="background:#fee2e2;"><i data-lucide="info" class="menu-icon" style="color: #f04452;"></i></span>
                             <span>로그아웃</span>
                         </span>
                     </button>
