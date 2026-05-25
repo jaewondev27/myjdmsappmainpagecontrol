@@ -536,10 +536,15 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             padding-bottom: calc(180px + var(--sab-chrome));
             position: relative;
             background-color: var(--bg);
-            min-height: calc(100dvh - var(--sat) - 20px);
             box-sizing: border-box;
             transition: padding-bottom var(--nav-morph-duration) var(--nav-morph-ease);
             overflow-x: hidden;
+        }
+
+        /* 홈·학교처럼 콘텐츠가 많은 페이지만 최소 높이 보장 */
+        #page-home,
+        #page-school {
+            min-height: calc(100dvh - var(--sat) - 20px);
         }
 
         .page {
@@ -904,16 +909,17 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             color: var(--primary);
         }
 
-        /* ── 카드 타이틀 아이콘 박스 ── */
+        /* ── 카드 타이틀 아이콘 박스 (squircle 도형) ── */
         .card-title-icon-box {
-            width: 30px;
-            height: 30px;
-            border-radius: 8px;
+            width: 32px;
+            height: 32px;
             background: var(--primary-light);
             display: inline-flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            clip-path: url(#squircle-clip);
+            -webkit-clip-path: url(#squircle-clip);
         }
 
         .card-title-icon-box svg.lucide-inline,
@@ -1156,7 +1162,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             width: 100%;
             height: var(--nav-bar-h);
             display: grid;
-            grid-template-columns: 1.2fr 0.85fr 72px 0.85fr 1.2fr;
+            grid-template-columns: 1.35fr 0.75fr 72px 0.75fr 1.35fr;
             align-items: center;
             z-index: 2;
             padding: 0 8px;
@@ -1505,16 +1511,16 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             background: linear-gradient(135deg, #a5f3fc, #06b6d4);
         }
 
-        /* ── 아이콘 박스 래퍼 (더보기 탭 버튼 전용) ── */
+        /* ── 아이콘 박스 래퍼 (더보기 탭 버튼 전용, squircle 도형) ── */
         .menu-btn .menu-icon-box {
             width: 38px;
             height: 38px;
-            border-radius: 10px;
-            background: var(--primary-light);
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            clip-path: url(#squircle-clip);
+            -webkit-clip-path: url(#squircle-clip);
         }
 
         .menu-btn .menu-icon-box svg.lucide-inline,
@@ -2870,7 +2876,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                             <span class="jbs-icon quick-squircle-jbs-icon" style="--jbs-icon-url:url('https://raw.githubusercontent.com/jaewondev27/image/main/4ca7b4607_njbs-logo%20(1).png');"></span>
                             <span>JBS</span>
                         </button>
-                        <button type="button" class="quick-squircle-btn quick-squircle-btn--ai" onclick="window.switchPageTo('ai')">
+                        <button type="button" class="quick-squircle-btn quick-squircle-btn--ai" onclick="window.openAiPage()">
                             <i data-lucide="sparkles"></i>
                             <span>AI</span>
                         </button>
@@ -3666,6 +3672,9 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             window.openStudentCardPage = function() {
                 window.open(`${REMOTE_CONTROL_BASE}/studentcard.html`, '_blank');
             };
+            window.openAiPage = function() {
+                window.open('https://jaewondev27.github.io/myjdmsappmainpagecontrol/ai', '_blank');
+            };
 
             function getActiveNotices() {
                 try {
@@ -4189,6 +4198,10 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                         window.open('https://jaewondev27.github.io/jbsv2siteunoff/mobileapp.html', '_blank');
                     }
                     syncNativeStatusBar('jbs');
+                    return;
+                }
+                if (target === 'ai') {
+                    window.open('https://jaewondev27.github.io/myjdmsappmainpagecontrol/ai', '_blank');
                     return;
                 }
                 navItems.forEach(nav => nav.classList.toggle('active', nav.getAttribute('data-page') === target));
