@@ -270,6 +270,15 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         body.dark-mode [data-lucide],
         body.dark-mode svg.lucide-inline { color: var(--text-main) !important; stroke: currentColor !important; }
         body.dark-mode .menu-icon { color: var(--text-main) !important; }
+        body.dark-mode .menu-btn .menu-icon-box {
+            background: #2a2a2a !important;
+        }
+        body.dark-mode .menu-btn.logout-btn .menu-icon-box {
+            background: rgba(240, 68, 82, 0.18) !important;
+        }
+        body.dark-mode .menu-btn.logout-btn {
+            background: rgba(240, 68, 82, 0.08) !important;
+        }
         body.dark-mode .nav-item.active,
         body.dark-mode .floating-tab-item.active { color: var(--primary) !important; }
         body.dark-mode .nav-item.active [data-lucide],
@@ -2920,7 +2929,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                             <span>앱 정보</span>
                         </span>
                     </button>
-                    <button class="menu-btn" onclick="window.handleLogout()" style="margin-top: 24px; background: rgba(240, 68, 82, 0.05); color: #f04452;">
+                    <button class="menu-btn logout-btn" onclick="window.handleLogout()" style="margin-top: 24px; background: rgba(240, 68, 82, 0.05); color: #f04452;">
                         <span class="menu-btn-left">
                             <span class="menu-icon-box" style="background:#fee2e2;"><i data-lucide="info" class="menu-icon" style="color: #f04452;"></i></span>
                             <span>로그아웃</span>
