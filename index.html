@@ -124,7 +124,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 }
             }
             bottom = Math.min(Math.max(0, bottom), CAP_BOT);
-            bottom = Math.round(bottom * 0.45);
+            bottom = Math.round(bottom * 0.35);
             var rs = document.documentElement.style;
             function setInsetVar(name, px) {
                 if (px > 0.5) rs.setProperty(name, px + 'px');
@@ -533,7 +533,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         }
 
         .page-content {
-            padding-bottom: calc(180px + var(--sab-chrome));
+            padding-bottom: calc(120px + var(--sab-chrome));
             position: relative;
             background-color: var(--bg);
             box-sizing: border-box;
@@ -1001,7 +1001,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         }
 
         body.segment-mode .page-content {
-            padding-bottom: calc(174px + var(--sab-chrome));
+            padding-bottom: calc(114px + var(--sab-chrome));
         }
 
         #page-school:not(.hidden) {
@@ -1509,6 +1509,14 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
         .quick-squircle-btn--ai {
             background: linear-gradient(135deg, #a5f3fc, #06b6d4);
+        }
+
+        .quick-squircle-btn--settings {
+            background: linear-gradient(135deg, #d1d5db, #6b7280);
+        }
+
+        .quick-squircle-btn--theme {
+            background: linear-gradient(135deg, #c4b5fd, #7c3aed);
         }
 
         /* ── 아이콘 박스 래퍼 (더보기 탭 버튼 전용, squircle 도형) ── */
@@ -2585,6 +2593,22 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             transform: translateX(10px) scale(0.9);
         }
 
+        .nav-item[data-page="home"] {
+            transform: translateX(-10px);
+        }
+
+        .nav-item[data-page="home"]:active {
+            transform: translateX(-10px) scale(0.9);
+        }
+
+        .nav-item[data-page="more"] {
+            transform: translateX(10px);
+        }
+
+        .nav-item[data-page="more"]:active {
+            transform: translateX(10px) scale(0.9);
+        }
+
     </style>
 </head>
 <body>
@@ -2880,24 +2904,20 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                             <i data-lucide="sparkles"></i>
                             <span>AI</span>
                         </button>
+                        <button type="button" class="quick-squircle-btn quick-squircle-btn--settings" onclick="window.openSettingsPanel()">
+                            <i data-lucide="settings"></i>
+                            <span>내 정보</span>
+                        </button>
+                        <button type="button" class="quick-squircle-btn quick-squircle-btn--theme" onclick="window.openThemePanel()">
+                            <i data-lucide="moon-star"></i>
+                            <span>테마</span>
+                        </button>
                     </div>
 
                     <button class="menu-btn" onclick="window.openAppInfo()">
                         <span class="menu-btn-left">
                             <span class="menu-icon-box" style="background:#f1f5f9;"><i data-lucide="info" class="menu-icon" style="color: #64748b;"></i></span>
                             <span>앱 정보</span>
-                        </span>
-                    </button>
-                    <button class="menu-btn" onclick="window.openSettingsPanel()">
-                        <span class="menu-btn-left">
-                            <span class="menu-icon-box" style="background:#f1f5f9;"><i data-lucide="settings" class="menu-icon" style="color: #64748b;"></i></span>
-                            <span>내 정보 설정</span>
-                        </span>
-                    </button>
-                    <button class="menu-btn" onclick="window.openThemePanel()">
-                        <span class="menu-btn-left">
-                            <span class="menu-icon-box" style="background:#f1f5f9;"><i data-lucide="moon-star" class="menu-icon" style="color: #64748b;"></i></span>
-                            <span>테마 설정</span>
                         </span>
                     </button>
                     <button class="menu-btn" onclick="window.handleLogout()" style="margin-top: 24px; background: rgba(240, 68, 82, 0.05); color: #f04452;">
