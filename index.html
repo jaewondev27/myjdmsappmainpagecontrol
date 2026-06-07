@@ -1089,18 +1089,45 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         }
 
         #page-school:not(.hidden) {
-            display: block;
+            display: flex;
+            flex-direction: column;
             min-height: 0;
+            height: calc(100dvh - var(--sat) - 36px - 118px - var(--sab-chrome));
+            max-height: calc(100dvh - var(--sat) - 36px - 118px - var(--sab-chrome));
+            overflow: hidden;
+        }
+
+        #page-school:not(.hidden) .school-tabs {
+            flex-shrink: 0;
+        }
+
+        #page-school:not(.hidden) .school-panel:not(.hidden) {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
         #page-school:not(.hidden) .timetable-card,
         #page-school:not(.hidden) .lunch-card {
-            display: block;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            margin-bottom: 0;
         }
 
         #page-school:not(.hidden) .school-panel:not(.hidden) .iframe-container {
-            height: calc(100dvh - var(--sat) - 36px - 8px - 118px - var(--sab-chrome));
-            min-height: 280px;
+            flex: 1;
+            min-height: 0;
+            height: auto !important;
+            overflow: hidden;
+        }
+
+        body.school-page-active .page-content {
+            overflow: hidden;
+            overscroll-behavior: none;
         }
 
         .school-tabs {
@@ -1140,12 +1167,13 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         }
 
         #my-schedule-container {
-            height: 420px;
-            min-height: 420px;
+            height: 320px;
+            min-height: 320px;
             border-radius: 0;
             box-shadow: none;
             background: transparent;
             transition: height 0.2s ease, min-height 0.2s ease;
+            overflow: hidden;
         }
 
         .my-schedule-card {
@@ -1213,7 +1241,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             right: 0;
             z-index: 1000;
             box-sizing: border-box;
-            padding: 8px 16px calc(8px + var(--sab));
+            padding: 8px 20px calc(8px + var(--sab));
             pointer-events: none;
         }
 
@@ -1221,7 +1249,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             display: flex;
             align-items: stretch;
             gap: 4px;
-            max-width: 368px;
+            max-width: 344px;
             margin: 0 auto;
             padding: 4px;
             border-radius: 999px;
@@ -1986,6 +2014,51 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         .modal-icon-circle.error { background: #fff1f2; color: #ef4444; animation: icon-shake 0.4s ease; }
         .modal-icon-circle.success { background: #f0fdf4; color: #22c55e; }
         .modal-icon-circle.info { background: #eff6ff; color: #3b82f6; }
+        body.dark-mode .modal-overlay { background: rgba(0, 0, 0, 0.62); }
+        body.dark-mode .modal-title { color: var(--text-main); }
+        body.dark-mode .modal-icon-circle.info { background: rgba(59, 130, 246, 0.18); color: #60a5fa; }
+        body.dark-mode .modal-icon-circle.error { background: rgba(239, 68, 68, 0.16); color: #f87171; }
+        body.dark-mode .modal-icon-circle.success { background: rgba(34, 197, 94, 0.16); color: #4ade80; }
+        body.dark-mode .modal-icon-circle svg { color: inherit; stroke: currentColor; }
+
+        /* 가정통신문 슬라이드 패널 */
+        #doc-panel-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2600;
+            background: rgba(0, 0, 0, 0.35);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.28s ease, visibility 0.28s ease;
+        }
+        #doc-panel-overlay.open {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+        #doc-panel-sheet {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: min(100%, 480px);
+            max-width: 100%;
+            background: var(--bg);
+            transform: translateX(100%);
+            transition: transform 0.32s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: -8px 0 32px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+        }
+        #doc-panel-overlay.open #doc-panel-sheet { transform: translateX(0); }
+        #doc-panel-overlay.closing #doc-panel-sheet { transform: translateX(100%); }
+        #doc-panel-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            background: var(--bg);
+        }
 
         .error-title {
             font-size: 20px;
@@ -3057,6 +3130,12 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
         <div id="back-exit-toast">한번 더 뒤로가면 종료돼요</div>
 
+        <div id="doc-panel-overlay" class="hidden" aria-hidden="true">
+            <div id="doc-panel-sheet">
+                <iframe id="doc-panel-iframe" title="가정통신문" src="about:blank"></iframe>
+            </div>
+        </div>
+
         <div id="version-modal">
             <div class="version-modal-content">
                 <div class="version-modal-title">버전 선택</div>
@@ -3129,7 +3208,9 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 else cancelBtn.classList.add('hidden');
             }
             modal.classList.add('show');
-            requestAnimationFrame(function () { modal.classList.add('active'); });
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () { modal.classList.add('active'); });
+            });
             return new Promise(function (resolve) {
                 function cleanup() {
                     confirmBtn.removeEventListener('click', onConfirm);
@@ -3149,6 +3230,12 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             return jdmsShowModal({ title: '오류', message: msg, type: 'error', iconName: 'x-circle' });
         };
 
+        function stripHtmlText(html) {
+            var d = document.createElement('div');
+            d.innerHTML = html || '';
+            return (d.textContent || d.innerText || '').replace(/\s+\n/g, '\n').trim();
+        }
+
         function showScheduleDayModal(dateStr, events) {
             var parts = String(dateStr || '').split('-');
             if (parts.length < 3) return;
@@ -3164,6 +3251,54 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 });
             }
             jdmsShowModal({ title: '학사일정', message: msg.trim(), type: 'info', iconName: 'calendar' });
+        }
+
+        function showLunchDetailModal(data) {
+            if (!data) return;
+            var msg = (data.menu ? data.menu + '\n\n' : '');
+            var raw = stripHtmlText(data.rawMenu);
+            var ntr = stripHtmlText(data.details);
+            if (raw) msg += '[알레르기 유발 정보]\n' + raw + '\n\n';
+            if (ntr) msg += '[영양 정보]\n' + ntr;
+            jdmsShowModal({ title: '급식 세부 정보', message: msg.trim() || '정보가 없습니다.', type: 'info', iconName: 'utensils' });
+        }
+
+        function jdmsHandleDownload(url, filename) {
+            if (!url) return false;
+            var target = String(url);
+            var name = filename || '';
+            try {
+                if (typeof AndroidInterface !== 'undefined') {
+                    var pairs = [
+                        ['downloadFile', [target, name]],
+                        ['downloadUrl', [target]],
+                        ['downloadAttachment', [target, name]],
+                        ['saveFile', [target, name]],
+                        ['openDownload', [target]]
+                    ];
+                    for (var i = 0; i < pairs.length; i++) {
+                        var fn = AndroidInterface[pairs[i][0]];
+                        if (typeof fn === 'function') {
+                            fn.apply(AndroidInterface, pairs[i][1]);
+                            return true;
+                        }
+                    }
+                }
+            } catch (e) {}
+            try {
+                var a = document.createElement('a');
+                a.href = target;
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
+                if (name) a.download = name;
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                return true;
+            } catch (e2) {}
+            window.open(target, '_blank');
+            return true;
         }
 
         function tryCompleteLoginFromUrl() {
@@ -3264,9 +3399,42 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             }
         };
 
+        function getAuthDevicePayload() {
+            var ua = navigator.userAgent || '';
+            var label = '웹 브라우저';
+            if (/Android/i.test(ua)) label = 'Android 기기';
+            else if (/iPhone|iPad|iPod/i.test(ua)) label = 'iOS 기기';
+            else if (/Windows/i.test(ua)) label = 'Windows PC';
+            else if (/Mac/i.test(ua)) label = 'Mac';
+            try {
+                if (typeof AndroidInterface !== 'undefined' && AndroidInterface.getDeviceModel) {
+                    var model = AndroidInterface.getDeviceModel();
+                    if (model) label = String(model);
+                }
+            } catch (e) {}
+            return {
+                device_label: label,
+                device_info: {
+                    platform: navigator.platform || '',
+                    screen: (window.screen && screen.width ? screen.width : 0) + 'x' + (window.screen && screen.height ? screen.height : 0),
+                    model: label
+                }
+            };
+        }
+
         let __jdmsAuthCooldown = false;
         window.handleEmailLinkSignIn = function() {
             if (__jdmsAuthCooldown) return;
+
+            if (userData && userData.email) {
+                jdmsShowModal({
+                    title: '이미 로그인됨',
+                    message: '이미 이메일 인증이 완료된 계정입니다. 로그아웃 후 다시 시도해 주세요.',
+                    type: 'info',
+                    iconName: 'alert-circle'
+                });
+                return;
+            }
 
             var emailInput = document.getElementById('setup-email');
             var email = emailInput ? emailInput.value.trim() : '';
@@ -3286,6 +3454,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
             currentDeviceId = 'dev_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
             try { sessionStorage.setItem('jdms_auth_device_id', currentDeviceId); } catch (e) {}
+            var devicePayload = getAuthDevicePayload();
             showAuthOverlay('sending');
 
             fetch(BACKEND_URL + '/api/auth/send-link', {
@@ -3294,7 +3463,9 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 body: JSON.stringify({
                     email: email,
                     device_id: currentDeviceId,
-                    bypass: bypassDomain
+                    bypass: bypassDomain,
+                    device_label: devicePayload.device_label,
+                    device_info: devicePayload.device_info
                 })
             })
             .then(function(response) {
@@ -3575,6 +3746,33 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             }
 
             window.handleAndroidBack = function() {
+                var customModal = document.getElementById('custom-modal');
+                if (customModal && customModal.classList.contains('show')) {
+                    window.__backExitFirstTapAt = 0;
+                    customModal.classList.remove('active');
+                    setTimeout(function () { customModal.classList.remove('show'); }, 220);
+                    return true;
+                }
+                var docPanel = document.getElementById('doc-panel-overlay');
+                if (docPanel && docPanel.classList.contains('open')) {
+                    window.__backExitFirstTapAt = 0;
+                    var iframe = document.getElementById('doc-panel-iframe');
+                    if (iframe && iframe.contentWindow) {
+                        try {
+                            iframe.contentWindow.postMessage({ type: 'jdms-doc-back-request' }, '*');
+                            return true;
+                        } catch (e) {}
+                    }
+                    window.closeDocPanel();
+                    return true;
+                }
+                var authOverlay = document.getElementById('auth-overlay');
+                if (authOverlay && !authOverlay.classList.contains('hidden')) {
+                    window.__backExitFirstTapAt = 0;
+                    hideAuthOverlay();
+                    if (pollInterval) clearInterval(pollInterval);
+                    return true;
+                }
                 if (document.getElementById('version-modal').classList.contains('show')) { window.__backExitFirstTapAt = 0; closeVersionModal(); return true; }
                 if (document.getElementById('picker-sheet').classList.contains('show')) { window.__backExitFirstTapAt = 0; closePicker(); return true; }
                 if (document.getElementById('custom-error-modal').classList.contains('show')) { window.__backExitFirstTapAt = 0; closeErrorModal(); return true; }
@@ -3617,6 +3815,17 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 clearTimeout(window.__backToastTimer);
                 window.__backToastTimer = setTimeout(() => t.classList.remove('show'), 1800);
             };
+
+            try {
+                if (!history.state || !history.state.jdmsApp) {
+                    history.replaceState({ jdmsApp: true }, '');
+                }
+                window.addEventListener('popstate', function () {
+                    if (window.handleAndroidBack()) {
+                        history.pushState({ jdmsApp: true }, '');
+                    }
+                });
+            } catch (e) {}
 
             let preloadedBanner = null; 
 
@@ -3799,19 +4008,28 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             };
             window.closeThemePanel = function() {};
             window.openDocPage = function() {
-                var url = `${BACKEND_URL}/doc/page`;
-                try {
-                    if (typeof AndroidInterface !== 'undefined') {
-                        var methods = ['openExternalBrowser', 'openBrowser', 'openUrl', 'openExternal', 'launchUrl', 'openInBrowser'];
-                        for (var i = 0; i < methods.length; i++) {
-                            if (typeof AndroidInterface[methods[i]] === 'function') {
-                                AndroidInterface[methods[i]](url);
-                                return;
-                            }
-                        }
-                    }
-                } catch (e) {}
-                window.open(url, '_blank');
+                var theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+                var url = `${BACKEND_URL}/doc/page?embed=1&theme=${theme}`;
+                var overlay = document.getElementById('doc-panel-overlay');
+                var iframe = document.getElementById('doc-panel-iframe');
+                if (!overlay || !iframe) return;
+                iframe.src = url;
+                overlay.classList.remove('hidden', 'closing');
+                overlay.setAttribute('aria-hidden', 'false');
+                requestAnimationFrame(function () { overlay.classList.add('open'); });
+            };
+            window.closeDocPanel = function() {
+                var overlay = document.getElementById('doc-panel-overlay');
+                var iframe = document.getElementById('doc-panel-iframe');
+                if (!overlay) return;
+                overlay.classList.remove('open');
+                overlay.classList.add('closing');
+                setTimeout(function () {
+                    overlay.classList.add('hidden');
+                    overlay.classList.remove('closing');
+                    overlay.setAttribute('aria-hidden', 'true');
+                    if (iframe) iframe.src = 'about:blank';
+                }, 320);
             };
             window.openStudentCardPage = function() {
                 window.open(`${REMOTE_CONTROL_BASE}/studentcard.html`, '_blank');
@@ -4265,7 +4483,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                         if (iframeId === 'my-schedule-iframe') {
                             const sc = document.getElementById('my-schedule-container');
                             if (sc) {
-                                const h = Math.max(420, Math.min(720, Math.ceil(doc.documentElement.scrollHeight || doc.body.scrollHeight || 420)));
+                                const h = Math.max(280, Math.min(360, Math.ceil(doc.documentElement.scrollHeight || doc.body.scrollHeight || 320)));
                                 sc.style.height = h + 'px';
                                 sc.style.minHeight = h + 'px';
                             }
@@ -4546,6 +4764,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                         p.addEventListener('animationend', () => p.classList.remove('page-entering'), { once: true });
                     }
                 });
+                document.body.classList.toggle('school-page-active', target === 'school');
                 syncNativeStatusBar(target);
                 if (target === 'home') {
                     loadTodayTimetableIframe();
@@ -4618,12 +4837,15 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 try { renderNoticeBanners(); } catch (e) {}
                 if (!navigator.onLine) showOfflineToast();
                 loadTodayTimetableIframe();
-                loadHomeLunchIframe();
-                setTimeout(function () {
-                    loadWeeklyTimetableIframe();
-                    loadLunchIframe();
-                }, 1200);
-                prefetchFamilyLetters();
+                var deferSecondary = function (fn, delay) {
+                    if (typeof window.requestIdleCallback === 'function') {
+                        window.requestIdleCallback(fn, { timeout: delay || 3000 });
+                    } else {
+                        setTimeout(fn, delay || 1200);
+                    }
+                };
+                deferSecondary(function () { loadHomeLunchIframe(); }, 1800);
+                deferSecondary(function () { prefetchFamilyLetters(); }, 4000);
                 scheduleFitHomeHeaderTexts();
                 scheduleFitSquirclePillShapes();
                 requestAnimationFrame(function () {
@@ -4683,13 +4905,22 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 if (e && e.data && e.data.type === 'jdms-iframe-height' && e.data.target === 'my-schedule-iframe') {
                     const sc = document.getElementById('my-schedule-container');
                     if (sc && e.data.height) {
-                        const h = Math.max(420, Math.min(720, Math.ceil(e.data.height)));
+                        const h = Math.max(280, Math.min(360, Math.ceil(e.data.height)));
                         sc.style.height = h + 'px';
                         sc.style.minHeight = h + 'px';
                     }
                 }
                 if (e && e.data && e.data.type === 'jdms-schedule-day') {
                     showScheduleDayModal(e.data.date, e.data.events || []);
+                }
+                if (e && e.data && e.data.type === 'jdms-lunch-detail') {
+                    showLunchDetailModal(e.data);
+                }
+                if (e && e.data && e.data.type === 'jdms-doc-close') {
+                    window.closeDocPanel();
+                }
+                if (e && e.data && e.data.type === 'jdms-download') {
+                    jdmsHandleDownload(e.data.url, e.data.filename || '');
                 }
             });
 
