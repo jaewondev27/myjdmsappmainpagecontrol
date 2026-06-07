@@ -265,7 +265,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         body.dark-mode .today-date { color: var(--text-mute) !important; }
         body.dark-mode .offline-fallback { background: #1d1d1d; color: var(--text-sub); }
         body.dark-mode .setup-note { background: #1f1f1f; color: #d7d7d7; }
-        body.dark-mode .nav-item:active { background-color: #2a2a2a !important; }
+        body.dark-mode .nav-item:active { background-color: rgba(255, 255, 255, 0.14) !important; }
         body.dark-mode .floating-tab-item:active { background-color: rgba(255, 255, 255, 0.1) !important; }
         body.dark-mode [data-lucide],
         body.dark-mode svg.lucide-inline { color: var(--text-main) !important; stroke: currentColor !important; }
@@ -301,7 +301,13 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         }
 
         body.segment-mode::after {
-            height: calc(166px + var(--sab-gap));
+            height: calc(84px + var(--sab-gap));
+            background: linear-gradient(
+                0deg,
+                var(--bg) 0%,
+                color-mix(in srgb, var(--bg) 70%, transparent) 32%,
+                transparent 72%
+            );
         }
 
         .hidden {
@@ -542,7 +548,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         }
 
         .page-content {
-            padding-bottom: calc(120px + var(--sab-chrome));
+            padding-bottom: calc(92px + var(--sab-chrome));
             position: relative;
             background-color: var(--bg);
             box-sizing: border-box;
@@ -629,6 +635,32 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
         #page-more .app-info-btn {
             flex-shrink: 0;
+        }
+
+        #page-more .menu-btn {
+            padding: 14px 20px;
+            border: none;
+        }
+
+        /* squircle pill / stretch clip-path는 JS에서 적용 */
+        .menu-btn,
+        .btn-primary,
+        .btn-google,
+        .select-trigger,
+        .school-tab,
+        .auth-overlay-btn,
+        .modal-btn,
+        .error-confirm-btn,
+        .picker-option,
+        .settings-reset-btn,
+        .theme-mode-btn,
+        .school-tabs,
+        .theme-mode-options,
+        .student-card-banner-wrapper,
+        .my-student-card,
+        .my-profile-card,
+        .my-schedule-card {
+            border-radius: 0;
         }
 
         .home-header {
@@ -904,6 +936,22 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             padding: 0 !important;
         }
 
+        .card--flush-iframe {
+            padding: 16px 0 0;
+            overflow: hidden;
+        }
+
+        .card--flush-iframe .card-title {
+            padding: 0 16px;
+            margin-bottom: 12px;
+        }
+
+        .card--flush-iframe .iframe-container {
+            border-radius: 0;
+            box-shadow: none;
+            background: transparent;
+        }
+
         .card-title {
             font-size: 19px;
             font-weight: 700;
@@ -1010,7 +1058,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         }
 
         body.segment-mode .page-content {
-            padding-bottom: calc(114px + var(--sab-chrome));
+            padding-bottom: calc(92px + var(--sab-chrome));
         }
 
         #page-school:not(.hidden) {
@@ -1034,7 +1082,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             margin-bottom: 16px;
             padding: 4px;
             background: var(--card-bg);
-            border-radius: 14px;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
         }
 
@@ -1065,6 +1112,64 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             min-height: 250px;
         }
 
+        #my-schedule-container {
+            height: 320px;
+            min-height: 320px;
+            border-radius: 0;
+            box-shadow: none;
+            background: transparent;
+        }
+
+        .my-schedule-card {
+            margin-bottom: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+        }
+
+        .my-schedule-card-header {
+            padding: 16px 16px 12px;
+        }
+
+        .my-schedule-card-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .my-schedule-card-body {
+            padding: 0;
+        }
+
+        .my-schedule-placeholder {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-align: center;
+            padding: 20px;
+            color: var(--text-sub);
+            background: var(--card-bg);
+        }
+
+        .my-schedule-placeholder i,
+        .my-schedule-placeholder svg.lucide-inline {
+            width: 32px;
+            height: 32px;
+            color: var(--primary);
+        }
+
+        .my-schedule-placeholder span {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.45;
+        }
+
         .timetable-iframe {
             width: 100%;
             height: 100%;
@@ -1072,197 +1177,91 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             display: block;
         }
 
-        /* 하단바: PNG 마스크 + 테마 색 채움(높이 맞춤·가로 중앙) + 그리드 + FAB */
+        /* 하단바: 세그먼트 알약 스타일 */
         .bottom-nav-container {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            height: calc(var(--nav-bar-h) + var(--sab));
-            padding-bottom: var(--sab);
             z-index: 1000;
             box-sizing: border-box;
-        }
-
-        .nav-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            display: flex;
-            flex-direction: column;
-            z-index: 1;
+            padding: 8px 16px calc(8px + var(--sab));
             pointer-events: none;
-            filter:
-                drop-shadow(0 -1px 0 rgba(0, 0, 0, 0.05))
-                drop-shadow(0 -4px 10px rgba(0, 0, 0, 0.08))
-                drop-shadow(0 -10px 22px rgba(0, 0, 0, 0.06));
-        }
-
-        .nav-bar-top {
-            flex-shrink: 0;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            width: 100%;
-            height: var(--nav-bar-h);
-            overflow: hidden;
-        }
-
-        .nav-bar-image-slot {
-            position: relative;
-            height: var(--nav-bar-h);
-            line-height: 0;
-            flex-shrink: 0;
-        }
-
-        .nav-bar-image-probe {
-            height: var(--nav-bar-h);
-            width: auto;
-            max-width: none;
-            display: block;
-            visibility: hidden;
-            pointer-events: none;
-            user-select: none;
-            -webkit-user-drag: none;
-        }
-
-        .nav-bar-image-fill {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--nav-bar-fill);
-            -webkit-mask-image: url('https://raw.githubusercontent.com/jaewondev27/myjdmsappmainpagecontrol/main/%ED%95%98%EB%8B%A8%EB%B0%94v2.png');
-            mask-image: url('https://raw.githubusercontent.com/jaewondev27/myjdmsappmainpagecontrol/main/%ED%95%98%EB%8B%A8%EB%B0%94v2.png');
-            -webkit-mask-size: 100% 100%;
-            mask-size: 100% 100%;
-            -webkit-mask-repeat: no-repeat;
-            mask-repeat: no-repeat;
-            -webkit-mask-position: center;
-            mask-position: center;
-            -webkit-mask-mode: alpha;
-            mask-mode: alpha;
-            pointer-events: none;
-            transition: background-color 0.2s ease;
-        }
-
-        body.dark-mode .nav-background {
-            filter:
-                drop-shadow(0 -1px 0 rgba(0, 0, 0, 0.35))
-                drop-shadow(0 -4px 14px rgba(0, 0, 0, 0.32))
-                drop-shadow(0 -10px 26px rgba(0, 0, 0, 0.28));
-        }
-
-        .nav-safe-fill {
-            flex-shrink: 0;
-            height: var(--sab);
-            width: 100%;
-            background-color: var(--nav-bar-fill);
-            transition: background-color 0.2s ease;
         }
 
         .bottom-nav-items {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: var(--nav-bar-h);
-            display: grid;
-            grid-template-columns: 1.35fr 0.75fr 72px 0.75fr 1.35fr;
-            align-items: center;
-            z-index: 2;
-            padding: 0 8px;
+            display: flex;
+            align-items: stretch;
+            gap: 4px;
+            max-width: 368px;
+            margin: 0 auto;
+            padding: 4px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow:
+                0 4px 24px rgba(0, 0, 0, 0.08),
+                0 1px 3px rgba(0, 0, 0, 0.04);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            pointer-events: auto;
         }
 
         .nav-item {
+            flex: 1;
+            min-width: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            gap: 2px;
             color: #8e8e93;
             font-size: 11px;
             font-weight: 500;
-            padding-top: 4px;
+            padding: 7px 4px 6px;
             border: none;
+            border-radius: 999px;
             background: transparent;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
-            transition: transform 0.15s ease, color 0.15s ease;
+            transition: background-color 0.18s ease, color 0.18s ease;
         }
 
         .nav-item:active {
-            transform: scale(0.9);
+            background-color: rgba(0, 0, 0, 0.1);
         }
 
         .nav-item.active {
             color: var(--primary);
             font-weight: 600;
+            background-color: rgba(49, 130, 246, 0.12);
+        }
+
+        .nav-item.active:active {
+            background-color: rgba(49, 130, 246, 0.2);
         }
 
         .nav-item i,
         .nav-item svg.lucide-inline {
-            width: 23px;
-            height: 23px;
-            margin-bottom: 3px;
+            width: 20px;
+            height: 20px;
             stroke-width: 2px;
             flex-shrink: 0;
         }
 
         .nav-item span {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: inherit;
             line-height: 1.1;
-        }
-
-        .nav-item[data-page="jbs"] span:last-child {
-            transform: translateY(-1px);
-            line-height: 1.05;
-        }
-
-        .center-space-placeholder {
-            width: 72px;
-            pointer-events: none;
-        }
-
-        .nav-fab {
-            position: absolute;
-            left: 50%;
-            top: -16px;
-            transform: translateX(calc(-50% + 0.65px));
-            width: 54px;
-            height: 54px;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 3;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(145deg, #b8e4ff 0%, #d8c8ff 52%, #ffc8e4 100%);
-            box-shadow: 0 4px 16px rgba(186, 168, 228, 0.5);
-            color: #ffffff;
-            -webkit-tap-highlight-color: transparent;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-        }
-
-        .nav-fab:active {
-            transform: translateX(calc(-50% + 0.65px)) scale(0.94);
-        }
-
-        .nav-fab.active {
-            color: #ffffff;
-            background: linear-gradient(145deg, #b8e4ff 0%, #d8c8ff 52%, #ffc8e4 100%);
-            box-shadow: 0 4px 16px rgba(186, 168, 228, 0.5);
-        }
-
-        .nav-fab-label {
-            font-size: 13.5px;
-            font-weight: 500;
             letter-spacing: -0.2px;
-            line-height: 1;
+        }
+
+        body.dark-mode .bottom-nav-items {
+            background: rgba(29, 29, 29, 0.94);
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow:
+                0 4px 24px rgba(0, 0, 0, 0.36),
+                0 1px 3px rgba(0, 0, 0, 0.2);
         }
 
         body.dark-mode .nav-item {
@@ -1271,6 +1270,11 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
         body.dark-mode .nav-item.active {
             color: var(--primary);
+            background-color: rgba(49, 130, 246, 0.18);
+        }
+
+        body.dark-mode .nav-item.active:active {
+            background-color: rgba(49, 130, 246, 0.28);
         }
 
         .error-msg {
@@ -1357,18 +1361,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 height var(--nav-morph-duration) var(--nav-morph-ease),
                 transform var(--nav-morph-duration) var(--nav-morph-ease);
         }
-        body.segment-mode .nav-item[data-page="jbs"] span:last-child {
-            transform: translateY(-1px);
-            line-height: 1.05;
-            margin-top: 0;
-        }
-        .bottom-nav-items .nav-item[data-page="jbs"] .jbs-icon {
-            width: 23px;
-            height: 23px;
-            margin-bottom: 3px;
-            transform: translateY(0);
-        }
-
         .floating-tab-item span {
             font-size: 11px;
             font-weight: 600;
@@ -1846,7 +1838,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         #back-exit-toast {
             position: fixed;
             left: 50%;
-            bottom: calc(96px + var(--sab-gap));
+            bottom: calc(92px + var(--sab-gap));
             transform: translateX(-50%) translateY(16px);
             background: rgba(20, 20, 20, 0.92);
             color: #ffffff;
@@ -2390,6 +2382,43 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 transform: scale(4);
             }
         }
+        .student-card-banner-wrapper {
+            position: relative;
+            height: 60px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            overflow: visible;
+        }
+
+        .student-card-banner-face {
+            position: absolute;
+            inset: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 0 72px 0 16px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        .student-card-banner-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .student-card-banner-icon {
+            height: 58px;
+            width: 58px;
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            object-fit: contain;
+            pointer-events: none;
+        }
+
         .student-card-banner-wrapper:active {
             transform: scale(0.97);
         }
@@ -2401,7 +2430,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         .my-profile-card {
             position: relative;
             overflow: hidden;
-            border-radius: 20px;
             padding: 20px 18px 18px;
             margin-bottom: 14px;
             color: #ffffff;
@@ -2553,7 +2581,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             inset: 0;
             background: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 18px;
             padding: 0 72px 0 18px;
             display: flex;
             align-items: center;
@@ -2586,41 +2613,9 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             letter-spacing: -0.4px;
         }
 
-        .nav-item[data-page="school"] {
-            transform: translateX(-10px);
-        }
-
-        .nav-item[data-page="jbs"] {
-            transform: translateX(10px);
-        }
-
-        .nav-item[data-page="school"]:active {
-            transform: translateX(-10px) scale(0.9);
-        }
-
-        .nav-item[data-page="jbs"]:active {
-            transform: translateX(10px) scale(0.9);
-        }
-
-        .nav-item[data-page="home"] {
-            transform: translateX(-10px);
-        }
-
-        .nav-item[data-page="home"]:active {
-            transform: translateX(-10px) scale(0.9);
-        }
-
-        .nav-item[data-page="more"] {
-            transform: translateX(10px);
-        }
-
-        .nav-item[data-page="more"]:active {
-            transform: translateX(10px) scale(0.9);
-        }
-
     </style>
 </head>
-<body>
+<body class="segment-mode">
 
     <svg width="0" height="0" aria-hidden="true" style="position:absolute">
         <defs>
@@ -2772,13 +2767,13 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     <div class="notice-banner-wrap hidden">
                         <div class="notice-banner-track"></div>
                     </div>
-                    <div class="student-card-banner-wrapper" onclick="window.openStudentCardPage()" style="position: relative; height: 60px; margin-bottom: 12px; cursor: pointer; transition: transform 0.1s ease; overflow: visible;">
-                        <div class="notice-banner-card" style="position: absolute; inset: 0; background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 0 16px; display: flex; align-items: center; box-shadow: 0 2px 12px rgba(0,0,0,0.04); margin: 0; min-height: 0; height: 100%; width: 100%; overflow: hidden;">
-                            <span style="font-size: 16px; font-weight: 800; color: var(--text-main);">모바일 학생증</span>
+                    <div class="student-card-banner-wrapper" onclick="window.openStudentCardPage()">
+                        <div class="student-card-banner-face">
+                            <span class="student-card-banner-title">모바일 학생증</span>
                         </div>
-                        <img src="https://cdn-icons-png.flaticon.com/256/6467/6467130.png" style="height: 58px; width: 58px; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); object-fit: contain; pointer-events: none;">
+                        <img class="student-card-banner-icon" src="https://cdn-icons-png.flaticon.com/256/6467/6467130.png" alt="">
                     </div>
-                    <div class="card">
+                    <div class="card card--flush-iframe">
                         <div class="card-title">오늘의 시간표 <span class="card-title-icon-box"><i data-lucide="calendar"></i></span></div>
                         <div class="iframe-container" id="today-timetable-container">
                             <div class="offline-fallback">
@@ -2788,7 +2783,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                             <iframe id="today-timetable-iframe" class="timetable-iframe" src="about:blank"></iframe>
                         </div>
                     </div>
-                    <div class="card">
+                    <div class="card card--flush-iframe">
                         <div class="card-title">오늘의 급식 <span class="card-title-icon-box"><i data-lucide="utensils"></i></span></div>
                         <div class="iframe-container" style="height: 300px; min-height: 300px;">
                             <div class="offline-fallback">
@@ -2879,6 +2874,20 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                         </div>
                         <img class="my-student-card-icon" src="https://cdn-icons-png.flaticon.com/256/6467/6467130.png" alt="">
                     </button>
+                    <div class="my-schedule-card">
+                        <div class="my-schedule-card-header">
+                            <span class="my-schedule-card-title">일정</span>
+                        </div>
+                        <div class="my-schedule-card-body">
+                            <div class="iframe-container" id="my-schedule-container">
+                                <div class="my-schedule-placeholder" id="my-schedule-placeholder">
+                                    <i data-lucide="calendar"></i>
+                                    <span>일정 기능 준비 중입니다.</span>
+                                </div>
+                                <iframe id="my-schedule-iframe" class="timetable-iframe hidden" src="about:blank" title="일정"></iframe>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="page-more" class="page hidden">
@@ -2929,7 +2938,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                             <span>앱 정보</span>
                         </span>
                     </button>
-                    <button class="menu-btn logout-btn" onclick="window.handleLogout()" style="margin-top: 24px; background: rgba(240, 68, 82, 0.05); color: #f04452;">
+                    <button type="button" class="menu-btn logout-btn" style="margin-top: 24px; background: rgba(240, 68, 82, 0.05); color: #f04452;">
                         <span class="menu-btn-left">
                             <span class="menu-icon-box" style="background:#fee2e2;"><i data-lucide="info" class="menu-icon" style="color: #f04452;"></i></span>
                             <span>로그아웃</span>
@@ -2939,21 +2948,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             </div>
 
             <div class="bottom-nav-container" aria-label="하단 메뉴">
-                <div class="nav-background" aria-hidden="true">
-                    <div class="nav-bar-top">
-                        <div class="nav-bar-image-slot">
-                            <img
-                                class="nav-bar-image-probe"
-                                src="https://raw.githubusercontent.com/jaewondev27/myjdmsappmainpagecontrol/main/%ED%95%98%EB%8B%A8%EB%B0%94v2.png"
-                                alt=""
-                                decoding="async"
-                                draggable="false"
-                            />
-                            <span class="nav-bar-image-fill" aria-hidden="true"></span>
-                        </div>
-                    </div>
-                    <div class="nav-safe-fill"></div>
-                </div>
                 <nav class="bottom-nav-items">
                     <div class="nav-item active" data-page="home">
                         <i data-lucide="home"></i>
@@ -2963,19 +2957,15 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                         <i data-lucide="info"></i>
                         <span>학교정보</span>
                     </div>
-                    <div class="center-space-placeholder" aria-hidden="true"></div>
-                    <div class="nav-item" data-page="jbs">
-                        <span class="jbs-icon" style="--jbs-icon-url:url('https://raw.githubusercontent.com/jaewondev27/image/main/4ca7b4607_njbs-logo%20(1).png');"></span>
-                        <span>JBS</span>
+                    <div class="nav-item" data-page="my">
+                        <i data-lucide="id-card"></i>
+                        <span>MY</span>
                     </div>
                     <div class="nav-item" data-page="more">
                         <i data-lucide="menu"></i>
                         <span>더보기</span>
                     </div>
                 </nav>
-                <button type="button" class="nav-fab" data-page="my" aria-label="MY">
-                    <span class="nav-fab-label">MY</span>
-                </button>
             </div>
 
             <div id="floating-tab-bar" class="floating-tab-bar">
@@ -2990,10 +2980,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 <div class="floating-tab-item" data-float-page="my">
                     <i data-lucide="id-card"></i>
                     <span>MY</span>
-                </div>
-                <div class="floating-tab-item" data-float-page="jbs">
-                    <span class="jbs-icon" style="--jbs-icon-url:url('https://raw.githubusercontent.com/jaewondev27/image/main/4ca7b4607_njbs-logo%20(1).png');"></span>
-                    <span>JBS</span>
                 </div>
                 <div class="floating-tab-item" data-float-page="more">
                     <i data-lucide="menu"></i>
@@ -3175,19 +3161,11 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         } catch (e) { userData = null; }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // 로그아웃 함수 (새로고침 추가)
-            window.handleLogout = function() {
-                localStorage.removeItem('userData');
-                localStorage.clear();
-                location.reload(); 
-            };
-
-            // 기존 로그아웃 버튼들에 이벤트 연결
-            const logoutBtns = document.querySelectorAll('.logout-btn, #btn-logout');
-            logoutBtns.forEach(btn => {
-                btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.logout-btn, #btn-logout').forEach(function (btn) {
+                btn.addEventListener('click', function (e) {
                     e.preventDefault();
-                    window.handleLogout();
+                    e.stopPropagation();
+                    if (typeof window.handleLogout === 'function') window.handleLogout();
                 });
             });
 
@@ -3498,6 +3476,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     document.getElementById('setup-step-login').classList.remove('hidden');
                     document.getElementById('setup-step-info').classList.add('hidden');
                 }
+                scheduleFitSquirclePillShapes();
             }
 
 
@@ -3525,7 +3504,10 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 else cancelBtn.classList.add('hidden');
 
                 modal.classList.add('show');
-                requestAnimationFrame(() => modal.classList.add('active'));
+                requestAnimationFrame(function () {
+                    modal.classList.add('active');
+                    scheduleFitSquirclePillShapes();
+                });
 
                 return new Promise((resolve) => {
                     const onConfirm = () => { cleanup(); resolve(true); };
@@ -3634,9 +3616,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
             const btnSave = document.getElementById('btn-save');
             const navItems = document.querySelectorAll('.bottom-nav-items .nav-item');
-            const navFab = document.querySelector('.nav-fab');
             const pages = document.querySelectorAll('.page');
-            const bottomNav = document.querySelector('.bottom-nav-container');
             const floatingTabBar = document.getElementById('floating-tab-bar');
             const floatingTabItems = document.querySelectorAll('.floating-tab-item');
             const REMOTE_CONTROL_BASE = 'https://jaewondev27.github.io/myjdmsappmainpagecontrol';
@@ -3696,7 +3676,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             };
             window.closeThemePanel = function() {};
             window.openDocPage = function() {
-                window.open(`${REMOTE_CONTROL_BASE}/doc.html`, '_blank');
+                window.open(`${BACKEND_URL}/doc/page`, '_blank');
             };
             window.openStudentCardPage = function() {
                 window.open(`${REMOTE_CONTROL_BASE}/studentcard.html`, '_blank');
@@ -3885,6 +3865,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 const label = field === 'grade' ? '학년' : (field === 'class' ? '반' : '번호');
                 title.textContent = `${label} 선택`;
                 optionsWrap.innerHTML = getPickerOptions(field).map(v => `<button class="picker-option" onclick="window.selectPickerValue(${v})">${v}${getPickerUnit(field)}</button>`).join('');
+                scheduleFitSquirclePillShapes();
                 if (!pickerSheet) return;
                 pickerSheet.classList.add('show');
                 pickerSheet.classList.remove('dragging');
@@ -3927,24 +3908,69 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             };
             window.resetAppSettings = function() {
                 if (!confirm('설정을 초기화하고 처음부터 다시 시작할까요?')) return;
+                performLogout();
+            };
+
+            var __logoutBusy = false;
+            function performLogout() {
                 userData = null;
-                localStorage.removeItem('userData');
-                localStorage.removeItem('hideBannerUntil_v4');
+                if (pollInterval) {
+                    clearInterval(pollInterval);
+                    pollInterval = null;
+                }
+                try {
+                    localStorage.removeItem('userData');
+                    localStorage.removeItem('hideBannerUntil_v4');
+                } catch (e) {}
+                try {
+                    if (typeof AndroidInterface !== 'undefined') {
+                        ['clearUserData', 'clearSession', 'logout', 'signOut'].forEach(function (method) {
+                            if (typeof AndroidInterface[method] === 'function') AndroidInterface[method]();
+                        });
+                    }
+                } catch (e) {}
                 setPickerValue('setup', 'grade', '');
                 setPickerValue('setup', 'class', '');
                 setPickerValue('setup', 'number', '');
                 setPickerValue('settings', 'grade', '');
                 setPickerValue('settings', 'class', '');
                 setPickerValue('settings', 'number', '');
-                document.getElementById('setup-name').value = '';
-                const sn = document.getElementById('settings-name');
-                if (sn) sn.value = '';
+                var setupNameEl = document.getElementById('setup-name');
+                if (setupNameEl) setupNameEl.value = '';
+                var settingsNameEl = document.getElementById('settings-name');
+                if (settingsNameEl) settingsNameEl.value = '';
+                var stepLogin = document.getElementById('setup-step-login');
+                var stepInfo = document.getElementById('setup-step-info');
+                if (stepLogin) stepLogin.classList.remove('hidden');
+                if (stepInfo) stepInfo.classList.add('hidden');
                 window.closePicker();
                 window.closeErrorModal();
-                mainContent.classList.add('hidden');
-                setupScreen.classList.remove('hidden');
-                setupScreen.classList.remove('entering-app');
+                var customModal = document.getElementById('custom-modal');
+                if (customModal) customModal.classList.remove('active', 'show');
+                if (mainContent) mainContent.classList.add('hidden');
+                if (setupScreen) {
+                    setupScreen.classList.remove('hidden');
+                    setupScreen.classList.remove('entering-app');
+                }
                 switchPage('home');
+                scheduleFitSquirclePillShapes();
+            }
+
+            window.handleLogout = function() {
+                if (__logoutBusy) return;
+                __logoutBusy = true;
+                window.showCustomModal({
+                    title: '로그아웃',
+                    message: '정말 로그아웃 하시겠습니까? 저장된 정보가 모두 초기화됩니다.',
+                    type: 'info',
+                    showCancel: true,
+                    confirmText: '로그아웃',
+                    cancelText: '취소'
+                }).then(function (ok) {
+                    if (ok) performLogout();
+                }).catch(function () {}).finally(function () {
+                    __logoutBusy = false;
+                });
             };
             function showErrorModal(message) {
                 const modal = document.getElementById('custom-error-modal');
@@ -3953,7 +3979,10 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 if (!modal || !msg || !icon) return;
                 msg.textContent = message;
                 modal.classList.add('show');
-                requestAnimationFrame(() => modal.classList.add('active'));
+                requestAnimationFrame(function () {
+                    modal.classList.add('active');
+                    scheduleFitSquirclePillShapes();
+                });
                 icon.classList.remove('shake');
                 void icon.offsetWidth;
                 icon.classList.add('shake');
@@ -4139,7 +4168,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             });
 
             navItems.forEach(item => item.addEventListener('click', () => switchPage(item.getAttribute('data-page'))));
-            if (navFab) navFab.addEventListener('click', () => switchPage(navFab.getAttribute('data-page')));
             floatingTabItems.forEach(item => item.addEventListener('click', () => switchPage(item.getAttribute('data-float-page'))));
 
             (function bindWelcomeRowToMoreTab() {
@@ -4158,6 +4186,109 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             })();
 
             var __fitHomeHdrTimer = null;
+            var __fitSquirclePillTimer = null;
+            var SQUIRCLE_PILL_SELECTOR = [
+                '.menu-btn',
+                '.btn-primary',
+                '.btn-google',
+                '.select-trigger',
+                '.school-tab',
+                '.auth-overlay-btn',
+                '.modal-btn',
+                '.error-confirm-btn',
+                '.picker-option',
+                '.settings-reset-btn',
+                '.theme-mode-btn',
+                '.school-tabs',
+                '.theme-mode-options',
+                '.student-card-banner-wrapper'
+            ].join(', ');
+
+            var SQUIRCLE_STRETCH_SELECTOR = [
+                '.my-student-card',
+                '.my-profile-card',
+                '.my-schedule-card'
+            ].join(', ');
+
+            function squirclePillPath(w, h) {
+                var c = h * 0.5;
+                var k = 0.16;
+                var mid = h * 0.5;
+                return [
+                    'M 0,' + mid,
+                    ' C 0,' + (h * k) + ' ' + (h * k) + ',0 ' + c + ',0',
+                    ' L ' + (w - c) + ',0',
+                    ' C ' + (w - h * k) + ',0 ' + w + ',' + (h * k) + ' ' + w + ',' + mid,
+                    ' C ' + w + ',' + (h * (1 - k)) + ' ' + (w - h * k) + ',' + h + ' ' + (w - c) + ',' + h,
+                    ' L ' + c + ',' + h,
+                    ' C ' + (h * k) + ',' + h + ' 0,' + (h * (1 - k)) + ' 0,' + mid,
+                    ' Z'
+                ].join('');
+            }
+
+            function getSquircleStretchRef() {
+                var btn = document.querySelector('.quick-squircle-btn--timetable') ||
+                    document.querySelector('.quick-squircle-btn');
+                var s = 80;
+                if (btn) {
+                    var bw = btn.offsetWidth;
+                    var bh = btn.offsetHeight;
+                    if (bw >= 2 && bh >= 2) s = Math.min(bw, bh);
+                }
+                return { rx: s * 0.5, ry: s * 0.5, k: s * 0.16 };
+            }
+
+            function squircleStretchPath(w, h) {
+                var ref = getSquircleStretchRef();
+                var rx = Math.min(ref.rx, w * 0.5);
+                var ry = Math.min(ref.ry, h * 0.5);
+                if (rx < 4) rx = 4;
+                if (ry < 4) ry = 4;
+                var kx = (rx >= ref.rx - 0.5) ? ref.k : Math.min(w * 0.16, rx);
+                var ky = (ry >= ref.ry - 0.5) ? ref.k : Math.min(h * 0.16, ry);
+                return [
+                    'M 0,' + ry,
+                    ' C 0,' + ky + ' ' + kx + ',0 ' + rx + ',0',
+                    ' L ' + (w - rx) + ',0',
+                    ' C ' + (w - kx) + ',0 ' + w + ',' + ky + ' ' + w + ',' + ry,
+                    ' L ' + w + ',' + (h - ry),
+                    ' C ' + w + ',' + (h - ky) + ' ' + (w - kx) + ',' + h + ' ' + (w - rx) + ',' + h,
+                    ' L ' + rx + ',' + h,
+                    ' C ' + kx + ',' + h + ' 0,' + (h - ky) + ' 0,' + (h - ry),
+                    ' L 0,' + ry,
+                    ' Z'
+                ].join('');
+            }
+
+            function applySquircleClip(el, pathFn) {
+                if (!el) return;
+                var h = el.offsetHeight;
+                if (h < 2) return;
+                var w = el.offsetWidth;
+                if (w < 2) return;
+                var d = pathFn(w, h);
+                el.style.clipPath = 'path("' + d + '")';
+                el.style.webkitClipPath = 'path("' + d + '")';
+            }
+
+            function applySquirclePill(el) {
+                applySquircleClip(el, squirclePillPath);
+            }
+
+            function applySquircleStretch(el) {
+                applySquircleClip(el, squircleStretchPath);
+            }
+
+            function fitSquirclePillShapes() {
+                document.querySelectorAll(SQUIRCLE_PILL_SELECTOR).forEach(applySquirclePill);
+                document.querySelectorAll(SQUIRCLE_STRETCH_SELECTOR).forEach(applySquircleStretch);
+            }
+
+            function scheduleFitSquirclePillShapes() {
+                clearTimeout(__fitSquirclePillTimer);
+                __fitSquirclePillTimer = setTimeout(fitSquirclePillShapes, 45);
+            }
+
             function scheduleFitHomeHeaderTexts() {
                 clearTimeout(__fitHomeHdrTimer);
                 __fitHomeHdrTimer = setTimeout(fitHomeHeaderTexts, 45);
@@ -4201,6 +4332,16 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             })();
 
             window.addEventListener('resize', scheduleFitHomeHeaderTexts);
+            window.addEventListener('resize', scheduleFitSquirclePillShapes);
+
+            (function observeSquirclePillFit() {
+                if (typeof ResizeObserver === 'undefined') return;
+                var ro = new ResizeObserver(function () { scheduleFitSquirclePillShapes(); });
+                ['#main-content', '#setup-screen', '#picker-sheet', '#custom-modal', '#custom-error-modal', '#auth-overlay', '#ai-coming-modal', '#page-my'].forEach(function (sel) {
+                    var el = document.querySelector(sel);
+                    if (el) ro.observe(el);
+                });
+            })();
             window.addEventListener('orientationchange', function () { setTimeout(scheduleFitHomeHeaderTexts, 120); });
 
             document.querySelectorAll('.school-tab').forEach((btn) => {
@@ -4234,8 +4375,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     return;
                 }
                 navItems.forEach(nav => nav.classList.toggle('active', nav.getAttribute('data-page') === target));
-                if (navFab) navFab.classList.remove('active');
-                floatingTabItems.forEach(tab => tab.classList.toggle('active', tab.getAttribute('data-float-page') === target && target !== 'my'));
+                floatingTabItems.forEach(tab => tab.classList.toggle('active', tab.getAttribute('data-float-page') === target));
                 if (target === 'school') setSchoolTab(schoolTab || document.querySelector('.school-tab.active')?.getAttribute('data-school-tab') || 'timetable');
                 pages.forEach(p => {
                     const isTarget = p.id === `page-${target}`;
@@ -4258,7 +4398,11 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     if (activeSchoolTab === 'lunch') loadLunchIframe();
                     else loadWeeklyTimetableIframe();
                 }
-                if (target === 'my') updateMyProfile();
+                if (target === 'my') {
+                    updateMyProfile();
+                    loadMyScheduleIframe();
+                }
+                scheduleFitSquirclePillShapes();
             }
 
             function updateMyProfile() {
@@ -4315,7 +4459,11 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 loadWeeklyTimetableIframe();
                 loadLunchIframe();
                 scheduleFitHomeHeaderTexts();
-                requestAnimationFrame(function () { scheduleFitHomeHeaderTexts(); });
+                scheduleFitSquirclePillShapes();
+                requestAnimationFrame(function () {
+                    scheduleFitHomeHeaderTexts();
+                    scheduleFitSquirclePillShapes();
+                });
             }
 
             function updateHeader() {
@@ -4327,19 +4475,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 scheduleFitHomeHeaderTexts();
                 requestAnimationFrame(function () { scheduleFitHomeHeaderTexts(); });
             }
-
-            window.handleLogout = async function() {
-                const ok = await window.showCustomModal({
-                    title: '로그아웃',
-                    message: '정말 로그아웃 하시겠습니까? 저장된 정보가 모두 초기화됩니다.',
-                    type: 'info',
-                    showCancel: true,
-                    confirmText: '로그아웃',
-                    cancelText: '취소'
-                });
-                if (!ok) return;
-                resetAppSettings();
-            };
 
             function syncUserDataFromSettingsPage() {
                 try {
@@ -4372,10 +4507,19 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 if (e && e.data && e.data.type === 'myjdms-userData-updated') syncUserDataFromSettingsPage();
             });
 
-            function loadTodayTimetableIframe(force = false) { safeLoadIframe('today-timetable-iframe', `https://sigan.onrender.com/todaysigan?grade=${userData.grade}&class=${userData.class}`, force); }
-            function loadHomeLunchIframe(force = false) { safeLoadIframe('home-lunch-iframe', `https://sigan.onrender.com/lunch?grade=${userData.grade}&class=${userData.class}`, force); }
-            function loadWeeklyTimetableIframe(force = false) { safeLoadIframe('weekly-timetable-iframe', `https://sigan.onrender.com/sigan?grade=${userData.grade}&class=${userData.class}`, force); }
-            function loadLunchIframe(force = false) { safeLoadIframe('lunch-iframe', `https://sigan.onrender.com/lunch?grade=${userData.grade}&class=${userData.class}`, force); }
+            function iframeQuery() {
+                return `grade=${userData.grade}&class=${userData.class}&embed=1`;
+            }
+
+            function loadTodayTimetableIframe(force = false) { safeLoadIframe('today-timetable-iframe', `${BACKEND_URL}/todaysigan?${iframeQuery()}`, force); }
+            function loadHomeLunchIframe(force = false) { safeLoadIframe('home-lunch-iframe', `${BACKEND_URL}/lunch?${iframeQuery()}`, force); }
+            function loadWeeklyTimetableIframe(force = false) { safeLoadIframe('weekly-timetable-iframe', `${BACKEND_URL}/sigan?${iframeQuery()}`, force); }
+            function loadLunchIframe(force = false) { safeLoadIframe('lunch-iframe', `${BACKEND_URL}/lunch?${iframeQuery()}`, force); }
+            function loadMyScheduleIframe(force = false) {
+                safeLoadIframe('my-schedule-iframe', `${BACKEND_URL}/schedule?${iframeQuery()}`, force);
+                document.getElementById('my-schedule-placeholder')?.classList.add('hidden');
+                document.getElementById('my-schedule-iframe')?.classList.remove('hidden');
+            }
 
             const APP_VERSION_KEY = 'app_version';
             const DEFAULT_VERSION = '2.0.0.1';
@@ -4520,14 +4664,14 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             }
 
             document.body.addEventListener('mousedown', (e) => {
-                const btn = e.target.closest('button, .nav-item, .nav-fab, .floating-tab-item, .notice-banner-card, .my-student-card');
+                const btn = e.target.closest('button, .nav-item, .floating-tab-item, .notice-banner-card, .my-student-card');
                 if (btn) {
                     if (!btn.classList.contains('ripple-btn')) btn.classList.add('ripple-btn');
                     createRipple(e, btn);
                 }
             });
             document.body.addEventListener('touchstart', (e) => {
-                const btn = e.target.closest('button, .nav-item, .nav-fab, .floating-tab-item, .notice-banner-card, .my-student-card');
+                const btn = e.target.closest('button, .nav-item, .floating-tab-item, .notice-banner-card, .my-student-card');
                 if (btn) {
                     if (!btn.classList.contains('ripple-btn')) btn.classList.add('ripple-btn');
                     createRipple(e, btn);
@@ -4540,6 +4684,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             document.body.addEventListener('mouseleave', clearRipples, true);
 
             runSplashSequence();
+            scheduleFitSquirclePillShapes();
 
             // 홈 로고 ↔ 배너 이미지 탭 토글 (기본: 배너 이미지 표시)
             (function() {
