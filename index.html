@@ -631,10 +631,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             height: auto !important;
         }
 
-        body.my-page-active #page-my:not(.hidden) {
-            padding-bottom: calc(58px + var(--sab-chrome));
-        }
-
         body.my-page-active {
             overflow: hidden;
             height: 100dvh;
@@ -646,8 +642,13 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             overscroll-behavior: none;
             height: calc(100dvh - var(--sat) - 8px);
             max-height: calc(100dvh - var(--sat) - 8px);
-            padding-bottom: 0;
+            padding-bottom: calc(58px + var(--sab-chrome));
             box-sizing: border-box;
+        }
+
+        body.my-page-active #my-schedule-container {
+            height: 100% !important;
+            min-height: 0 !important;
         }
 
         .page {
@@ -3362,9 +3363,28 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             jdmsShowModal({ title: '급식 세부 정보', message: msg.trim() || '정보가 없습니다.', type: 'info', iconName: 'utensils' });
         }
 
+        function jdmsResolveDownloadUrl(url, filename) {
+            if (!url) return '';
+            var target = String(url);
+            var name = filename || '';
+            try {
+                if (target.indexOf('/api/doc/download') !== -1) {
+                    return target.indexOf('http') === 0 ? target : BACKEND_URL + target;
+                }
+                var m = target.match(/atchFileId=([^&]+)(?:&fileSn=(\d+)|:(\d+))/i);
+                if (m) {
+                    var q = 'atchFileId=' + encodeURIComponent(decodeURIComponent(m[1]))
+                        + '&fileSn=' + encodeURIComponent(m[2] || m[3]);
+                    if (name) q += '&name=' + encodeURIComponent(name);
+                    return BACKEND_URL + '/api/doc/download?' + q;
+                }
+            } catch (e) {}
+            return target;
+        }
+
         function jdmsHandleDownload(url, filename) {
             if (!url) return false;
-            var target = String(url);
+            var target = jdmsResolveDownloadUrl(url, filename);
             var name = filename || '';
             try {
                 if (typeof AndroidInterface !== 'undefined') {
@@ -3387,7 +3407,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             try {
                 var a = document.createElement('a');
                 a.href = target;
-                a.target = '_blank';
                 a.rel = 'noopener noreferrer';
                 if (name) a.download = name;
                 a.style.display = 'none';
@@ -4094,7 +4113,10 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             };
             window.closeThemePanel = function() {};
             window.openDocPage = function() {
-                var url = `${BACKEND_URL}/doc/page`;
+                var themeMode = 'light';
+                try { themeMode = localStorage.getItem('theme_mode') || 'light'; } catch (e) {}
+                var effectiveTheme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+                var url = `${BACKEND_URL}/doc/page?theme=${effectiveTheme}&theme_mode=${encodeURIComponent(themeMode)}`;
                 try {
                     if (typeof AndroidInterface !== 'undefined') {
                         var methods = ['openExternalBrowser', 'openBrowser', 'openUrl', 'openExternal', 'launchUrl', 'openInBrowser'];
@@ -4881,6 +4903,11 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 }
                 if (target === 'my') {
                     updateMyProfile();
+                    const sc = document.getElementById('my-schedule-container');
+                    if (sc) {
+                        sc.style.height = '';
+                        sc.style.minHeight = '';
+                    }
                     loadMyScheduleIframe();
                 }
                 scheduleFitSquirclePillShapes();
