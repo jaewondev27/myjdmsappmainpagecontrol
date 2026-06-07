@@ -556,10 +556,17 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             overflow-x: hidden;
         }
 
-        /* 홈·학교처럼 콘텐츠가 많은 페이지만 최소 높이 보장 */
+        /* 홈·학교·더보기·MY — 짧은 페이지도 배경이 끊기지 않도록 */
         #page-home,
-        #page-school {
-            min-height: calc(100dvh - var(--sat) - 20px);
+        #page-school,
+        #page-more,
+        #page-my {
+            min-height: calc(100dvh - var(--sat) - 36px);
+        }
+
+        #page-more {
+            padding-bottom: calc(92px + var(--sab-chrome));
+            background-color: var(--bg);
         }
 
         .page {
@@ -575,11 +582,32 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             animation: page-slide-in 0.28s cubic-bezier(0.25, 0.8, 0.25, 1) both;
         }
 
-        #page-more {
-            padding-bottom: calc(8px + var(--sab-chrome));
+        #page-more .menu-btn {
+            padding: 14px 20px;
+            border: none;
         }
 
-        /* 긴 이름·이메일이 가로로 밀 때 오른쪽 앱 정보 버튼이 잘리지 않도록 */
+        body.dark-mode #page-more {
+            background-color: var(--bg);
+        }
+
+        body.dark-mode #page-more .menu-btn .menu-icon-box[style*="f1f5f9"] {
+            background: #2a2a2a !important;
+        }
+
+        body.dark-mode #page-more .menu-btn .menu-icon[style*="64748b"] {
+            color: var(--text-sub) !important;
+        }
+
+        body.dark-mode.segment-mode::after {
+            background: linear-gradient(
+                0deg,
+                var(--bg) 0%,
+                var(--bg) 58%,
+                color-mix(in srgb, var(--bg) 82%, transparent) 82%,
+                transparent 100%
+            );
+        }
         #page-more .profile-card {
             display: flex;
             align-items: center;
@@ -635,11 +663,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
         #page-more .app-info-btn {
             flex-shrink: 0;
-        }
-
-        #page-more .menu-btn {
-            padding: 14px 20px;
-            border: none;
         }
 
         /* squircle pill / stretch clip-path는 JS에서 적용 */
@@ -1109,7 +1132,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         
         #today-timetable-container {
             height: 250px;
-            min-height: 250px;
+            min-height: 112px;
         }
 
         #my-schedule-container {
@@ -3253,6 +3276,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 if (metaTheme) metaTheme.setAttribute('content', color);
                 syncNativeStatusBar();
                 updateThemeButtons();
+                if (typeof reloadCurrentPageIframes === 'function') reloadCurrentPageIframes();
             }
 
             function syncNativeStatusBar(forcedPage) {
@@ -3676,7 +3700,19 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             };
             window.closeThemePanel = function() {};
             window.openDocPage = function() {
-                window.open(`${BACKEND_URL}/doc/page`, '_blank');
+                var url = `${BACKEND_URL}/doc/page`;
+                try {
+                    if (typeof AndroidInterface !== 'undefined') {
+                        var methods = ['openExternalBrowser', 'openBrowser', 'openUrl', 'openExternal', 'launchUrl', 'openInBrowser'];
+                        for (var i = 0; i < methods.length; i++) {
+                            if (typeof AndroidInterface[methods[i]] === 'function') {
+                                AndroidInterface[methods[i]](url);
+                                return;
+                            }
+                        }
+                    }
+                } catch (e) {}
+                window.open(url, '_blank');
             };
             window.openStudentCardPage = function() {
                 window.open(`${REMOTE_CONTROL_BASE}/studentcard.html`, '_blank');
@@ -4098,6 +4134,23 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 setTimeout(() => { overlay.style.opacity = '0'; setTimeout(() => overlay.classList.add('hidden'), 300); }, 2400); 
             }
 
+            function syncTodayTimetableContainerHeight(doc) {
+                const tc = document.getElementById('today-timetable-container');
+                if (!tc || !doc) return;
+                const noSchoolEl = doc.getElementById('dailyNoSchool');
+                const isNoSchool = noSchoolEl && noSchoolEl.style.display !== 'none'
+                    && getComputedStyle(noSchoolEl).display !== 'none';
+                let h;
+                if (isNoSchool) {
+                    const measured = Math.ceil(doc.documentElement.scrollHeight || doc.body.scrollHeight || 0);
+                    h = Math.max(112, Math.min(168, measured + 2));
+                } else {
+                    h = 250;
+                }
+                tc.style.height = h + 'px';
+                tc.style.minHeight = h + 'px';
+            }
+
             function safeLoadIframe(iframeId, url, force = false) {
                 const iframe = document.getElementById(iframeId);
                 if (!iframe) return;
@@ -4108,8 +4161,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                         doc.addEventListener('touchmove', handleTouchMove, {passive: true});
                         doc.addEventListener('touchend', handleTouchEnd);
                         if (iframeId === 'today-timetable-iframe') {
-                            const tc = document.getElementById('today-timetable-container');
-                            tc.style.height = doc.body.innerText.includes('오늘은 등교하지 않아요') ? '150px' : '250px';
+                            syncTodayTimetableContainerHeight(doc);
                         }
                     } catch (e) {}
                 };
@@ -4448,6 +4500,10 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 }
             }
 
+            function prefetchFamilyLetters() {
+                fetch(`${BACKEND_URL}/api/doc?all=1&prefetch=1&per_page=50`, { mode: 'cors' }).catch(function() {});
+            }
+
             function startApp() {
                 mainContent.classList.remove('hidden');
                 updateHeader();
@@ -4458,6 +4514,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 loadHomeLunchIframe();
                 loadWeeklyTimetableIframe();
                 loadLunchIframe();
+                prefetchFamilyLetters();
                 scheduleFitHomeHeaderTexts();
                 scheduleFitSquirclePillShapes();
                 requestAnimationFrame(function () {
@@ -4505,10 +4562,19 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             });
             window.addEventListener('message', (e) => {
                 if (e && e.data && e.data.type === 'myjdms-userData-updated') syncUserDataFromSettingsPage();
+                if (e && e.data && e.data.type === 'jdms-iframe-height' && e.data.target === 'today-timetable-iframe') {
+                    const tc = document.getElementById('today-timetable-container');
+                    if (tc && e.data.height) {
+                        const h = Math.max(112, Math.min(168, Math.ceil(e.data.height)));
+                        tc.style.height = h + 'px';
+                        tc.style.minHeight = h + 'px';
+                    }
+                }
             });
 
             function iframeQuery() {
-                return `grade=${userData.grade}&class=${userData.class}&embed=1`;
+                const theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+                return `grade=${userData.grade}&class=${userData.class}&embed=1&theme=${theme}`;
             }
 
             function loadTodayTimetableIframe(force = false) { safeLoadIframe('today-timetable-iframe', `${BACKEND_URL}/todaysigan?${iframeQuery()}`, force); }
