@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#f2f4f6">
-    <link rel="prefetch" href="https://jaewondev27.github.io/myjdmsappmainpagecontrol/inform">
-    <link rel="prefetch" href="https://jaewondev27.github.io/myjdmsappmainpagecontrol/theme">
-    <link rel="prefetch" href="https://jaewondev27.github.io/myjdmsappmainpagecontrol/mysetting">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap" rel="stylesheet"></noscript>
     <title>My JDMS</title>
     <script>
 (function(){
@@ -667,7 +665,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
         /* squircle pill / stretch clip-path는 JS에서 적용 */
         .menu-btn,
-        .btn-primary,
         .btn-google,
         .select-trigger,
         .school-tab,
@@ -684,6 +681,13 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         .my-profile-card,
         .my-schedule-card {
             border-radius: 0;
+        }
+
+        #setup-screen .btn-primary,
+        #setup-screen .select-trigger {
+            border-radius: 16px !important;
+            clip-path: none !important;
+            -webkit-clip-path: none !important;
         }
 
         .home-header {
@@ -1136,11 +1140,12 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         }
 
         #my-schedule-container {
-            height: 320px;
-            min-height: 320px;
+            height: 420px;
+            min-height: 420px;
             border-radius: 0;
             box-shadow: none;
             background: transparent;
+            transition: height 0.2s ease, min-height 0.2s ease;
         }
 
         .my-schedule-card {
@@ -2686,7 +2691,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
     </div>
 
     <div id="app">
-        <div id="setup-screen" class="screen hidden">
+        <div id="setup-screen" class="screen">
             <div class="setup-shell">
                 <div class="setup-header">
                     <div class="setup-logo-wrap"><img src="https://joongdong.sen.ms.kr/dggb/module/file/selectImageView.do?atchFileId=1555655&fileSn=0" alt="Logo" class="setup-logo"></div>
@@ -2701,7 +2706,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                             <label>학교 이메일 인증</label>
                             <input type="email" id="setup-email" placeholder="@joongdong.ms.kr">
                         </div>
-                        <button type="button" id="btn-send-link" class="btn-primary" style="margin-bottom: 16px;">
+                        <button type="button" id="btn-send-link" class="btn-primary setup-auth-btn" style="margin-bottom: 16px;" onclick="window.__jdmsSendAuthLink(event)">
                             <span>인증 링크 받기</span>
                         </button>
                         <div class="setup-note" style="background: rgba(255, 152, 0, 0.08); color: #e67e22; border: 1px solid rgba(230, 126, 34, 0.2); margin-top: 10px; text-align: left;">
@@ -3083,16 +3088,99 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             </div>
         </div>
 
-        <div id="myjdms-remote-preload" aria-hidden="true" style="position:fixed;left:-120px;top:0;width:2px;height:2px;opacity:0.02;pointer-events:none;overflow:hidden;z-index:-5;border:0;">
-            <iframe title="" loading="eager" src="https://jaewondev27.github.io/myjdmsappmainpagecontrol/inform"></iframe>
-            <iframe title="" loading="eager" src="https://jaewondev27.github.io/myjdmsappmainpagecontrol/theme"></iframe>
-            <iframe title="" loading="eager" src="https://jaewondev27.github.io/myjdmsappmainpagecontrol/mysetting"></iframe>
-        </div>
+        <div id="myjdms-remote-preload" aria-hidden="true" style="position:fixed;left:-120px;top:0;width:2px;height:2px;opacity:0.02;pointer-events:none;overflow:hidden;z-index:-5;border:0;"></div>
 
     </div>
     <script>
         // --- DIY Auth Configuration ---
-        const BACKEND_URL = 'https://sigan.onrender.com';
+        const BACKEND_URL = (function () {
+            if (window.__JDMS_BACKEND_URL) return String(window.__JDMS_BACKEND_URL).replace(/\/$/, '');
+            if (window.location.protocol === 'file:') return 'http://127.0.0.1:5000';
+            var host = window.location.hostname || '';
+            if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.onrender.com')) {
+                return window.location.origin;
+            }
+            return 'https://sigan.onrender.com';
+        })();
+
+        function jdmsShowModal(options) {
+            var modal = document.getElementById('custom-modal');
+            var icon = document.getElementById('modal-icon');
+            var title = document.getElementById('modal-title');
+            var message = document.getElementById('modal-message');
+            var confirmBtn = document.getElementById('modal-confirm-btn');
+            var cancelBtn = document.getElementById('modal-cancel-btn');
+            if (!modal || !title || !message || !confirmBtn) {
+                window.alert((options && options.message) || '알림');
+                return Promise.resolve(true);
+            }
+            title.innerText = options.title || '알림';
+            message.innerText = options.message || '';
+            confirmBtn.innerText = options.confirmText || '확인';
+            if (cancelBtn) cancelBtn.innerText = options.cancelText || '취소';
+            var iconName = options.iconName || (options.type === 'error' ? 'alert-circle' : (options.type === 'success' ? 'check-circle' : 'info'));
+            if (icon) {
+                icon.className = 'modal-icon-circle ' + (options.type || 'info');
+                icon.innerHTML = '<i data-lucide="' + iconName + '" style="width: 24px; height: 24px;"></i>';
+                if (window.lucide) window.lucide.createIcons();
+            }
+            if (cancelBtn) {
+                if (options.showCancel) cancelBtn.classList.remove('hidden');
+                else cancelBtn.classList.add('hidden');
+            }
+            modal.classList.add('show');
+            requestAnimationFrame(function () { modal.classList.add('active'); });
+            return new Promise(function (resolve) {
+                function cleanup() {
+                    confirmBtn.removeEventListener('click', onConfirm);
+                    if (cancelBtn) cancelBtn.removeEventListener('click', onCancel);
+                    modal.classList.remove('active');
+                    setTimeout(function () { modal.classList.remove('show'); }, 250);
+                }
+                function onConfirm() { cleanup(); resolve(true); }
+                function onCancel() { cleanup(); resolve(false); }
+                confirmBtn.addEventListener('click', onConfirm);
+                if (cancelBtn) cancelBtn.addEventListener('click', onCancel);
+            });
+        }
+
+        window.showCustomModal = jdmsShowModal;
+        window.showErrorModal = function (msg) {
+            return jdmsShowModal({ title: '오류', message: msg, type: 'error', iconName: 'x-circle' });
+        };
+
+        function showScheduleDayModal(dateStr, events) {
+            var parts = String(dateStr || '').split('-');
+            if (parts.length < 3) return;
+            var w = ['일', '월', '화', '수', '목', '금', '토'][new Date(+parts[0], +parts[1] - 1, +parts[2]).getDay()];
+            var msg = (+parts[1]) + '월 ' + (+parts[2]) + '일 (' + w + ')\n\n';
+            if (!events || !events.length) {
+                msg += '일정이 없습니다.';
+            } else {
+                events.forEach(function (ev) {
+                    msg += '• ' + (ev.event || '일정');
+                    if (ev.content && ev.content !== ev.event) msg += '\n  ' + ev.content;
+                    msg += '\n\n';
+                });
+            }
+            jdmsShowModal({ title: '학사일정', message: msg.trim(), type: 'info', iconName: 'calendar' });
+        }
+
+        function tryCompleteLoginFromUrl() {
+            try {
+                var params = new URLSearchParams(window.location.search);
+                if (params.get('auth_success') !== 'true' || !params.get('data')) return false;
+                var raw = params.get('data').replace(/-/g, '+').replace(/_/g, '/');
+                while (raw.length % 4) raw += '=';
+                var data = JSON.parse(atob(raw));
+                completeLoginFlow(data);
+                history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+                return true;
+            } catch (e) {
+                console.warn('auth_success parse failed:', e);
+                return false;
+            }
+        }
 
         let userData = null;
         let currentDeviceId = null;
@@ -3100,13 +3188,19 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         let bypassDomain = false; // 도메인 우회 플래그
 
         // Listen for login from login.html (Same Tab/Window)
-        const authBc = new BroadcastChannel('myjdms_auth');
-        authBc.onmessage = (ev) => {
-            if (ev.data.type === 'LOGIN_SUCCESS') {
-                if (pollInterval) clearInterval(pollInterval);
-                completeLoginFlow(ev.data.userData);
+        try {
+            if (typeof BroadcastChannel !== 'undefined') {
+                const authBc = new BroadcastChannel('myjdms_auth');
+                authBc.onmessage = (ev) => {
+                    if (ev.data.type === 'LOGIN_SUCCESS') {
+                        if (pollInterval) clearInterval(pollInterval);
+                        completeLoginFlow(ev.data.userData);
+                    }
+                };
             }
-        };
+        } catch (e) {
+            console.warn('BroadcastChannel unavailable:', e);
+        }
 
         // Poll for login status (Cross-Device/Browser Support)
         function startLoginPolling(deviceId) {
@@ -3135,23 +3229,23 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             overlay.classList.remove('hidden');
             
             // Reset defaults
-            gifContainer.classList.remove('hidden');
-            checkIcon.classList.add('hidden');
-            footerNormal.classList.add('hidden');
-            footerSuccess.classList.add('hidden');
+            if (gifContainer) gifContainer.classList.remove('hidden');
+            if (checkIcon) checkIcon.classList.add('hidden');
+            if (footerNormal) footerNormal.classList.add('hidden');
+            if (footerSuccess) footerSuccess.classList.add('hidden');
 
             if (state === 'sending') {
-                statusText.innerText = '이메일을 전송하는중';
+                if (statusText) statusText.innerText = '이메일을 전송하는중';
             } else if (state === 'sent') {
-                statusText.innerText = '전송이 완료되었습니다. 이메일을 확인하세요';
-                footerNormal.classList.remove('hidden');
+                if (statusText) statusText.innerText = '전송이 완료되었습니다. 이메일을 확인하세요';
+                if (footerNormal) footerNormal.classList.remove('hidden');
             } else if (state === 'polling') {
-                statusText.innerText = '인증을 확인하는중';
+                if (statusText) statusText.innerText = '인증을 확인하는중';
             } else if (state === 'success') {
-                gifContainer.classList.add('hidden');
-                checkIcon.classList.remove('hidden');
-                statusText.innerText = '인증이 완료되었습니다!';
-                footerSuccess.classList.remove('hidden');
+                if (gifContainer) gifContainer.classList.add('hidden');
+                if (checkIcon) checkIcon.classList.remove('hidden');
+                if (statusText) statusText.innerText = '인증이 완료되었습니다!';
+                if (footerSuccess) footerSuccess.classList.remove('hidden');
             }
         }
 
@@ -3159,6 +3253,85 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             const overlay = document.getElementById('auth-overlay');
             if (overlay) overlay.classList.add('hidden');
         }
+
+        window.__jdmsSendAuthLink = function (e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            if (typeof window.handleEmailLinkSignIn === 'function') {
+                window.handleEmailLinkSignIn();
+            }
+        };
+
+        let __jdmsAuthCooldown = false;
+        window.handleEmailLinkSignIn = function() {
+            if (__jdmsAuthCooldown) return;
+
+            var emailInput = document.getElementById('setup-email');
+            var email = emailInput ? emailInput.value.trim() : '';
+            if (!email) {
+                jdmsShowModal({ title: '이메일 입력', message: '이메일 주소를 입력해주세요.', type: 'info' });
+                return;
+            }
+
+            if (!bypassDomain && !email.endsWith('@joongdong.ms.kr')) {
+                jdmsShowModal({
+                    title: '학교 계정 필요',
+                    message: '중동중학교 이메일(@joongdong.ms.kr)로 로그인해 주세요.',
+                    type: 'info'
+                });
+                return;
+            }
+
+            currentDeviceId = 'dev_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+            try { sessionStorage.setItem('jdms_auth_device_id', currentDeviceId); } catch (e) {}
+            showAuthOverlay('sending');
+
+            fetch(BACKEND_URL + '/api/auth/send-link', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: email,
+                    device_id: currentDeviceId,
+                    bypass: bypassDomain
+                })
+            })
+            .then(function(response) {
+                return response.json().catch(function() { return {}; }).then(function(data) {
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.error || ('발송 실패 (' + response.status + ')'));
+                    }
+                    return data;
+                });
+            })
+            .then(function() {
+                showAuthOverlay('sent');
+                startLoginPolling(currentDeviceId);
+                __jdmsAuthCooldown = true;
+                var btn = document.getElementById('btn-send-link');
+                var label = btn ? btn.querySelector('span') : null;
+                var originalText = label ? label.textContent : '인증 링크 받기';
+                var timeLeft = 30;
+                var timer = setInterval(function() {
+                    if (!btn) return;
+                    btn.disabled = true;
+                    if (label) label.textContent = '재전송 가능까지 ' + timeLeft + '초';
+                    timeLeft--;
+                    if (timeLeft < 0) {
+                        clearInterval(timer);
+                        btn.disabled = false;
+                        if (label) label.textContent = originalText;
+                        __jdmsAuthCooldown = false;
+                    }
+                }, 1000);
+            })
+            .catch(function(error) {
+                console.error('Backend Auth Error:', error);
+                hideAuthOverlay();
+                showErrorModal('이메일 발송 오류: ' + error.message);
+            });
+        };
 
         function completeLoginFlow(data) {
             userData = data;
@@ -3176,7 +3349,19 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             if (setupName) setupName.value = userData.name || '';
             
             if (pollInterval) clearInterval(pollInterval);
+            try { sessionStorage.removeItem('jdms_auth_device_id'); } catch (e) {}
         }
+
+        var authCompletedFromUrl = tryCompleteLoginFromUrl();
+        try {
+            if (!authCompletedFromUrl) {
+                var pendingDeviceId = sessionStorage.getItem('jdms_auth_device_id');
+                if (pendingDeviceId) {
+                    currentDeviceId = pendingDeviceId;
+                    startLoginPolling(currentDeviceId);
+                }
+            }
+        } catch (e) {}
 
         try {
             const rawUd = localStorage.getItem('userData');
@@ -3184,6 +3369,9 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         } catch (e) { userData = null; }
 
         document.addEventListener('DOMContentLoaded', () => {
+            const setupScreen = document.getElementById('setup-screen');
+            const mainContent = document.getElementById('main-content');
+
             document.querySelectorAll('.logout-btn, #btn-logout').forEach(function (btn) {
                 btn.addEventListener('click', function (e) {
                     e.preventDefault();
@@ -3337,9 +3525,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             } catch (e) {
                 userData = null;
             }
-            const setupScreen = document.getElementById('setup-screen');
-            const mainContent = document.getElementById('main-content');
-            
+
             const template = document.getElementById('user-svg-template');
             const svgContent = template ? template.innerHTML.trim() : '';
             const ptrLogoContainer = document.getElementById('ptr-logo-container');
@@ -3375,14 +3561,16 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     ptrLogoContainer.insertBefore(ptrBg, ptrLogoContainer.firstChild);
 
                     const ptrMask = document.getElementById('shimmer-mask');
-                    ptrMask.style.webkitMaskImage = `url("${dataUrl}")`;
-                    ptrMask.style.maskImage = `url("${dataUrl}")`;
-                    ptrMask.style.webkitMaskSize = '100% 100%';
-                    ptrMask.style.maskSize = '100% 100%';
-                    ptrMask.style.webkitMaskPosition = 'center';
-                    ptrMask.style.maskPosition = 'center';
-                    ptrMask.style.webkitMaskRepeat = 'no-repeat';
-                    ptrMask.style.maskRepeat = 'no-repeat';
+                    if (ptrMask) {
+                        ptrMask.style.webkitMaskImage = `url("${dataUrl}")`;
+                        ptrMask.style.maskImage = `url("${dataUrl}")`;
+                        ptrMask.style.webkitMaskSize = '100% 100%';
+                        ptrMask.style.maskSize = '100% 100%';
+                        ptrMask.style.webkitMaskPosition = 'center';
+                        ptrMask.style.maskPosition = 'center';
+                        ptrMask.style.webkitMaskRepeat = 'no-repeat';
+                        ptrMask.style.maskRepeat = 'no-repeat';
+                    }
                 }
             }
 
@@ -3445,7 +3633,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             function preloadBanner() {
                 const hideUntil = localStorage.getItem('hideBannerUntil_v4');
                 if (hideUntil && new Date().getTime() < parseInt(hideUntil)) return;
-                fetch('https://sigan.onrender.com/banner', { cache: 'no-store' })
+                fetch(`${BACKEND_URL}/banner`, { cache: 'no-store' })
                     .then(res => res.text())
                     .then(text => {
                         if (text && text.includes('image:') && text.includes('link:')) {
@@ -3471,7 +3659,34 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     setTimeout(() => { overlay.classList.add('show'); document.getElementById('banner-container').classList.add('show'); }, 10);
                 }
             }
-            preloadBanner();
+            function scheduleRemotePreloads() {
+                var container = document.getElementById('myjdms-remote-preload');
+                if (!container || container.dataset.ready === '1') return;
+                container.dataset.ready = '1';
+                var urls = [
+                    'https://jaewondev27.github.io/myjdmsappmainpagecontrol/inform',
+                    'https://jaewondev27.github.io/myjdmsappmainpagecontrol/theme',
+                    'https://jaewondev27.github.io/myjdmsappmainpagecontrol/mysetting'
+                ];
+                urls.forEach(function (url) {
+                    var iframe = document.createElement('iframe');
+                    iframe.title = '';
+                    iframe.loading = 'lazy';
+                    iframe.src = url;
+                    container.appendChild(iframe);
+                });
+            }
+            function scheduleDeferredStartupTasks() {
+                var run = function () {
+                    preloadBanner();
+                    scheduleRemotePreloads();
+                };
+                if (typeof window.requestIdleCallback === 'function') {
+                    window.requestIdleCallback(run, { timeout: 4000 });
+                } else {
+                    setTimeout(run, 1800);
+                }
+            }
 
             function runSplashSequence() {
                 const rawData = localStorage.getItem('userData');
@@ -3501,142 +3716,26 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     document.getElementById('setup-step-info').classList.add('hidden');
                 }
                 scheduleFitSquirclePillShapes();
+                scheduleDeferredStartupTasks();
             }
 
 
 
-            window.showCustomModal = function(options) {
-                const modal = document.getElementById('custom-modal');
-                const icon = document.getElementById('modal-icon');
-                const title = document.getElementById('modal-title');
-                const message = document.getElementById('modal-message');
-                const confirmBtn = document.getElementById('modal-confirm-btn');
-                const cancelBtn = document.getElementById('modal-cancel-btn');
-
-                title.innerText = options.title || '알림';
-                message.innerText = options.message || '';
-                confirmBtn.innerText = options.confirmText || '확인';
-                cancelBtn.innerText = options.cancelText || '취소';
-                
-                // Lucide 아이콘 적용
-                const iconName = options.iconName || (options.type === 'error' ? 'alert-circle' : (options.type === 'success' ? 'check-circle' : 'info'));
-                icon.className = 'modal-icon-circle ' + (options.type || 'info');
-                icon.innerHTML = `<i data-lucide="${iconName}" style="width: 24px; height: 24px;"></i>`;
-                if (window.lucide) window.lucide.createIcons();
-
-                if (options.showCancel) cancelBtn.classList.remove('hidden');
-                else cancelBtn.classList.add('hidden');
-
-                modal.classList.add('show');
-                requestAnimationFrame(function () {
-                    modal.classList.add('active');
-                    scheduleFitSquirclePillShapes();
-                });
-
-                return new Promise((resolve) => {
-                    const onConfirm = () => { cleanup(); resolve(true); };
-                    const onCancel = () => { cleanup(); resolve(false); };
-                    const cleanup = () => {
-                        confirmBtn.removeEventListener('click', onConfirm);
-                        cancelBtn.removeEventListener('click', onCancel);
-                        modal.classList.remove('active');
-                        setTimeout(() => modal.classList.remove('show'), 250);
-                    };
-                    confirmBtn.addEventListener('click', onConfirm);
-                    cancelBtn.addEventListener('click', onCancel);
-                });
-            };
-
-            window.showErrorModal = function(msg) {
-                return window.showCustomModal({ title: '오류', message: msg, type: 'error', iconName: 'x-circle' });
-            };
-
-
-
-            // Email Link Sign-In Handler
-            let isCooldown = false;
-            window.handleEmailLinkSignIn = function() {
-                if (isCooldown) return;
-
-                const emailInput = document.getElementById('setup-email');
-                const email = emailInput.value.trim();
-                if (!email) {
-                    showCustomModal({
-                        title: '이메일 입력',
-                        message: '이메일 주소를 입력해주세요.',
-                        type: 'info'
-                    });
-                    return;
-                }
-                
-                if (!bypassDomain && !email.endsWith('@joongdong.ms.kr')) {
-                    showCustomModal({
-                        title: '학교 계정 필요',
-                        message: '중동중학교 이메일(@joongdong.ms.kr)로 로그인해 주세요. 외부 계정은 보안 정책상 사용이 제한됩니다.',
-                        type: 'info'
-                    });
-                    return;
-                }
-                
-                currentDeviceId = 'dev_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
-                
-                showAuthOverlay('sending');
-
-                fetch(`${BACKEND_URL}/api/auth/send-link`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        email: email, 
-                        device_id: currentDeviceId,
-                        bypass: bypassDomain
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showAuthOverlay('sent');
-                        // Cooldown handling
-                        isCooldown = true;
-                        const btn = document.getElementById('btn-send-link');
-                        const originalText = btn.innerText;
-                        let timeLeft = 30;
-                        const timer = setInterval(() => {
-                            btn.disabled = true;
-                            btn.innerText = `재전송 가능까지 ${timeLeft}초`;
-                            timeLeft--;
-                            if (timeLeft < 0) {
-                                clearInterval(timer);
-                                btn.disabled = false;
-                                btn.innerText = originalText;
-                                isCooldown = false;
-                            }
-                        }, 1000);
-                    } else {
-                        throw new Error(data.error || '발송 실패');
-                    }
-                })
-                .catch((error) => {
-                    console.error('Backend Auth Error:', error);
-                    hideAuthOverlay();
-                    showErrorModal('이메일 발송 오류: ' + error.message);
-                });
-            };
-
-            // Auth Overlay Button Listeners
-            document.getElementById('btn-auth-next').onclick = () => {
+            // Auth overlay buttons (login handler is registered globally above)
+            var btnAuthNext = document.getElementById('btn-auth-next');
+            var btnAuthCancel = document.getElementById('btn-auth-cancel');
+            var btnAuthClose = document.getElementById('btn-auth-close');
+            if (btnAuthNext) btnAuthNext.onclick = function() {
                 showAuthOverlay('polling');
                 startLoginPolling(currentDeviceId);
             };
-            document.getElementById('btn-auth-cancel').onclick = () => {
+            if (btnAuthCancel) btnAuthCancel.onclick = function() {
                 if (pollInterval) clearInterval(pollInterval);
                 hideAuthOverlay();
             };
-            document.getElementById('btn-auth-close').onclick = () => {
+            if (btnAuthClose) btnAuthClose.onclick = function() {
                 hideAuthOverlay();
             };
-
-            const emailLinkBtn = document.getElementById('btn-send-link');
-            if (emailLinkBtn) emailLinkBtn.addEventListener('click', window.handleEmailLinkSignIn);
 
             const btnSave = document.getElementById('btn-save');
             const navItems = document.querySelectorAll('.bottom-nav-items .nav-item');
@@ -4163,6 +4262,14 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                         if (iframeId === 'today-timetable-iframe') {
                             syncTodayTimetableContainerHeight(doc);
                         }
+                        if (iframeId === 'my-schedule-iframe') {
+                            const sc = document.getElementById('my-schedule-container');
+                            if (sc) {
+                                const h = Math.max(420, Math.min(720, Math.ceil(doc.documentElement.scrollHeight || doc.body.scrollHeight || 420)));
+                                sc.style.height = h + 'px';
+                                sc.style.minHeight = h + 'px';
+                            }
+                        }
                     } catch (e) {}
                 };
                 iframe.style.display = 'block'; 
@@ -4241,7 +4348,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             var __fitSquirclePillTimer = null;
             var SQUIRCLE_PILL_SELECTOR = [
                 '.menu-btn',
-                '.btn-primary',
                 '.btn-google',
                 '.select-trigger',
                 '.school-tab',
@@ -4324,6 +4430,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             }
 
             function applySquirclePill(el) {
+                if (!el || el.closest('#setup-screen')) return;
                 applySquircleClip(el, squirclePillPath);
             }
 
@@ -4501,7 +4608,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             }
 
             function prefetchFamilyLetters() {
-                fetch(`${BACKEND_URL}/api/doc?all=1&prefetch=1&per_page=50`, { mode: 'cors' }).catch(function() {});
+                fetch(`${BACKEND_URL}/api/doc?page=1&per_page=30`, { mode: 'cors' }).catch(function() {});
             }
 
             function startApp() {
@@ -4512,8 +4619,10 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 if (!navigator.onLine) showOfflineToast();
                 loadTodayTimetableIframe();
                 loadHomeLunchIframe();
-                loadWeeklyTimetableIframe();
-                loadLunchIframe();
+                setTimeout(function () {
+                    loadWeeklyTimetableIframe();
+                    loadLunchIframe();
+                }, 1200);
                 prefetchFamilyLetters();
                 scheduleFitHomeHeaderTexts();
                 scheduleFitSquirclePillShapes();
@@ -4521,6 +4630,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     scheduleFitHomeHeaderTexts();
                     scheduleFitSquirclePillShapes();
                 });
+                scheduleDeferredStartupTasks();
             }
 
             function updateHeader() {
@@ -4569,6 +4679,17 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                         tc.style.height = h + 'px';
                         tc.style.minHeight = h + 'px';
                     }
+                }
+                if (e && e.data && e.data.type === 'jdms-iframe-height' && e.data.target === 'my-schedule-iframe') {
+                    const sc = document.getElementById('my-schedule-container');
+                    if (sc && e.data.height) {
+                        const h = Math.max(420, Math.min(720, Math.ceil(e.data.height)));
+                        sc.style.height = h + 'px';
+                        sc.style.minHeight = h + 'px';
+                    }
+                }
+                if (e && e.data && e.data.type === 'jdms-schedule-day') {
+                    showScheduleDayModal(e.data.date, e.data.events || []);
                 }
             });
 
