@@ -554,17 +554,32 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             overflow-x: hidden;
         }
 
-        /* 홈·학교·더보기·MY — 짧은 페이지도 배경이 끊기지 않도록 */
+        /* 홈·학교·MY — 짧은 페이지도 배경이 끊기지 않도록 */
         #page-home,
         #page-school,
-        #page-more,
         #page-my {
             min-height: calc(100dvh - var(--sat) - 36px);
         }
 
         #page-more {
-            padding-bottom: calc(92px + var(--sab-chrome));
             background-color: var(--bg);
+        }
+
+        #page-more:not(.hidden) {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            height: calc(100dvh - var(--sat) - 36px - 64px - var(--sab-chrome) - 12px);
+            max-height: calc(100dvh - var(--sat) - 36px - 64px - var(--sab-chrome) - 12px);
+            overflow: hidden;
+            padding-bottom: 0;
+            box-sizing: border-box;
+        }
+
+        body.more-page-active .page-content {
+            overflow: hidden;
+            overscroll-behavior: none;
+            padding-bottom: calc(64px + var(--sab-chrome));
         }
 
         .page {
@@ -1092,13 +1107,15 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             display: flex;
             flex-direction: column;
             min-height: 0;
-            height: calc(100dvh - var(--sat) - 36px - 118px - var(--sab-chrome));
-            max-height: calc(100dvh - var(--sat) - 36px - 118px - var(--sab-chrome));
+            height: calc(100dvh - var(--sat) - 36px - 64px - var(--sab-chrome) - 12px);
+            max-height: calc(100dvh - var(--sat) - 36px - 64px - var(--sab-chrome) - 12px);
             overflow: hidden;
+            padding-bottom: 6px;
         }
 
         #page-school:not(.hidden) .school-tabs {
             flex-shrink: 0;
+            margin-bottom: 8px;
         }
 
         #page-school:not(.hidden) .school-panel:not(.hidden) {
@@ -1116,6 +1133,10 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             flex: 1;
             min-height: 0;
             margin-bottom: 0;
+            border: none;
+            box-shadow: none;
+            background: transparent;
+            padding: 0;
         }
 
         #page-school:not(.hidden) .school-panel:not(.hidden) .iframe-container {
@@ -1123,11 +1144,13 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             min-height: 0;
             height: auto !important;
             overflow: hidden;
+            border-radius: 16px;
         }
 
         body.school-page-active .page-content {
             overflow: hidden;
             overscroll-behavior: none;
+            padding-bottom: calc(64px + var(--sab-chrome));
         }
 
         .school-tabs {
@@ -1167,8 +1190,8 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         }
 
         #my-schedule-container {
-            height: 320px;
-            min-height: 320px;
+            height: 360px;
+            min-height: 360px;
             border-radius: 0;
             box-shadow: none;
             background: transparent;
@@ -3753,19 +3776,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     setTimeout(function () { customModal.classList.remove('show'); }, 220);
                     return true;
                 }
-                var docPanel = document.getElementById('doc-panel-overlay');
-                if (docPanel && docPanel.classList.contains('open')) {
-                    window.__backExitFirstTapAt = 0;
-                    var iframe = document.getElementById('doc-panel-iframe');
-                    if (iframe && iframe.contentWindow) {
-                        try {
-                            iframe.contentWindow.postMessage({ type: 'jdms-doc-back-request' }, '*');
-                            return true;
-                        } catch (e) {}
-                    }
-                    window.closeDocPanel();
-                    return true;
-                }
                 var authOverlay = document.getElementById('auth-overlay');
                 if (authOverlay && !authOverlay.classList.contains('hidden')) {
                     window.__backExitFirstTapAt = 0;
@@ -4008,28 +4018,19 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             };
             window.closeThemePanel = function() {};
             window.openDocPage = function() {
-                var theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
-                var url = `${BACKEND_URL}/doc/page?embed=1&theme=${theme}`;
-                var overlay = document.getElementById('doc-panel-overlay');
-                var iframe = document.getElementById('doc-panel-iframe');
-                if (!overlay || !iframe) return;
-                iframe.src = url;
-                overlay.classList.remove('hidden', 'closing');
-                overlay.setAttribute('aria-hidden', 'false');
-                requestAnimationFrame(function () { overlay.classList.add('open'); });
-            };
-            window.closeDocPanel = function() {
-                var overlay = document.getElementById('doc-panel-overlay');
-                var iframe = document.getElementById('doc-panel-iframe');
-                if (!overlay) return;
-                overlay.classList.remove('open');
-                overlay.classList.add('closing');
-                setTimeout(function () {
-                    overlay.classList.add('hidden');
-                    overlay.classList.remove('closing');
-                    overlay.setAttribute('aria-hidden', 'true');
-                    if (iframe) iframe.src = 'about:blank';
-                }, 320);
+                var url = `${BACKEND_URL}/doc/page`;
+                try {
+                    if (typeof AndroidInterface !== 'undefined') {
+                        var methods = ['openExternalBrowser', 'openBrowser', 'openUrl', 'openExternal', 'launchUrl', 'openInBrowser'];
+                        for (var i = 0; i < methods.length; i++) {
+                            if (typeof AndroidInterface[methods[i]] === 'function') {
+                                AndroidInterface[methods[i]](url);
+                                return;
+                            }
+                        }
+                    }
+                } catch (e) {}
+                window.open(url, '_blank');
             };
             window.openStudentCardPage = function() {
                 window.open(`${REMOTE_CONTROL_BASE}/studentcard.html`, '_blank');
@@ -4483,7 +4484,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                         if (iframeId === 'my-schedule-iframe') {
                             const sc = document.getElementById('my-schedule-container');
                             if (sc) {
-                                const h = Math.max(280, Math.min(360, Math.ceil(doc.documentElement.scrollHeight || doc.body.scrollHeight || 320)));
+                                const h = Math.max(300, Math.min(460, Math.ceil(doc.documentElement.scrollHeight || doc.body.scrollHeight || 360)));
                                 sc.style.height = h + 'px';
                                 sc.style.minHeight = h + 'px';
                             }
@@ -4765,6 +4766,11 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     }
                 });
                 document.body.classList.toggle('school-page-active', target === 'school');
+                document.body.classList.toggle('more-page-active', target === 'more');
+                if (target === 'more') {
+                    window.scrollTo(0, 0);
+                    if (pageContent) pageContent.scrollTop = 0;
+                }
                 syncNativeStatusBar(target);
                 if (target === 'home') {
                     loadTodayTimetableIframe();
@@ -4905,7 +4911,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 if (e && e.data && e.data.type === 'jdms-iframe-height' && e.data.target === 'my-schedule-iframe') {
                     const sc = document.getElementById('my-schedule-container');
                     if (sc && e.data.height) {
-                        const h = Math.max(280, Math.min(360, Math.ceil(e.data.height)));
+                        const h = Math.max(300, Math.min(460, Math.ceil(e.data.height)));
                         sc.style.height = h + 'px';
                         sc.style.minHeight = h + 'px';
                     }
@@ -4915,9 +4921,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 }
                 if (e && e.data && e.data.type === 'jdms-lunch-detail') {
                     showLunchDetailModal(e.data);
-                }
-                if (e && e.data && e.data.type === 'jdms-doc-close') {
-                    window.closeDocPanel();
                 }
                 if (e && e.data && e.data.type === 'jdms-download') {
                     jdmsHandleDownload(e.data.url, e.data.filename || '');
