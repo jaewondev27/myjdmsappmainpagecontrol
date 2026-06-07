@@ -164,6 +164,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             --sal: 0px;
             --sab-gap: var(--sab);
             --sab-chrome: var(--sab);
+            --sab-nav-extra: 0px;
             --nav-bar-h: 60px;
             --nav-bar-fill: #ffffff;
             --nav-notch-w: 180px;
@@ -285,6 +286,16 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         body.dark-mode .floating-tab-item.active svg.lucide-inline,
         body.dark-mode .nav-item.active span,
         body.dark-mode .floating-tab-item.active span { color: var(--primary) !important; }
+        body.segment-mode {
+            --sab-nav-extra: 14px;
+            --sab-chrome: calc(var(--sab) + var(--sab-nav-extra));
+            --sab-gap: calc(var(--sab) + 10px);
+        }
+
+        body.segment-mode .bottom-nav-container {
+            padding-bottom: calc(10px + var(--sab-chrome));
+        }
+
         body::after {
             content: '';
             position: fixed;
@@ -3386,13 +3397,22 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             if (!url) return false;
             var target = jdmsResolveDownloadUrl(url, filename);
             var name = filename || '';
-            try {
-                if (typeof AndroidInterface !== 'undefined') {
+            if (target.indexOf('_ts=') === -1) {
+                target += (target.indexOf('?') >= 0 ? '&' : '?') + '_ts=' + Date.now();
+            }
+
+            function tryAndroidDownload() {
+                try {
+                    if (typeof AndroidInterface === 'undefined') return false;
                     var pairs = [
                         ['downloadFile', [target, name]],
-                        ['downloadUrl', [target]],
+                        ['downloadUrl', [target, name]],
                         ['downloadAttachment', [target, name]],
                         ['saveFile', [target, name]],
+                        ['saveUrlAsFile', [target, name]],
+                        ['saveFileFromUrl', [target, name]],
+                        ['downloadViaUrl', [target]],
+                        ['enqueueDownload', [target, name]],
                         ['openDownload', [target]]
                     ];
                     for (var i = 0; i < pairs.length; i++) {
@@ -3402,20 +3422,105 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                             return true;
                         }
                     }
+                } catch (e) {}
+                return false;
+            }
+
+            function tryAndroidBlobDownload(blob) {
+                try {
+                    if (typeof AndroidInterface === 'undefined' || !blob) return false;
+                    if (typeof AndroidInterface.saveBase64File === 'function') {
+                        var reader = new FileReader();
+                        reader.onload = function() {
+                            try {
+                                var base64 = String(reader.result || '').split(',')[1] || '';
+                                if (base64) AndroidInterface.saveBase64File(base64, name);
+                            } catch (e0) {}
+                        };
+                        reader.readAsDataURL(blob);
+                        return true;
+                    }
+                } catch (e1) {}
+                return false;
+            }
+
+            function ensureDownloadFrame() {
+                var frame = document.getElementById('jdmsDownloadFrame');
+                if (!frame) {
+                    frame = document.createElement('iframe');
+                    frame.id = 'jdmsDownloadFrame';
+                    frame.name = 'jdmsDownloadFrame';
+                    frame.style.cssText = 'display:none;width:0;height:0;border:0;position:absolute;left:-9999px;top:-9999px;';
+                    frame.setAttribute('aria-hidden', 'true');
+                    document.body.appendChild(frame);
                 }
-            } catch (e) {}
-            try {
-                var a = document.createElement('a');
-                a.href = target;
-                a.rel = 'noopener noreferrer';
-                if (name) a.download = name;
-                a.style.display = 'none';
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                return true;
-            } catch (e2) {}
-            window.open(target, '_blank');
+                return frame;
+            }
+
+            function tryHiddenFrameDownload() {
+                try {
+                    ensureDownloadFrame().src = target;
+                    return true;
+                } catch (e2) {}
+                return false;
+            }
+
+            function tryFormDownload() {
+                try {
+                    var frame = ensureDownloadFrame();
+                    var form = document.createElement('form');
+                    form.method = 'GET';
+                    form.action = target;
+                    form.target = frame.name;
+                    form.style.display = 'none';
+                    document.body.appendChild(form);
+                    form.submit();
+                    setTimeout(function() { form.remove(); }, 1000);
+                    return true;
+                } catch (e3) {}
+                return false;
+            }
+
+            function tryAnchorDownload() {
+                try {
+                    var a = document.createElement('a');
+                    a.href = target;
+                    a.rel = 'noopener noreferrer';
+                    if (name) a.download = name;
+                    a.target = '_blank';
+                    a.style.display = 'none';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    return true;
+                } catch (e4) {}
+                return false;
+            }
+
+            if (tryAndroidDownload()) return true;
+            if (tryHiddenFrameDownload()) return true;
+            if (tryFormDownload()) return true;
+            if (tryAnchorDownload()) return true;
+
+            fetch(target, { credentials: 'same-origin', cache: 'no-store' }).then(function(res) {
+                if (!res.ok) throw new Error('download fetch failed');
+                return res.blob();
+            }).then(function(blob) {
+                if (tryAndroidBlobDownload(blob)) return;
+                var blobUrl = URL.createObjectURL(blob);
+                var blobAnchor = document.createElement('a');
+                blobAnchor.href = blobUrl;
+                blobAnchor.download = name || 'download';
+                blobAnchor.style.display = 'none';
+                document.body.appendChild(blobAnchor);
+                blobAnchor.click();
+                setTimeout(function() {
+                    URL.revokeObjectURL(blobUrl);
+                    blobAnchor.remove();
+                }, 60000);
+            }).catch(function() {
+                window.open(target, '_blank');
+            });
             return true;
         }
 
@@ -4957,7 +5062,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             }
 
             function prefetchFamilyLetters() {
-                fetch(`${BACKEND_URL}/api/doc?page=1&per_page=30`, { mode: 'cors' }).catch(function() {});
+                fetch(`${BACKEND_URL}/api/doc?page=1&per_page=20`, { mode: 'cors' }).catch(function() {});
             }
 
             function startApp() {
