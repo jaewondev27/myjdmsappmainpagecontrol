@@ -554,10 +554,8 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             overflow-x: hidden;
         }
 
-        /* 홈·학교·MY — 짧은 페이지도 배경이 끊기지 않도록 */
-        #page-home,
-        #page-school,
-        #page-my {
+        /* 홈 — 짧은 페이지도 배경이 끊기지 않도록 */
+        #page-home {
             min-height: calc(100dvh - var(--sat) - 36px);
         }
 
@@ -580,6 +578,76 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             overflow: hidden;
             overscroll-behavior: none;
             padding-bottom: calc(64px + var(--sab-chrome));
+        }
+
+        #page-my:not(.hidden) {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            height: 100%;
+            max-height: 100%;
+            overflow: hidden;
+            padding-bottom: 0;
+            box-sizing: border-box;
+        }
+
+        #page-my:not(.hidden) .my-page-title {
+            flex-shrink: 0;
+            margin-bottom: 12px;
+        }
+
+        #page-my:not(.hidden) .my-profile-card,
+        #page-my:not(.hidden) .my-student-card {
+            flex-shrink: 0;
+        }
+
+        #page-my:not(.hidden) .my-profile-card {
+            margin-bottom: 10px;
+        }
+
+        #page-my:not(.hidden) .my-student-card {
+            margin-bottom: 10px;
+        }
+
+        #page-my:not(.hidden) .my-schedule-card {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0;
+            overflow: hidden;
+        }
+
+        #page-my:not(.hidden) .my-schedule-card-body {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #page-my:not(.hidden) #my-schedule-container {
+            flex: 1;
+            min-height: 0;
+            height: auto !important;
+        }
+
+        body.my-page-active #page-my:not(.hidden) {
+            padding-bottom: calc(58px + var(--sab-chrome));
+        }
+
+        body.my-page-active {
+            overflow: hidden;
+            height: 100dvh;
+            max-height: 100dvh;
+        }
+
+        body.my-page-active .page-content {
+            overflow: hidden;
+            overscroll-behavior: none;
+            height: calc(100dvh - var(--sat) - 8px);
+            max-height: calc(100dvh - var(--sat) - 8px);
+            padding-bottom: 0;
+            box-sizing: border-box;
         }
 
         .page {
@@ -1061,6 +1129,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             transition: height var(--nav-morph-duration) var(--nav-morph-ease),
                 min-height var(--nav-morph-duration) var(--nav-morph-ease);
             position: relative;
+            touch-action: pan-y;
         }
 
         .iframe-container .timetable-iframe,
@@ -1107,15 +1176,20 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             display: flex;
             flex-direction: column;
             min-height: 0;
-            height: calc(100dvh - var(--sat) - 36px - 64px - var(--sab-chrome) - 12px);
-            max-height: calc(100dvh - var(--sat) - 36px - 64px - var(--sab-chrome) - 12px);
+            height: calc(100dvh - var(--sat) - 8px - 38px - 58px - var(--sab-chrome) - 6px);
+            max-height: calc(100dvh - var(--sat) - 8px - 38px - 58px - var(--sab-chrome) - 6px);
             overflow: hidden;
-            padding-bottom: 6px;
+            padding-bottom: 4px;
+        }
+
+        body.school-page-active #page-school.page {
+            padding: 0 6px 4px;
         }
 
         #page-school:not(.hidden) .school-tabs {
             flex-shrink: 0;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
+            padding: 3px;
         }
 
         #page-school:not(.hidden) .school-panel:not(.hidden) {
@@ -1150,7 +1224,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         body.school-page-active .page-content {
             overflow: hidden;
             overscroll-behavior: none;
-            padding-bottom: calc(64px + var(--sab-chrome));
+            padding-bottom: calc(58px + var(--sab-chrome));
         }
 
         .school-tabs {
@@ -1254,6 +1328,8 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             height: 100%;
             border: none;
             display: block;
+            touch-action: pan-y;
+            -webkit-overflow-scrolling: touch;
         }
 
         /* 하단바: 세그먼트 알약 스타일 */
@@ -2548,7 +2624,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         }
 
         #page-my {
-            padding-bottom: calc(8px + var(--sab-chrome));
+            padding-bottom: 0;
         }
 
         .my-profile-card {
@@ -2909,7 +2985,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     </div>
                     <div class="card card--flush-iframe">
                         <div class="card-title">오늘의 급식 <span class="card-title-icon-box"><i data-lucide="utensils"></i></span></div>
-                        <div class="iframe-container" style="height: 300px; min-height: 300px;">
+                        <div class="iframe-container" id="home-lunch-container" style="height: 300px; min-height: 300px;">
                             <div class="offline-fallback">
                                 <i data-lucide="wifi-off"></i>
                                 <span>데이터를 불러올 수 없음</span>
@@ -4405,7 +4481,21 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             let startY = 0, currentY = 0, pullDistance = 0, isPulling = false;
             const ptrThreshold = 70;
 
+            function isIframeTouchTarget(el) {
+                if (!el) return false;
+                if (el.tagName === 'IFRAME') return true;
+                if (el.closest && el.closest('.iframe-container')) return true;
+                return false;
+            }
+
+            function shouldDisablePullRefresh() {
+                return document.body.classList.contains('my-page-active')
+                    || document.body.classList.contains('school-page-active')
+                    || document.body.classList.contains('more-page-active');
+            }
+
             function handleTouchStart(e) {
+                if (shouldDisablePullRefresh() || isIframeTouchTarget(e.target)) return;
                 if (window.scrollY === 0) {
                     startY = e.touches[0].clientY;
                     currentY = startY;
@@ -4415,7 +4505,12 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 }
             }
             function handleTouchMove(e) {
-                if (!isPulling) return;
+                if (!isPulling || shouldDisablePullRefresh()) return;
+                if (isIframeTouchTarget(e.target)) {
+                    isPulling = false;
+                    pageContent.style.transform = '';
+                    return;
+                }
                 currentY = e.touches[0].clientY;
                 let dist = currentY - startY;
                 if (dist > 0 && window.scrollY === 0) {
@@ -4472,16 +4567,14 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             function safeLoadIframe(iframeId, url, force = false) {
                 const iframe = document.getElementById(iframeId);
                 if (!iframe) return;
+                iframe.setAttribute('scrolling', 'yes');
                 iframe.onload = function() {
                     try {
                         const doc = iframe.contentDocument || iframe.contentWindow.document;
-                        doc.addEventListener('touchstart', handleTouchStart, {passive: true});
-                        doc.addEventListener('touchmove', handleTouchMove, {passive: true});
-                        doc.addEventListener('touchend', handleTouchEnd);
                         if (iframeId === 'today-timetable-iframe') {
                             syncTodayTimetableContainerHeight(doc);
                         }
-                        if (iframeId === 'my-schedule-iframe') {
+                        if (iframeId === 'my-schedule-iframe' && !document.body.classList.contains('my-page-active')) {
                             const sc = document.getElementById('my-schedule-container');
                             if (sc) {
                                 const h = Math.max(300, Math.min(460, Math.ceil(doc.documentElement.scrollHeight || doc.body.scrollHeight || 360)));
@@ -4767,9 +4860,13 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 });
                 document.body.classList.toggle('school-page-active', target === 'school');
                 document.body.classList.toggle('more-page-active', target === 'more');
-                if (target === 'more') {
+                document.body.classList.toggle('my-page-active', target === 'my');
+                if (target === 'more' || target === 'my') {
                     window.scrollTo(0, 0);
-                    if (pageContent) pageContent.scrollTop = 0;
+                    if (pageContent) {
+                        pageContent.scrollTop = 0;
+                        pageContent.style.transform = '';
+                    }
                 }
                 syncNativeStatusBar(target);
                 if (target === 'home') {
@@ -4909,6 +5006,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     }
                 }
                 if (e && e.data && e.data.type === 'jdms-iframe-height' && e.data.target === 'my-schedule-iframe') {
+                    if (document.body.classList.contains('my-page-active')) return;
                     const sc = document.getElementById('my-schedule-container');
                     if (sc && e.data.height) {
                         const h = Math.max(300, Math.min(460, Math.ceil(e.data.height)));
