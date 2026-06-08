@@ -4821,37 +4821,30 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 }
                 currentY = e.touches[0].clientY;
                 let dist = currentY - startY;
-                if (dist > 0 && window.scrollY === 0) {
-                    let visual = dist * 0.4;
-                    if (visual > 100) visual = 100 + (visual - 100) * 0.2;
-                    pullDistance = visual;
-                    pageContent.style.transform = `translateY(${visual}px)`;
-                    if (ptrArea) ptrArea.style.transform = `translateY(${visual}px)`;
+                // 음수(시작지점 위)로 가면 0으로 클램프 — 갑자기 뚝 돌아가지 않게
+                if (dist < 0) dist = 0;
 
-                    const ptrWrap = document.getElementById('ptr-spinner-wrap');
-                    const ptrText = document.getElementById('ptr-text');
+                let visual = dist * 0.4;
+                if (visual > 100) visual = 100 + (visual - 100) * 0.2;
+                pullDistance = visual;
+                pageContent.style.transform = `translateY(${visual}px)`;
+                if (ptrArea) ptrArea.style.transform = `translateY(${visual}px)`;
 
-                    // 임계값을 한 번 넘기면(arm) 그 뒤로는 임계값 아래로 살짝
-                    // 움직여도 인디케이터를 계속 표시하고 새로고침 준비 상태를 유지한다.
-                    if (pullDistance > ptrThreshold && !ptrThresholdHit) {
-                        ptrThresholdHit = true;
-                        if (navigator.vibrate) navigator.vibrate(10);
-                    }
-                    if (ptrThresholdHit) {
-                        if (ptrWrap) ptrWrap.classList.add('visible');
-                        if (ptrText) ptrText.classList.add('visible');
-                    } else {
-                        if (ptrWrap) ptrWrap.classList.remove('visible');
-                        if (ptrText) ptrText.classList.remove('visible');
-                    }
-                } else {
-                    // 시작 지점 위로 되돌아온 경우에만 arm 해제
-                    pullDistance = 0;
+                const ptrWrap = document.getElementById('ptr-spinner-wrap');
+                const ptrText = document.getElementById('ptr-text');
+
+                if (pullDistance > ptrThreshold && !ptrThresholdHit) {
+                    ptrThresholdHit = true;
+                    if (navigator.vibrate) navigator.vibrate(10);
+                }
+                // 완전히 시작 지점으로 돌아오면(dist===0) arm 해제
+                if (dist === 0) {
                     ptrThresholdHit = false;
-                    pageContent.style.transform = 'translateY(0)';
-                    if (ptrArea) ptrArea.style.transform = 'translateY(0)';
-                    const ptrWrap = document.getElementById('ptr-spinner-wrap');
-                    const ptrText = document.getElementById('ptr-text');
+                }
+                if (ptrThresholdHit) {
+                    if (ptrWrap) ptrWrap.classList.add('visible');
+                    if (ptrText) ptrText.classList.add('visible');
+                } else {
                     if (ptrWrap) ptrWrap.classList.remove('visible');
                     if (ptrText) ptrText.classList.remove('visible');
                 }
