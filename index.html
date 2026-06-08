@@ -264,7 +264,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         body.dark-mode .today-date { color: var(--text-mute) !important; }
         body.dark-mode .offline-fallback { background: #1d1d1d; color: var(--text-sub); }
         body.dark-mode .setup-note { background: #1f1f1f; color: #d7d7d7; }
-        body.dark-mode .nav-item:active { background-color: rgba(255, 255, 255, 0.14) !important; }
         body.dark-mode .floating-tab-item:active { background-color: rgba(255, 255, 255, 0.1) !important; }
         body.dark-mode [data-lucide],
         body.dark-mode svg.lucide-inline { color: var(--text-main) !important; stroke: currentColor !important; }
@@ -306,7 +305,6 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             background: var(--bg);
             z-index: 998;
             pointer-events: none;
-            transition: height var(--nav-morph-duration) var(--nav-morph-ease);
         }
 
         body.segment-mode::after {
@@ -561,8 +559,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             position: relative;
             background-color: var(--bg);
             box-sizing: border-box;
-            transition: padding-bottom var(--nav-morph-duration) var(--nav-morph-ease);
-            overflow-x: hidden;
+            overflow: visible;
         }
 
         /* 홈 — 짧은 페이지도 배경이 끊기지 않도록 */
@@ -1483,8 +1480,8 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         .bottom-nav-items {
             display: flex;
             align-items: stretch;
-            gap: 4px;
-            max-width: 344px;
+            gap: 0;
+            max-width: 272px;
             margin: 0 auto;
             padding: 4px;
             border-radius: 999px;
@@ -1496,6 +1493,37 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             pointer-events: auto;
+            position: relative;
+        }
+
+        /* 쫀뜩하게 움직이는 pill 배경 */
+        .nav-pill-indicator {
+            position: absolute;
+            top: 4px;
+            height: calc(100% - 8px);
+            border-radius: 999px;
+            background: rgba(49, 130, 246, 0.13);
+            transition: left 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                        width 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                        transform 0.3s cubic-bezier(0.34, 1.4, 0.64, 1),
+                        opacity 0.25s ease,
+                        filter 0.25s ease;
+            pointer-events: none;
+            z-index: 0;
+            will-change: left, width, transform;
+            transform-origin: center center;
+        }
+        /* 드래그 중: left/width 즉시 반응, transform만 부드럽게 */
+        .nav-pill-indicator.dragging {
+            transition: transform 0.25s cubic-bezier(0.34, 1.4, 0.64, 1),
+                        opacity 0.25s ease,
+                        filter 0.25s ease;
+        }
+        /* 눌렸을 때 수축 */
+        .nav-pill-indicator.press-shrink {
+            transform: scaleX(0.78) scaleY(0.65);
+            opacity: 0.65;
+            filter: blur(1px);
         }
 
         .nav-item {
@@ -1509,27 +1537,29 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             color: #8e8e93;
             font-size: 11px;
             font-weight: 500;
-            padding: 7px 4px 6px;
+            padding: 7px 2px 6px;
             border: none;
             border-radius: 999px;
-            background: transparent;
+            background: transparent !important;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
-            transition: background-color 0.18s ease, color 0.18s ease;
+            transition: color 0.18s ease;
+            position: relative;
+            z-index: 1;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
-        .nav-item:active {
-            background-color: rgba(0, 0, 0, 0.1);
+        .nav-item:active,
+        .nav-item:focus,
+        .nav-item:hover {
+            background: transparent !important;
+            outline: none;
         }
 
         .nav-item.active {
             color: var(--primary);
             font-weight: 600;
-            background-color: rgba(49, 130, 246, 0.12);
-        }
-
-        .nav-item.active:active {
-            background-color: rgba(49, 130, 246, 0.2);
         }
 
         .nav-item i,
@@ -1555,17 +1585,16 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 0 1px 3px rgba(0, 0, 0, 0.2);
         }
 
+        body.dark-mode .nav-pill-indicator {
+            background: rgba(49, 130, 246, 0.22);
+        }
+
         body.dark-mode .nav-item {
             color: #9a9a9a;
         }
 
         body.dark-mode .nav-item.active {
             color: var(--primary);
-            background-color: rgba(49, 130, 246, 0.18);
-        }
-
-        body.dark-mode .nav-item.active:active {
-            background-color: rgba(49, 130, 246, 0.28);
         }
 
         .error-msg {
@@ -2345,18 +2374,53 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             width: 100%;
             height: 120px;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: -1;
+            gap: 8px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        #ptr-spinner-wrap {
+            width: 28px;
+            height: 28px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        #ptr-spinner-wrap.visible {
+            opacity: 1;
+        }
+
+        #ptr-spinner {
+            width: 28px;
+            height: 28px;
+            animation: google-spin 0.85s linear infinite;
+        }
+
+        #ptr-spinner circle {
+            fill: none;
+            stroke: var(--primary);
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-dasharray: 80;
+            stroke-dashoffset: 20;
+            animation: google-dash 1.2s ease-in-out infinite;
         }
 
         #ptr-text {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             color: var(--text-mute);
-            opacity: 0.6;
+            opacity: 0;
             letter-spacing: -0.3px;
-            transform: translateY(-25px); 
+            transition: opacity 0.2s ease;
+            white-space: nowrap;
+        }
+
+        #ptr-text.visible {
+            opacity: 0.6;
         }
 
         #center-refresh-overlay {
@@ -2365,56 +2429,45 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.4);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1500;
             pointer-events: none;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.25s ease;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.15);
         }
 
-        .center-logo-container {
-            position: relative;
-            width: 48px;
-            height: 48px;
-            background: transparent;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden; 
+        body.dark-mode #center-refresh-overlay {
+            background: rgba(0, 0, 0, 0.35);
         }
 
-        .shimmer-mask {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
+        .google-spinner {
+            width: 36px;
+            height: 36px;
+            animation: google-spin 0.85s linear infinite;
         }
 
-        .refresh-shimmer {
-            position: absolute;
-            top: 0;
-            left: -150%; 
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, 0.95) 50%, transparent 80%);
+        .google-spinner circle {
+            fill: none;
+            stroke: var(--primary);
+            stroke-width: 3.2;
+            stroke-linecap: round;
+            stroke-dasharray: 80;
+            stroke-dashoffset: 20;
+            animation: google-dash 1.2s ease-in-out infinite;
         }
 
-        .shimmer-active {
-            animation: shimmer-sweep 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-
-        @keyframes shimmer-sweep {
-            0% { left: -150%; }
-            100% { left: 150%; }
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
+        @keyframes google-spin {
             100% { transform: rotate(360deg); }
+        }
+
+        @keyframes google-dash {
+            0%   { stroke-dashoffset: 75; }
+            50%  { stroke-dashoffset: 18; }
+            100% { stroke-dashoffset: 75; }
         }
 
         #version-modal {
@@ -2991,11 +3044,9 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
     </div>
 
     <div id="center-refresh-overlay" class="hidden">
-        <div id="ptr-logo-container" class="center-logo-container">
-            <div id="shimmer-mask" class="shimmer-mask">
-                <div id="refresh-shimmer" class="refresh-shimmer"></div>
-            </div>
-        </div>
+        <svg class="google-spinner" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="18" cy="18" r="15.9"/>
+        </svg>
     </div>
 
     <div id="app">
@@ -3067,6 +3118,11 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         <div id="main-content" class="screen hidden">
             <div id="page-content" class="page-content">
                 <div id="ptr-area">
+                    <div id="ptr-spinner-wrap">
+                        <svg id="ptr-spinner" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="18" cy="18" r="15.9"/>
+                        </svg>
+                    </div>
                     <span id="ptr-text">손을 놓아 새로고침하세요</span>
                 </div>
 
@@ -3308,7 +3364,8 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             </div>
 
             <div class="bottom-nav-container" aria-label="하단 메뉴">
-                <nav class="bottom-nav-items">
+                <nav class="bottom-nav-items" id="bottom-nav-items">
+                    <div class="nav-pill-indicator" id="nav-pill-indicator"></div>
                     <div class="nav-item active" data-page="home">
                         <i data-lucide="home"></i>
                         <span>홈</span>
@@ -4079,40 +4136,15 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             let pickerDragDeltaY = 0;
             let pickerDragging = false;
 
-            if (svgContent && ptrLogoContainer) {
-                ptrLogoContainer.insertAdjacentHTML('afterbegin', svgContent);
-                const svgEl = ptrLogoContainer.querySelector('svg');
-
+            if (svgContent && homeLogoImg) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = svgContent;
+                const svgEl = tempDiv.querySelector('svg');
                 if (svgEl) {
                     const svgString = new XMLSerializer().serializeToString(svgEl);
                     const dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgString)}`;
-
-                    if (homeLogoImg) {
-                        homeLogoImg.src = dataUrl;
-                        homeLogoImg.alt = '로고';
-                    }
-
-                    const ptrBg = document.createElement('div');
-                    ptrBg.style.position = 'absolute';
-                    ptrBg.style.top = '0'; ptrBg.style.left = '0';
-                    ptrBg.style.width = '100%'; ptrBg.style.height = '100%';
-                    ptrBg.style.backgroundImage = `url("${dataUrl}")`;
-                    ptrBg.style.backgroundSize = 'contain';
-                    ptrBg.style.backgroundPosition = 'center';
-                    ptrBg.style.backgroundRepeat = 'no-repeat';
-                    ptrLogoContainer.insertBefore(ptrBg, ptrLogoContainer.firstChild);
-
-                    const ptrMask = document.getElementById('shimmer-mask');
-                    if (ptrMask) {
-                        ptrMask.style.webkitMaskImage = `url("${dataUrl}")`;
-                        ptrMask.style.maskImage = `url("${dataUrl}")`;
-                        ptrMask.style.webkitMaskSize = '100% 100%';
-                        ptrMask.style.maskSize = '100% 100%';
-                        ptrMask.style.webkitMaskPosition = 'center';
-                        ptrMask.style.maskPosition = 'center';
-                        ptrMask.style.webkitMaskRepeat = 'no-repeat';
-                        ptrMask.style.maskRepeat = 'no-repeat';
-                    }
+                    homeLogoImg.src = dataUrl;
+                    homeLogoImg.alt = '로고';
                 }
             }
 
@@ -4756,6 +4788,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             const pageContent = document.getElementById('page-content');
             let startY = 0, currentY = 0, pullDistance = 0, isPulling = false;
             const ptrThreshold = 70;
+            let ptrThresholdHit = false;
 
             function isIframeTouchTarget(el) {
                 if (!el) return false;
@@ -4764,24 +4797,20 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 return false;
             }
 
-            function shouldDisablePullRefresh() {
-                return document.body.classList.contains('my-page-active')
-                    || document.body.classList.contains('school-page-active')
-                    || document.body.classList.contains('more-page-active');
-            }
-
             function handleTouchStart(e) {
-                if (shouldDisablePullRefresh() || isIframeTouchTarget(e.target)) return;
-                if (window.scrollY === 0) {
+                if (isIframeTouchTarget(e.target)) return;
+                const scrollTop = pageContent.scrollTop || window.scrollY || 0;
+                if (scrollTop === 0) {
                     startY = e.touches[0].clientY;
                     currentY = startY;
                     pullDistance = 0;
                     isPulling = true;
+                    ptrThresholdHit = false;
                     pageContent.style.transition = 'none';
                 }
             }
             function handleTouchMove(e) {
-                if (!isPulling || shouldDisablePullRefresh()) return;
+                if (!isPulling) return;
                 if (isIframeTouchTarget(e.target)) {
                     isPulling = false;
                     pageContent.style.transform = '';
@@ -4794,13 +4823,37 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     if (visual > 100) visual = 100 + (visual - 100) * 0.2;
                     pullDistance = visual;
                     pageContent.style.transform = `translateY(${visual}px)`;
+
+                    const ptrWrap = document.getElementById('ptr-spinner-wrap');
+                    const ptrText = document.getElementById('ptr-text');
+
+                    if (pullDistance > ptrThreshold) {
+                        if (ptrWrap) ptrWrap.classList.add('visible');
+                        if (ptrText) ptrText.classList.add('visible');
+                        if (!ptrThresholdHit) {
+                            ptrThresholdHit = true;
+                            if (navigator.vibrate) navigator.vibrate(10);
+                        }
+                    } else {
+                        if (ptrWrap) ptrWrap.classList.remove('visible');
+                        if (ptrText) ptrText.classList.remove('visible');
+                    }
                 } else {
                     pullDistance = 0;
+                    ptrThresholdHit = false;
+                    const ptrWrap = document.getElementById('ptr-spinner-wrap');
+                    const ptrText = document.getElementById('ptr-text');
+                    if (ptrWrap) ptrWrap.classList.remove('visible');
+                    if (ptrText) ptrText.classList.remove('visible');
                 }
             }
             function handleTouchEnd() {
                 if (!isPulling) return;
                 isPulling = false;
+                const ptrWrap = document.getElementById('ptr-spinner-wrap');
+                const ptrText = document.getElementById('ptr-text');
+                if (ptrWrap) ptrWrap.classList.remove('visible');
+                if (ptrText) ptrText.classList.remove('visible');
                 pageContent.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)';
                 pageContent.style.transform = `translateY(0)`;
                 if (pullDistance > ptrThreshold) triggerRefreshAnimation();
@@ -4815,12 +4868,14 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
             function triggerRefreshAnimation() {
                 const overlay = document.getElementById('center-refresh-overlay');
-                const shimmer = document.getElementById('refresh-shimmer');
-                overlay.classList.remove('hidden'); overlay.style.opacity = '1';
-                shimmer.style.animation = 'shimmer-sweep 1.2s cubic-bezier(0.4, 0, 0.2, 1) 2 forwards';
+                overlay.classList.remove('hidden');
+                overlay.style.opacity = '1';
                 try { renderNoticeBanners(); } catch (e) {}
                 reloadCurrentPageIframes();
-                setTimeout(() => { overlay.style.opacity = '0'; setTimeout(() => overlay.classList.add('hidden'), 300); }, 2400); 
+                setTimeout(() => {
+                    overlay.style.opacity = '0';
+                    setTimeout(() => overlay.classList.add('hidden'), 250);
+                }, 2000);
             }
 
             function syncTodayTimetableContainerHeight(doc) {
@@ -4918,6 +4973,169 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
             navItems.forEach(item => item.addEventListener('click', () => switchPage(item.getAttribute('data-page'))));
             floatingTabItems.forEach(item => item.addEventListener('click', () => switchPage(item.getAttribute('data-float-page'))));
+
+            // ── Pill indicator 위치 동기화 + 드래그 탭 전환 ──
+            (function initNavPill() {
+                const nav = document.getElementById('bottom-nav-items');
+                const pill = document.getElementById('nav-pill-indicator');
+                if (!nav || !pill) return;
+
+                const pages = ['home', 'school', 'my', 'more'];
+
+                function getItemEl(page) {
+                    return nav.querySelector(`.nav-item[data-page="${page}"]`);
+                }
+
+                function snapPillToActive(animate) {
+                    const activeEl = nav.querySelector('.nav-item.active');
+                    if (!activeEl) return;
+                    const navRect = nav.getBoundingClientRect();
+                    const itemRect = activeEl.getBoundingClientRect();
+                    const left = itemRect.left - navRect.left;
+                    const width = itemRect.width;
+                    if (!animate) pill.classList.add('dragging');
+                    pill.style.left = left + 'px';
+                    pill.style.width = width + 'px';
+                    if (!animate) {
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => pill.classList.remove('dragging'));
+                        });
+                    }
+                }
+
+                // switchPage 후 pill 동기화
+                const origSwitchPage = window.switchPageTo;
+                const _origInternal = switchPage;
+                // patch: 탭 전환 후 pill 이동
+                const _patchedSwitch = switchPage;
+                function patchedSwitchWithPill(target, schoolTab) {
+                    _patchedSwitch(target, schoolTab);
+                    requestAnimationFrame(() => snapPillToActive(true));
+                }
+                // override navItems click — 클릭 시 수축→이동→확장
+                navItems.forEach(item => {
+                    item.addEventListener('click', () => {
+                        pill.classList.add('press-shrink');
+                        requestAnimationFrame(() => {
+                            snapPillToActive(true);
+                            setTimeout(() => pill.classList.remove('press-shrink'), 180);
+                        });
+                    });
+                });
+
+                // 초기 위치 (lucide 렌더 후)
+                setTimeout(() => snapPillToActive(false), 120);
+                window.addEventListener('resize', () => snapPillToActive(false));
+
+                // ── 드래그로 탭 전환 ──
+                let dragActive = false;
+                let dragStartX = 0;
+                let dragStartPage = '';
+                let dragCurrentPage = '';
+                let longPressTimer = null;
+                let didDrag = false;
+
+                function getPageAtX(clientX) {
+                    const items = [...nav.querySelectorAll('.nav-item')];
+                    for (const item of items) {
+                        const r = item.getBoundingClientRect();
+                        if (clientX >= r.left && clientX <= r.right) {
+                            return item.getAttribute('data-page');
+                        }
+                    }
+                    return null;
+                }
+
+                function pillToPage(page, smooth) {
+                    const itemEl = getItemEl(page);
+                    if (!itemEl) return;
+                    const navRect = nav.getBoundingClientRect();
+                    const itemRect = itemEl.getBoundingClientRect();
+                    if (!smooth) pill.classList.add('dragging');
+                    else pill.classList.remove('dragging');
+                    pill.style.left = (itemRect.left - navRect.left) + 'px';
+                    pill.style.width = itemRect.width + 'px';
+                }
+
+                nav.addEventListener('touchstart', function(e) {
+                    const touch = e.touches[0];
+                    const target = e.target.closest('.nav-item');
+                    if (!target) return;
+                    const page = target.getAttribute('data-page');
+                    const activeEl = nav.querySelector('.nav-item.active');
+                    const activePage = activeEl ? activeEl.getAttribute('data-page') : null;
+                    if (page !== activePage) return;
+
+                    dragStartX = touch.clientX;
+                    dragStartPage = page;
+                    dragCurrentPage = page;
+                    didDrag = false;
+
+                    // 터치 즉시 pill 살짝 수축 시작
+                    pill.classList.add('press-shrink');
+
+                    longPressTimer = setTimeout(() => {
+                        dragActive = true;
+                        if (navigator.vibrate) navigator.vibrate(8);
+                        pill.classList.add('dragging');
+                    }, 160);
+                }, { passive: true });
+
+                nav.addEventListener('touchmove', function(e) {
+                    if (!dragActive) return;
+                    const touch = e.touches[0];
+                    const dx = touch.clientX - dragStartX;
+
+                    // transition 완전 off → 손가락 즉시 추적
+                    pill.style.transition = 'none';
+
+                    const activeEl = getItemEl(dragStartPage);
+                    if (!activeEl) return;
+                    const navRect = nav.getBoundingClientRect();
+                    const itemRect = activeEl.getBoundingClientRect();
+                    const baseLeft = itemRect.left - navRect.left;
+                    pill.style.left = Math.max(0, Math.min(navRect.width - itemRect.width, baseLeft + dx)) + 'px';
+
+                    // 어느 탭 위에 있는지 감지
+                    const hoverPage = getPageAtX(touch.clientX);
+                    if (hoverPage && hoverPage !== dragCurrentPage) {
+                        dragCurrentPage = hoverPage;
+                        didDrag = true;
+                        if (navigator.vibrate) navigator.vibrate(4);
+                        navItems.forEach(n => n.classList.toggle('active', n.getAttribute('data-page') === hoverPage));
+                    }
+                    e.preventDefault();
+                }, { passive: false });
+
+                nav.addEventListener('touchend', function(e) {
+                    clearTimeout(longPressTimer);
+                    pill.classList.remove('press-shrink');
+                    if (!dragActive) return;
+                    dragActive = false;
+                    pill.classList.remove('dragging');
+                    // transition 복원 후 spring snap
+                    pill.style.transition = '';
+
+                    if (didDrag && dragCurrentPage && dragCurrentPage !== dragStartPage) {
+                        switchPage(dragCurrentPage);
+                        requestAnimationFrame(() => snapPillToActive(true));
+                    } else {
+                        snapPillToActive(true);
+                    }
+                    didDrag = false;
+                }, { passive: true });
+
+                nav.addEventListener('touchcancel', function() {
+                    clearTimeout(longPressTimer);
+                    pill.classList.remove('press-shrink');
+                    if (!dragActive) return;
+                    dragActive = false;
+                    pill.classList.remove('dragging');
+                    pill.style.transition = '';
+                    navItems.forEach(n => n.classList.toggle('active', n.getAttribute('data-page') === dragStartPage));
+                    snapPillToActive(true);
+                }, { passive: true });
+            })();
 
             (function bindWelcomeRowToMoreTab() {
                 const row = document.querySelector('#page-home .welcome-row');
@@ -5124,6 +5342,18 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     return;
                 }
                 navItems.forEach(nav => nav.classList.toggle('active', nav.getAttribute('data-page') === target));
+                // pill indicator 동기화
+                requestAnimationFrame(function() {
+                    const pill = document.getElementById('nav-pill-indicator');
+                    const nav = document.getElementById('bottom-nav-items');
+                    if (!pill || !nav) return;
+                    const activeEl = nav.querySelector('.nav-item.active');
+                    if (!activeEl) return;
+                    const navRect = nav.getBoundingClientRect();
+                    const itemRect = activeEl.getBoundingClientRect();
+                    pill.style.left = (itemRect.left - navRect.left) + 'px';
+                    pill.style.width = itemRect.width + 'px';
+                });
                 floatingTabItems.forEach(tab => tab.classList.toggle('active', tab.getAttribute('data-float-page') === target));
                 if (target === 'school') setSchoolTab(schoolTab || document.querySelector('.school-tab.active')?.getAttribute('data-school-tab') || 'timetable');
                 pages.forEach(p => {
@@ -5387,12 +5617,28 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 return `grade=${userData.grade}&class=${userData.class}&embed=1&theme=${theme}`;
             }
 
+            function _resetHomeWidgetHeights() {
+                window._homeWidgetH = { timetable: 0, lunch: 0 };
+                ['home-timetable-widget-body','home-lunch-widget-body'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.style.height = '80px';
+                });
+                ['home-timetable-compact-iframe','home-lunch-compact-iframe'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) { el.style.height = '80px'; el.style.display = 'none'; }
+                });
+                ['home-timetable-offline','home-lunch-offline'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.style.display = '';
+                });
+            }
             function loadTodayTimetableIframe(force = false) {
                 const iframe = document.getElementById('home-timetable-compact-iframe');
                 const offline = document.getElementById('home-timetable-offline');
                 if (!iframe) return;
                 const url = `${BACKEND_URL}/todaysigan-compact?${iframeQuery()}`;
                 if (!force && iframe.getAttribute('data-loaded-url') === url) return;
+                if (force) _resetHomeWidgetHeights();
                 iframe.setAttribute('data-loaded-url', url);
                 iframe.onload = function() {
                     if (offline) offline.style.display = 'none';
@@ -5564,14 +5810,14 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             }
 
             document.body.addEventListener('mousedown', (e) => {
-                const btn = e.target.closest('button, .nav-item, .floating-tab-item, .notice-banner-card, .my-student-card');
+                const btn = e.target.closest('button:not(.nav-item), .floating-tab-item, .notice-banner-card, .my-student-card');
                 if (btn) {
                     if (!btn.classList.contains('ripple-btn')) btn.classList.add('ripple-btn');
                     createRipple(e, btn);
                 }
             });
             document.body.addEventListener('touchstart', (e) => {
-                const btn = e.target.closest('button, .nav-item, .floating-tab-item, .notice-banner-card, .my-student-card');
+                const btn = e.target.closest('button:not(.nav-item), .floating-tab-item, .notice-banner-card, .my-student-card');
                 if (btn) {
                     if (!btn.classList.contains('ripple-btn')) btn.classList.add('ripple-btn');
                     createRipple(e, btn);
