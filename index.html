@@ -552,6 +552,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         /* Main Content — 배경이 시스템 내비·하단까지 이어지도록 */
         #main-content {
             background-color: var(--bg);
+            position: relative;
         }
 
         .page-content {
@@ -3116,16 +3117,15 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
         </div>
 
         <div id="main-content" class="screen hidden">
-            <div id="page-content" class="page-content">
-                <div id="ptr-area">
-                    <div id="ptr-spinner-wrap">
-                        <svg id="ptr-spinner" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="18" cy="18" r="15.9"/>
-                        </svg>
-                    </div>
-                    <span id="ptr-text">손을 놓아 새로고침하세요</span>
+            <div id="ptr-area">
+                <div id="ptr-spinner-wrap">
+                    <svg id="ptr-spinner" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="18" cy="18" r="15.9"/>
+                    </svg>
                 </div>
-
+                <span id="ptr-text">손을 놓아 새로고침하세요</span>
+            </div>
+            <div id="page-content" class="page-content">
                 <div id="page-home" class="page">
                     <div class="home-header">
                         <div class="home-header-inner">
@@ -4786,6 +4786,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             });
 
             const pageContent = document.getElementById('page-content');
+            const ptrArea = document.getElementById('ptr-area');
             let startY = 0, currentY = 0, pullDistance = 0, isPulling = false;
             const ptrThreshold = 70;
             let ptrThresholdHit = false;
@@ -4807,6 +4808,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     isPulling = true;
                     ptrThresholdHit = false;
                     pageContent.style.transition = 'none';
+                    if (ptrArea) ptrArea.style.transition = 'none';
                 }
             }
             function handleTouchMove(e) {
@@ -4814,6 +4816,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 if (isIframeTouchTarget(e.target)) {
                     isPulling = false;
                     pageContent.style.transform = '';
+                    if (ptrArea) ptrArea.style.transform = 'translateY(0)';
                     return;
                 }
                 currentY = e.touches[0].clientY;
@@ -4823,24 +4826,30 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     if (visual > 100) visual = 100 + (visual - 100) * 0.2;
                     pullDistance = visual;
                     pageContent.style.transform = `translateY(${visual}px)`;
+                    if (ptrArea) ptrArea.style.transform = `translateY(${visual}px)`;
 
                     const ptrWrap = document.getElementById('ptr-spinner-wrap');
                     const ptrText = document.getElementById('ptr-text');
 
-                    if (pullDistance > ptrThreshold) {
+                    // 임계값을 한 번 넘기면(arm) 그 뒤로는 임계값 아래로 살짝
+                    // 움직여도 인디케이터를 계속 표시하고 새로고침 준비 상태를 유지한다.
+                    if (pullDistance > ptrThreshold && !ptrThresholdHit) {
+                        ptrThresholdHit = true;
+                        if (navigator.vibrate) navigator.vibrate(10);
+                    }
+                    if (ptrThresholdHit) {
                         if (ptrWrap) ptrWrap.classList.add('visible');
                         if (ptrText) ptrText.classList.add('visible');
-                        if (!ptrThresholdHit) {
-                            ptrThresholdHit = true;
-                            if (navigator.vibrate) navigator.vibrate(10);
-                        }
                     } else {
                         if (ptrWrap) ptrWrap.classList.remove('visible');
                         if (ptrText) ptrText.classList.remove('visible');
                     }
                 } else {
+                    // 시작 지점 위로 되돌아온 경우에만 arm 해제
                     pullDistance = 0;
                     ptrThresholdHit = false;
+                    pageContent.style.transform = 'translateY(0)';
+                    if (ptrArea) ptrArea.style.transform = 'translateY(0)';
                     const ptrWrap = document.getElementById('ptr-spinner-wrap');
                     const ptrText = document.getElementById('ptr-text');
                     if (ptrWrap) ptrWrap.classList.remove('visible');
@@ -4856,10 +4865,16 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 if (ptrText) ptrText.classList.remove('visible');
                 pageContent.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)';
                 pageContent.style.transform = `translateY(0)`;
-                if (pullDistance > ptrThreshold) triggerRefreshAnimation();
+                if (ptrArea) {
+                    ptrArea.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)';
+                    ptrArea.style.transform = 'translateY(0)';
+                }
+                // 임계값을 넘겨 arm된 상태에서 놓으면(현재 위치와 무관하게) 새로고침
+                if (ptrThresholdHit) triggerRefreshAnimation();
                 currentY = 0;
                 startY = 0;
                 pullDistance = 0;
+                ptrThresholdHit = false;
             }
 
             pageContent.addEventListener('touchstart', handleTouchStart, {passive: true});
@@ -5832,28 +5847,18 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             runSplashSequence();
             scheduleFitSquirclePillShapes();
 
-            // 홈 로고 ↔ 배너 이미지 탭 토글 (기본: 배너 이미지 표시)
+            // 홈 상단: 배너 이미지 대신 학교명 텍스트("중동중학교")만 표시
             (function() {
                 var defaultEl = document.getElementById('home-logo-default');
                 var bannerEl  = document.getElementById('home-logo-banner');
                 var crossfade = document.getElementById('home-logo-crossfade');
                 if (!defaultEl || !bannerEl || !crossfade) return;
-                var showingBanner = true;
-                function applyState() {
-                    defaultEl.style.opacity = showingBanner ? '0' : '1';
-                    bannerEl.style.opacity  = showingBanner ? '1' : '0';
-                    defaultEl.style.pointerEvents = showingBanner ? 'none' : '';
-                    bannerEl.style.pointerEvents  = showingBanner ? '' : 'none';
-                }
-                // 처음엔 로고 보이다가 1초 후 배너로 전환
+                // 학교명 텍스트 로고를 고정 표시하고 배너 이미지는 숨김
                 defaultEl.style.opacity = '1';
+                defaultEl.style.pointerEvents = '';
                 bannerEl.style.opacity  = '0';
-                setTimeout(function() { applyState(); }, 1000);
-                crossfade.style.cursor = 'pointer';
-                crossfade.addEventListener('click', function() {
-                    showingBanner = !showingBanner;
-                    applyState();
-                });
+                bannerEl.style.pointerEvents = 'none';
+                bannerEl.style.display = 'none';
             })();
         });
     </script>
