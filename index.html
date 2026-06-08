@@ -1400,8 +1400,8 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
 
 
         #my-schedule-container {
-            height: 360px;
-            min-height: 360px;
+            height: auto;
+            min-height: 300px;
             border-radius: 0;
             box-shadow: none;
             background: transparent;
@@ -3148,8 +3148,8 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                             </span>
                             <button class="home-doc-more-btn" onclick="window.openDocPage()">더보기</button>
                         </div>
-                        <div id="home-doc-list">
-                            <div class="home-doc-loading">불러오는 중...</div>
+                        <div class="home-doc-body" id="home-doc-mini-body" style="min-height:80px;overflow:hidden;border-radius:16px;transition:height .2s ease;">
+                            <iframe id="home-doc-mini-iframe" src="about:blank" scrolling="no" style="width:100%;height:80px;border:none;display:block;" title="가정통신문 미리보기"></iframe>
                         </div>
                     </div>
 
@@ -4853,9 +4853,11 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                         if (iframeId === 'my-schedule-iframe' && !document.body.classList.contains('my-page-active')) {
                             const sc = document.getElementById('my-schedule-container');
                             if (sc) {
-                                const h = Math.max(300, Math.min(460, Math.ceil(doc.documentElement.scrollHeight || doc.body.scrollHeight || 360)));
+                                const h = Math.max(300, Math.ceil(doc.documentElement.scrollHeight || doc.body.scrollHeight || 300) + 8);
                                 sc.style.height = h + 'px';
                                 sc.style.minHeight = h + 'px';
+                                const iframe = document.getElementById('my-schedule-iframe');
+                                if (iframe) iframe.style.height = h + 'px';
                             }
                         }
                     } catch (e) {}
@@ -4871,7 +4873,7 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
             function reloadCurrentPageIframes() {
                 const activeNav = document.querySelector('.bottom-nav-items .nav-item.active');
                 const page = activeNav ? activeNav.getAttribute('data-page') : (document.getElementById('page-my')?.classList.contains('hidden') ? 'home' : 'my');
-                if (page === 'home') { loadTodayTimetableIframe(true); loadHomeLunchIframe(true); loadHomeDocList(); }
+                if (page === 'home') { loadTodayTimetableIframe(true); loadHomeLunchIframe(true); loadHomeDocList(true); }
                 else if (page === 'school') {
                     const activeSchoolTab = document.querySelector('.school-tab.active')?.getAttribute('data-school-tab') || 'timetable';
                     if (activeSchoolTab === 'lunch') loadLunchIframe(true);
@@ -5210,27 +5212,14 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                 }
             }
 
-            function loadHomeDocList() {
-                const container = document.getElementById('home-doc-list');
-                if (!container) return;
-                fetch(`${BACKEND_URL}/api/doc?page=1&per_page=5`, { mode: 'cors' })
-                    .then(r => r.json())
-                    .then(data => {
-                        const items = (data.items || []).slice(0, 2);
-                        if (!items.length) {
-                            container.innerHTML = '<div class="home-doc-loading">가정통신문이 없습니다</div>';
-                            return;
-                        }
-                        container.innerHTML = items.map(item => `
-                            <div class="home-doc-item" onclick="window.openDocPage('${item.ntt_id}')">
-                                <div class="home-doc-item-title">${escapeHtml(item.title || '')}</div>
-                                <div class="home-doc-item-meta">${escapeHtml(item.author || '')}${item.date ? ' · ' + item.date : ''}</div>
-                            </div>
-                        `).join('');
-                    })
-                    .catch(() => {
-                        if (container) container.innerHTML = '<div class="home-doc-loading">불러오기 실패</div>';
-                    });
+            function loadHomeDocList(force = false) {
+                const iframe = document.getElementById('home-doc-mini-iframe');
+                if (!iframe) return;
+                const theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+                const url = `${BACKEND_URL}/doc/mini?count=2&theme=${theme}`;
+                if (!force && iframe.getAttribute('data-loaded-url') === url) return;
+                iframe.setAttribute('data-loaded-url', url);
+                iframe.src = url;
             }
 
             function prefetchFamilyLetters() {
@@ -5318,6 +5307,18 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                         body.style.height = h + 'px';
                         const iframe = document.getElementById('home-timetable-compact-iframe');
                         if (iframe) iframe.style.height = h + 'px';
+                        // 급식 위젯도 같은 높이로
+                        window._homeWidgetH = window._homeWidgetH || {};
+                        window._homeWidgetH.timetable = h;
+                        const peer = Math.max(h, window._homeWidgetH.lunch || 0);
+                        ['home-timetable-widget-body','home-lunch-widget-body'].forEach(id => {
+                            const el = document.getElementById(id);
+                            if (el) el.style.height = peer + 'px';
+                        });
+                        ['home-timetable-compact-iframe','home-lunch-compact-iframe'].forEach(id => {
+                            const el = document.getElementById(id);
+                            if (el) el.style.height = peer + 'px';
+                        });
                     }
                 }
                 // 콤팩트 급식 높이 동기화
@@ -5328,7 +5329,31 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                         body.style.height = h + 'px';
                         const iframe = document.getElementById('home-lunch-compact-iframe');
                         if (iframe) iframe.style.height = h + 'px';
+                        // 시간표 위젯도 같은 높이로
+                        window._homeWidgetH = window._homeWidgetH || {};
+                        window._homeWidgetH.lunch = h;
+                        const peer = Math.max(h, window._homeWidgetH.timetable || 0);
+                        ['home-timetable-widget-body','home-lunch-widget-body'].forEach(id => {
+                            const el = document.getElementById(id);
+                            if (el) el.style.height = peer + 'px';
+                        });
+                        ['home-timetable-compact-iframe','home-lunch-compact-iframe'].forEach(id => {
+                            const el = document.getElementById(id);
+                            if (el) el.style.height = peer + 'px';
+                        });
                     }
+                }
+                // 가정통신문 미니 높이 동기화
+                if (e && e.data && e.data.type === 'jdms-iframe-height' && e.data.target === 'home-doc-mini-iframe') {
+                    const iframe = document.getElementById('home-doc-mini-iframe');
+                    if (iframe && e.data.height) {
+                        const h = Math.max(80, Math.ceil(e.data.height) + 8);
+                        iframe.style.height = h + 'px';
+                    }
+                }
+                // 가정통신문 미니에서 카드 클릭 → 상세 페이지 열기
+                if (e && e.data && e.data.type === 'jdms-open-doc') {
+                    window.openDocPage(e.data.nttId);
                 }
                 // iframe 스크롤 끝에서 부모 페이지 스크롤 버블링
                 if (e && e.data && e.data.type === 'jdms-scroll-bubble') {
@@ -5339,9 +5364,11 @@ window.lucide.createIcons = function () { mountInlineLucideIcons(document); };
                     if (document.body.classList.contains('my-page-active')) return;
                     const sc = document.getElementById('my-schedule-container');
                     if (sc && e.data.height) {
-                        const h = Math.max(300, Math.min(460, Math.ceil(e.data.height)));
+                        const h = Math.max(300, Math.ceil(e.data.height) + 8);
                         sc.style.height = h + 'px';
                         sc.style.minHeight = h + 'px';
+                        const iframe = document.getElementById('my-schedule-iframe');
+                        if (iframe) iframe.style.height = h + 'px';
                     }
                 }
                 if (e && e.data && e.data.type === 'jdms-schedule-day') {
